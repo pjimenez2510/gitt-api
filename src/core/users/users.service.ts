@@ -5,8 +5,8 @@ import { DisplayableException } from 'src/common/exceptions/displayable.exceptio
 import { hashPassword } from 'src/common/utils/encrypter'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { DatabaseService } from 'src/global/database/database.service'
-import { usersTable } from 'drizzle/schema'
 import { count, desc, eq, sql } from 'drizzle-orm'
+import { users } from 'drizzle/schema'
 
 @Injectable()
 export class UsersService {
@@ -17,14 +17,12 @@ export class UsersService {
 
     const query = this.dbService.db
       .select()
-      .from(usersTable)
-      .orderBy(desc(usersTable.id))
+      .from(users)
+      .orderBy(desc(users.id))
       .limit(limit)
       .offset(offset)
 
-    const totalQuery = this.dbService.db
-      .select({ count: count() })
-      .from(usersTable)
+    const totalQuery = this.dbService.db.select({ count: count() }).from(users)
 
     const [records, totalResult] = await Promise.all([
       query.execute(),
@@ -46,12 +44,9 @@ export class UsersService {
     // Check if person is already associated
     const [alreadyExistPersonAssociated] = await this.dbService.db
       .select()
-      .from(usersTable)
+      .from(users)
       .where(
-        eq(
-          sql<string>`lower(${usersTable.userName})`,
-          dto.userName.toLowerCase(),
-        ),
+        eq(sql<string>`lower(${users.userName})`, dto.userName.toLowerCase()),
       )
       .limit(1)
       .execute()
@@ -66,7 +61,7 @@ export class UsersService {
     const hashedPassword = hashPassword(dto.password)
 
     const [newUser] = await this.dbService.db
-      .insert(usersTable)
+      .insert(users)
       .values({
         userName: dto.userName,
         password: hashedPassword,
@@ -82,13 +77,13 @@ export class UsersService {
 
     const updateData: Partial<UpdateUserDto> = { ...dto }
     if (dto.password) {
-      updateData.password = hashPassword(dto.password as string)
+      updateData.password = hashPassword(dto.password)
     }
 
     const [updatedUser] = await this.dbService.db
-      .update(usersTable)
+      .update(users)
       .set(updateData)
-      .where(eq(usersTable.id, id))
+      .where(eq(users.id, id))
       .returning()
       .execute()
 
@@ -98,8 +93,8 @@ export class UsersService {
   async findOne(id: number) {
     const [user] = await this.dbService.db
       .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, id))
+      .from(users)
+      .where(eq(users.id, id))
       .limit(1)
       .execute()
 
@@ -114,8 +109,8 @@ export class UsersService {
     await this.findOne(id) // Verify user exists
 
     const [deletedUser] = await this.dbService.db
-      .delete(usersTable)
-      .where(eq(usersTable.id, id))
+      .delete(users)
+      .where(eq(users.id, id))
       .returning()
       .execute()
 
