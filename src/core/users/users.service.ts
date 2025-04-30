@@ -1,22 +1,25 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { CreateUserDto } from './dto/create-user.dto'
-import { UpdateUserDto } from './dto/update-user.dto'
+import { CreateUserDto } from './dto/req/create-user.dto'
+import { UpdateUserDto } from './dto/req/update-user.dto'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { hashPassword } from 'src/common/utils/encrypter'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { DatabaseService } from 'src/global/database/database.service'
 import { count, desc, eq, sql } from 'drizzle-orm'
 import { users } from 'drizzle/schema'
+import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 
 @Injectable()
 export class UsersService {
   constructor(private dbService: DatabaseService) {}
 
+  private usersWithoutPassword = excludeColumns(users, 'password')
+
   async findAll({ limit, page }: BaseParamsDto) {
     const offset = (page - 1) * limit
 
     const query = this.dbService.db
-      .select()
+      .select(this.usersWithoutPassword)
       .from(users)
       .orderBy(desc(users.id))
       .limit(limit)
@@ -43,7 +46,7 @@ export class UsersService {
   async create(dto: CreateUserDto) {
     // Check if person is already associated
     const [alreadyExistPersonAssociated] = await this.dbService.db
-      .select()
+      .select(this.usersWithoutPassword)
       .from(users)
       .where(
         eq(sql<string>`lower(${users.userName})`, dto.userName.toLowerCase()),
@@ -66,7 +69,7 @@ export class UsersService {
         userName: dto.userName,
         password: hashedPassword,
       })
-      .returning()
+      .returning(this.usersWithoutPassword)
       .execute()
 
     return newUser
@@ -84,7 +87,7 @@ export class UsersService {
       .update(users)
       .set(updateData)
       .where(eq(users.id, id))
-      .returning()
+      .returning(this.usersWithoutPassword)
       .execute()
 
     return updatedUser
@@ -92,7 +95,7 @@ export class UsersService {
 
   async findOne(id: number) {
     const [user] = await this.dbService.db
-      .select()
+      .select(this.usersWithoutPassword)
       .from(users)
       .where(eq(users.id, id))
       .limit(1)
@@ -111,7 +114,7 @@ export class UsersService {
     const [deletedUser] = await this.dbService.db
       .delete(users)
       .where(eq(users.id, id))
-      .returning()
+      .returning(this.usersWithoutPassword)
       .execute()
 
     if (!deletedUser) {

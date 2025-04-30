@@ -1,5 +1,5 @@
 import { ExecutionContext, SetMetadata } from '@nestjs/common'
-import { IApiMessage } from '../types/api-response.interface'
+import { ApiMessage as IApiMessage } from '../types/api-response.interface'
 import { Reflector } from '@nestjs/core'
 
 export const API_MESSAGE_METADATA = 'apiMessage'
@@ -14,7 +14,7 @@ export const getApiMessage = (
   reflector: Reflector,
   context: ExecutionContext,
   defaultMessage: IApiMessage = {
-    content: ['Operación exitosa'],
+    content: ['Successful operation'],
     displayable: false,
   },
 ) =>

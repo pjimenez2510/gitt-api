@@ -1,65 +1,65 @@
 # GITT API 🏦🎯
 
-API RESTful para la gestión y control del inventario
+RESTful API for inventory management and control
 
-## Características Clave ✨
+## Key Features ✨
 
-- 🔐 Autenticación JWT con Passport
-- 📈 CRUD completo para:
-  - Usuarios
-- 📧 Sistema de notificaciones:
-  - Recordatorios programados (Cron Jobs)
-  - Alertas de progreso
-- 🛠️ Herramientas de desarrollo:
-  - Pre-commits con Husky
-  - Formateo automático (Prettier)
+- 🔐 JWT Authentication with Passport
+- 📈 Complete CRUD for:
+  - Users
+- 📧 Notification system:
+  - Scheduled reminders (Cron Jobs)
+  - Progress alerts
+- 🛠️ Development tools:
+  - Pre-commits with Husky
+  - Auto-formatting (Prettier)
   - Linting (ESLint)
 
-## Tecnologías 🛠️
+## Technologies 🛠️
 
-| Categoría         | Tecnologías                |
-| ----------------- | -------------------------- |
-| Backend           | NestJS, Node.js 22.15, Bun |
-| Base de Datos     | PostgreSQL 17, Drizzle ORM |
-| Autenticación     | Passport-JWT               |
-| DevOps            | Docker, Git                |
-| Calidad de Código | Husky, Prettier, ESLint    |
-| Testing           | Postman                    |
+| Category       | Technologies               |
+| -------------- | -------------------------- |
+| Backend        | NestJS, Node.js 22.15, Bun |
+| Database       | PostgreSQL 17, Drizzle ORM |
+| Authentication | Passport-JWT               |
+| DevOps         | Docker, Git                |
+| Code Quality   | Husky, Prettier, ESLint    |
+| Testing        | Postman                    |
 
-## Estructura del Proyecto 📂
+## Project Structure 📂
 
 ```bash
 src/
-├── auth/ # Autenticación JWT
-├── mail/ # Sistema de notificaciones
-├── cron/ # Tareas programadas
-├── common/ # Utilidades compartidas
-└── prisma/ # Esquema y migraciones DB
+├── auth/    # JWT Authentication
+├── mail/    # Notification system
+├── cron/    # Scheduled tasks
+├── common/  # Shared utilities
+└── prisma/  # DB schema & migrations
 ```
 
-## Requisitos 📋
+## Requirements 📋
 
 - Node.js 22.15+
-- Bun (opcional para desarrollo)
+- Bun (optional for development)
 - PostgreSQL 17
-- Docker (para desarrollo con contenedores)
+- Docker (for containerized development)
 
-## Configuración ⚙️
+## Setup ⚙️
 
-1. Clonar repositorio:
+1. Clone repository:
 
 ```bash
 git clone [repo-url]
 cd gitt-api
 ```
 
-2. Instalar dependencias:
+2. Install dependencies:
 
 ```bash
 bun install
 ```
 
-3. Configurar variables de entorno (crear archivo .env basado en el ejemplo):
+3. Configure environment variables (create .env file based on the example):
 
 ```bash
 PORT=3000
@@ -72,24 +72,24 @@ DB_PASSWORD=postgres
 DB_NAME=gitt-db
 ```
 
-4. Iniciar base de datos con Docker:
+4. Start database with Docker:
 
 ```bash
 docker compose up -d
 ```
 
-5. Ejecutar migraciones y seed inicial:
+5. Run migrations and initial seed:
 
 ```bash
 bun db:seed
 ```
 
-6. Iniciar servidor en desarrollo:
+6. Start development server:
 
 ```bash
 bun dev
 ```
 
-## Diagrama de Arquitectura 🏗️
+## Architecture Diagram 🏗️
 
-![Diagrama de Arquitectura](public/arquitectura.png)
+![Architecture Diagram](public/arquitectura.png)
