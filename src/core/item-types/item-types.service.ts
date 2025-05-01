@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { and, count, desc, eq, sql } from 'drizzle-orm'
+import { and, count, desc, eq, not, sql } from 'drizzle-orm'
 import { itemType } from 'drizzle/schema/tables/inventory/itemType'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
@@ -35,6 +35,7 @@ export class ItemTypesService {
     const totalQuery = this.dbService.db
       .select({ count: count() })
       .from(itemType)
+      .where(eq(itemType.active, true))
 
     const [records, totalResult] = await Promise.all([
       query.execute(),
@@ -65,13 +66,27 @@ export class ItemTypesService {
     return plainToInstance(ItemTypeResDto, record)
   }
 
-  async create(dto: CreateItemTypeDto) {
+  async existByCode(code?: string, excludeId?: string) {
+    if (!code) return true
+
     const [alreadyExistItemType] = await this.dbService.db
       .select(this.itemTypesWithoutDates)
       .from(itemType)
-      .where(eq(sql<string>`lower(${itemType.code})`, dto.code.toLowerCase()))
+      .where(
+        and(
+          eq(sql<string>`lower(${itemType.code})`, code.toLowerCase()),
+          eq(itemType.active, true),
+          excludeId ? not(eq(itemType.id, excludeId)) : undefined,
+        ),
+      )
       .limit(1)
       .execute()
+
+    return !!alreadyExistItemType
+  }
+
+  async create(dto: CreateItemTypeDto) {
+    const alreadyExistItemType = await this.existByCode(dto.code)
 
     if (alreadyExistItemType) {
       throw new DisplayableException(
@@ -96,13 +111,18 @@ export class ItemTypesService {
   async update(id: string, dto: UpdateItemTypeDto) {
     await this.findOne(id)
 
-    const updateData: Partial<UpdateItemTypeDto> = {
-      ...dto,
+    const alreadyExistItemType = await this.existByCode(dto.code, id)
+
+    if (alreadyExistItemType) {
+      throw new DisplayableException(
+        'Ya existe un tipo de ítem con este código',
+        HttpStatus.CONFLICT,
+      )
     }
 
     const [updatedItemType] = await this.dbService.db
       .update(itemType)
-      .set(updateData)
+      .set(dto)
       .where(eq(itemType.id, id))
       .returning(this.itemTypesWithoutDates)
       .execute()

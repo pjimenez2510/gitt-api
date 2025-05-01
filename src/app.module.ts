@@ -5,6 +5,7 @@ import { UsersModule } from './core/users/users.module'
 import { DatabaseModule } from './global/database/database.module'
 import { CategoriesModule } from './core/categories/users.module'
 import { ItemTypesModule } from './core/item-types/item-types.module'
+import { ConditionsModule } from './core/conditions/conditions.module'
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { ItemTypesModule } from './core/item-types/item-types.module'
     DatabaseModule,
     CategoriesModule,
     ItemTypesModule,
+    ConditionsModule,
   ],
   providers: [ResponseInterceptor],
 })
