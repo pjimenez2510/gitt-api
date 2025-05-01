@@ -33,8 +33,8 @@ import {
 import {
   item,
   itemRelations,
-  assetType,
-  assetTypeRelations,
+  itemType,
+  itemTypeRelations,
   category,
   categoryRelations,
   status,
@@ -147,8 +147,8 @@ export {
   // Inventario - tablas principales
   item,
   itemRelations,
-  assetType,
-  assetTypeRelations,
+  itemType as assetType,
+  itemTypeRelations as assetTypeRelations,
   category,
   categoryRelations,
   status,
