@@ -7,6 +7,7 @@ import { CategoriesModule } from './core/categories/users.module'
 import { ItemTypesModule } from './core/item-types/item-types.module'
 import { ConditionsModule } from './core/conditions/conditions.module'
 import { MaterialsModule } from './core/materials/materials.module'
+import { ColorsModule } from './core/colors/colors.module'
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { MaterialsModule } from './core/materials/materials.module'
     ItemTypesModule,
     ConditionsModule,
     MaterialsModule,
+    ColorsModule,
   ],
   providers: [ResponseInterceptor],
 })
