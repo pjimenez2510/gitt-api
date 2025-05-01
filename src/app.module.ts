@@ -5,6 +5,11 @@ import { UsersModule } from './core/users/users.module'
 import { DatabaseModule } from './global/database/database.module'
 import { CategoriesModule } from './core/categories/categories.module'
 import { AuthModule } from './core/auth/auth.module'
+import { ItemTypesModule } from './core/item-types/item-types.module'
+import { ConditionsModule } from './core/conditions/conditions.module'
+import { MaterialsModule } from './core/materials/materials.module'
+import { ColorsModule } from './core/colors/colors.module'
+import { WarehousesModule } from './core/warehouses/warehouses.module'
 
 @Module({
   imports: [
@@ -13,6 +18,11 @@ import { AuthModule } from './core/auth/auth.module'
     DatabaseModule,
     CategoriesModule,
     AuthModule,
+    ItemTypesModule,
+    ConditionsModule,
+    MaterialsModule,
+    ColorsModule,
+    WarehousesModule,
   ],
   providers: [ResponseInterceptor],
 })

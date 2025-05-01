@@ -10,7 +10,7 @@ import {
 } from 'drizzle-orm/pg-core'
 import { normativeType, origin } from 'drizzle/schema/enums/inventory'
 import { user } from '../../users/user'
-import { assetType } from '../assetType'
+import { itemType } from '../itemType'
 import { category } from '../category'
 import { certificate } from '../certificate'
 import { condition } from '../condition'
@@ -39,8 +39,8 @@ export const item = pgTable('item', {
   previousCode: varchar('previous_code', { length: 50 }),
   identifier: varchar('identifier', { length: 50 }).unique(),
   certificateId: uuid('certificate_id').references(() => certificate.id),
-  assetTypeId: uuid('asset_type_id')
-    .references(() => assetType.id)
+  itemTypeId: uuid('item_type_id')
+    .references(() => itemType.id)
     .notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
@@ -99,9 +99,9 @@ export const itemRelations = relations(item, ({ one, many }) => ({
     fields: [item.certificateId],
     references: [certificate.id],
   }),
-  assetType: one(assetType, {
-    fields: [item.assetTypeId],
-    references: [assetType.id],
+  itemType: one(itemType, {
+    fields: [item.itemTypeId],
+    references: [itemType.id],
   }),
   category: one(category, {
     fields: [item.categoryId],
