@@ -8,6 +8,7 @@ import { ItemTypesModule } from './core/item-types/item-types.module'
 import { ConditionsModule } from './core/conditions/conditions.module'
 import { MaterialsModule } from './core/materials/materials.module'
 import { ColorsModule } from './core/colors/colors.module'
+import { WarehousesModule } from './core/warehouses/warehouses.module'
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ColorsModule } from './core/colors/colors.module'
     ConditionsModule,
     MaterialsModule,
     ColorsModule,
+    WarehousesModule,
   ],
   providers: [ResponseInterceptor],
 })
