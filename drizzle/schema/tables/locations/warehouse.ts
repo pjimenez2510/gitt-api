@@ -16,7 +16,7 @@ export const warehouse = pgTable('warehouse', {
   location: varchar('location', { length: 255 }),
   responsibleId: uuid('responsible_id').references(() => user.id),
   description: text('description'),
-  active: boolean('active').default(true),
+  active: boolean('active').notNull().default(true),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
     mode: 'date',
