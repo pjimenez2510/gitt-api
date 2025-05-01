@@ -16,7 +16,7 @@ export const category = pgTable('category', {
   code: varchar('code', { length: 20 }).notNull().unique(),
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),
-  parentCategoryId: uuid('parent_category_id').references(() => category.id),
+  parentCategoryId: uuid('parent_category_id'),
   standardUsefulLife: integer('standard_useful_life'),
   depreciationPercentage: decimal('depreciation_percentage', {
     precision: 5,
