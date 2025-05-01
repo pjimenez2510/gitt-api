@@ -5,7 +5,7 @@ export class CategoryResDto {
     description: 'id of the category',
     example: 'asdasd-asdasd-asdasd-asdasd',
   })
-  id: number
+  id: string
 
   @ApiProperty({
     description: 'code of the category',
