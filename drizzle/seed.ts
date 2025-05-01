@@ -7,7 +7,7 @@ import { user } from './schema'
 const db = drizzle(process.env.DATABASE_URL!)
 
 async function main() {
-  // await db.insert(user).values(usersSeed)
+  await db.insert(user).values(usersSeed)
 }
 
 main()
