@@ -15,6 +15,13 @@
       "when": 1746053101600,
       "tag": "0001_first_ricochet",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1746076926723,
+      "tag": "0002_wandering_maelstrom",
+      "breakpoints": true
     }
   ]
 }

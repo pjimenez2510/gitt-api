@@ -125,11 +125,8 @@ import {
   activityLog,
   activityLogRelations,
 } from './schema/tables/users'
-import { users } from './schema/users'
 
 export {
-  users,
-  //users
   user,
   userRelations,
   role,

@@ -18,9 +18,13 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "db:push": "drizzle-kit push",
-    "db:reset": "tsx drizzle/reset-db.ts && drizzle-kit push",
-    "db:seed": "tsx drizzle/reset-db.ts && drizzle-kit push && tsx drizzle/seed.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:reset": "tsx drizzle/reset-db.ts && drizzle-kit migrate",
+    "db:reset:full": "tsx drizzle/reset-db.ts && drizzle-kit migrate && tsx drizzle/seed.ts",
+    "db:seed": "tsx drizzle/seed.ts",
+    "db:refresh": "tsx drizzle/reset-db.ts && drizzle-kit migrate",
+    "db:dev": "drizzle-kit migrate && tsx drizzle/seed.ts",
     "prepare": "husky"
   },
   "dependencies": {

@@ -1,9 +1,3 @@
-import { users } from 'drizzle/schema'
-import { hashPassword } from 'src/common/utils/encrypter'
+import { user } from 'drizzle/schema'
 
-export const usersSeed: (typeof users.$inferInsert)[] = [
-  {
-    userName: 'admin',
-    password: hashPassword('123456'),
-  },
-]
+export const usersSeed: (typeof user.$inferInsert)[] = []
