@@ -1,0 +1,46 @@
+import {
+  pgTable,
+  uuid,
+  integer,
+  boolean,
+  timestamp,
+  unique,
+} from 'drizzle-orm/pg-core'
+import { item } from './item'
+import { material } from '../material'
+import { relations } from 'drizzle-orm'
+
+export const itemMaterial = pgTable(
+  'item_material',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    itemId: uuid('item_id')
+      .references(() => item.id, { onDelete: 'cascade' })
+      .notNull(),
+    materialId: uuid('material_id')
+      .references(() => material.id)
+      .notNull(),
+    percentage: integer('percentage'),
+    isMainMaterial: boolean('is_main_material').default(false),
+    registrationDate: timestamp('registration_date', {
+      withTimezone: true,
+      mode: 'date',
+    }).defaultNow(),
+    updateDate: timestamp('update_date', {
+      withTimezone: true,
+      mode: 'date',
+    }).defaultNow(),
+  },
+  (t) => [unique().on(t.itemId, t.materialId)],
+)
+
+export const itemMaterialRelations = relations(itemMaterial, ({ one }) => ({
+  item: one(item, {
+    fields: [itemMaterial.itemId],
+    references: [item.id],
+  }),
+  material: one(material, {
+    fields: [itemMaterial.materialId],
+    references: [material.id],
+  }),
+}))

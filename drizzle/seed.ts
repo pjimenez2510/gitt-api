@@ -2,7 +2,7 @@ import 'dotenv/config'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { usersSeed } from './data/users'
 import { Logger } from '@nestjs/common'
-import { users } from './schema'
+import { users } from './schema/users'
 
 const db = drizzle(process.env.DATABASE_URL!)
 
