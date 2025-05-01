@@ -1,4 +1,4 @@
-export * from './assetType'
+export * from './itemType'
 export * from './category'
 export * from './status'
 export * from './condition'
