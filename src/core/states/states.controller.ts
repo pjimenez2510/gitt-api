@@ -5,7 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -40,7 +40,7 @@ export class StatesController {
     summary: 'Get a category by id',
   })
   @ApiStandardResponse(StatusResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id)
   }
 
@@ -60,7 +60,7 @@ export class StatesController {
   })
   @ApiBody({ type: UpdateStatusDto })
   @ApiStandardResponse(StatusResDto, HttpStatus.OK)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateStatusDto) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateStatusDto) {
     return this.service.update(id, dto)
   }
 
@@ -69,7 +69,7 @@ export class StatesController {
     summary: 'Delete a category by id',
   })
   @ApiStandardResponse(StatusResDto, HttpStatus.OK)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id)
   }
 }

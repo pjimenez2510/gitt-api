@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   integer,
   date,
   timestamp,
@@ -16,7 +16,7 @@ import { relations } from 'drizzle-orm'
 import { item } from './item/item'
 
 export const certificate = pgTable('certificate', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   number: integer('number').notNull().unique(),
   date: date('date'),
   type: certificateType('type'),

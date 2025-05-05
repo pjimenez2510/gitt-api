@@ -33,7 +33,7 @@ export class UpdateWarehouseDto extends PartialType(CreateWarehouseDto) {
 
   @ApiPropertyOptional({
     description: 'ID del responsable del almacén (es opcional)',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: 1,
   })
   @IsNumber()
   @IsOptional()

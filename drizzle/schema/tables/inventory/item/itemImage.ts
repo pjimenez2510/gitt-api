@@ -1,6 +1,7 @@
 import {
   pgTable,
-  uuid,
+  serial,
+  integer,
   varchar,
   timestamp,
   boolean,
@@ -11,8 +12,8 @@ import { item } from './item'
 import { relations } from 'drizzle-orm'
 
 export const itemImage = pgTable('item_image', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  itemId: uuid('item_id')
+  id: serial('id').primaryKey(),
+  itemId: integer('item_id')
     .references(() => item.id, { onDelete: 'cascade' })
     .notNull(),
   filePath: varchar('file_path', { length: 255 }).notNull(),

@@ -48,7 +48,7 @@ export class CategoriesService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const [record] = await this.dbService.db
       .select(this.categoriesWithoutDates)
       .from(category)
@@ -91,7 +91,7 @@ export class CategoriesService {
     return newCategory
   }
 
-  async update(id: string, dto: UpdateCategoryDto) {
+  async update(id: number, dto: UpdateCategoryDto) {
     await this.findOne(id)
 
     const updateData: Partial<UpdateCategoryDto> = {
@@ -108,7 +108,7 @@ export class CategoriesService {
     return updateCategory
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     await this.findOne(id)
 
     const [deletedCategory] = await this.dbService.db

@@ -53,7 +53,7 @@ export class ColorsService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const [record] = await this.dbService.db
       .select(this.colorsWithoutDates)
       .from(color)
@@ -68,7 +68,7 @@ export class ColorsService {
     return plainToInstance(ColorResDto, record)
   }
 
-  async existByName(name?: string, excludeId?: string) {
+  async existByName(name?: string, excludeId?: number) {
     if (!name) return true
     const [record] = await this.dbService.db
       .select(this.colorsWithoutDates)
@@ -109,7 +109,7 @@ export class ColorsService {
     return plainToInstance(ColorResDto, newColor)
   }
 
-  async update(id: string, dto: UpdateColorDto) {
+  async update(id: number, dto: UpdateColorDto) {
     await this.findOne(id)
 
     const alreadyExistColor = await this.existByName(dto.name, id)
@@ -131,7 +131,7 @@ export class ColorsService {
     return plainToInstance(ColorResDto, updatedColor)
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     await this.findOne(id)
 
     const [deletedColor] = await this.dbService.db

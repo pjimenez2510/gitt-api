@@ -5,7 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -40,7 +40,7 @@ export class ColorsController {
     summary: 'Obtener un color por id',
   })
   @ApiStandardResponse(ColorResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id)
   }
 
@@ -60,7 +60,7 @@ export class ColorsController {
   })
   @ApiBody({ type: UpdateColorDto })
   @ApiStandardResponse(ColorResDto, HttpStatus.OK)
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateColorDto) {
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateColorDto) {
     return this.service.update(id, dto)
   }
 
@@ -69,7 +69,7 @@ export class ColorsController {
     summary: 'Eliminar un color por id',
   })
   @ApiStandardResponse(ColorResDto, HttpStatus.OK)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id)
   }
 }

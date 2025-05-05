@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   text,
   boolean,
@@ -8,9 +8,10 @@ import {
   integer,
 } from 'drizzle-orm/pg-core'
 import { user } from '../users/user'
+import { relations } from 'drizzle-orm'
 
 export const labelTemplate = pgTable('label_template', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull().unique(),
   description: text('description'),
   configuration: text('configuration').notNull(),
@@ -28,3 +29,10 @@ export const labelTemplate = pgTable('label_template', {
     mode: 'date',
   }).defaultNow(),
 })
+
+export const labelTemplateRelations = relations(labelTemplate, ({ one }) => ({
+  creator: one(user, {
+    fields: [labelTemplate.creatorId],
+    references: [user.id],
+  }),
+}))

@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   date,
   decimal,
   timestamp,
@@ -11,8 +11,8 @@ import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
 export const depreciation = pgTable('depreciation', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  itemId: uuid('item_id')
+  id: serial('id').primaryKey(),
+  itemId: integer('item_id')
     .references(() => item.id, { onDelete: 'cascade' })
     .notNull(),
   depreciationDate: date('depreciation_date').notNull(),

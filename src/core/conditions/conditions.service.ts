@@ -53,7 +53,7 @@ export class ConditionsService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const [record] = await this.dbService.db
       .select(this.conditionsWithoutDates)
       .from(condition)
@@ -68,7 +68,7 @@ export class ConditionsService {
     return plainToInstance(ConditionResDto, record)
   }
 
-  async existByName(name?: string, excludeId?: string) {
+  async existByName(name?: string, excludeId?: number) {
     if (!name) return true
     const [record] = await this.dbService.db
       .select(this.conditionsWithoutDates)
@@ -109,7 +109,7 @@ export class ConditionsService {
     return plainToInstance(ConditionResDto, newCondition)
   }
 
-  async update(id: string, dto: UpdateConditionDto) {
+  async update(id: number, dto: UpdateConditionDto) {
     await this.findOne(id)
 
     const alreadyExistCondition = await this.existByName(dto.name, id)
@@ -131,7 +131,7 @@ export class ConditionsService {
     return plainToInstance(ConditionResDto, updatedCondition)
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     await this.findOne(id)
 
     const [deletedCondition] = await this.dbService.db

@@ -7,7 +7,7 @@ export class ConditionResDto {
     example: 'asdasd-asdasd-asdasd-asdasd',
   })
   @Expose()
-  id: string
+  id: number
 
   @ApiProperty({
     description: 'nombre de la condición',

@@ -5,7 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -40,7 +40,7 @@ export class ItemTypesController {
     summary: 'Obtener un tipo de ítem por id',
   })
   @ApiStandardResponse(ItemTypeResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id)
   }
 
@@ -61,7 +61,7 @@ export class ItemTypesController {
   @ApiBody({ type: UpdateItemTypeDto })
   @ApiStandardResponse(ItemTypeResDto, HttpStatus.OK)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateItemTypeDto,
   ) {
     return this.service.update(id, dto)
@@ -72,7 +72,7 @@ export class ItemTypesController {
     summary: 'Eliminar un tipo de ítem por id',
   })
   @ApiStandardResponse(ItemTypeResDto, HttpStatus.OK)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id)
   }
 }

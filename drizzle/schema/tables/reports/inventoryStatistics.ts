@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   date,
   integer,
   decimal,
@@ -9,7 +9,7 @@ import {
 } from 'drizzle-orm/pg-core'
 
 export const inventoryStatistics = pgTable('inventory_statistics', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   date: date('date').notNull(),
   totalItems: integer('total_items').notNull(),
   totalCategories: integer('total_categories').notNull(),

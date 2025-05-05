@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   text,
   boolean,
@@ -13,7 +13,7 @@ import {
 import { relations } from 'drizzle-orm'
 
 export const notificationTemplate = pgTable('notification_template', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   type: notificationType('type').notNull().unique(),
   templateTitle: text('template_title').notNull(),
   templateContent: text('template_content').notNull(),

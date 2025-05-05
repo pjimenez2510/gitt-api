@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   timestamp,
   text,
   varchar,
@@ -17,15 +17,15 @@ import { relations } from 'drizzle-orm'
 export const verificationDetail = pgTable(
   'verification_detail',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    verificationId: uuid('verification_id')
+    id: serial('id').primaryKey(),
+    verificationId: integer('verification_id')
       .references(() => physicalVerification.id, { onDelete: 'cascade' })
       .notNull(),
-    itemId: uuid('item_id')
+    itemId: integer('item_id')
       .references(() => item.id)
       .notNull(),
     foundStatus: foundStatus('found_status').notNull(),
-    foundLocationId: uuid('found_location_id').references(() => location.id),
+    foundLocationId: integer('found_location_id').references(() => location.id),
     foundUserId: integer('found_user_id').references(() => user.id),
     observations: text('observations'),
     evidencePhoto: varchar('evidence_photo', { length: 255 }),

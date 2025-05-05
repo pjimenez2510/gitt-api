@@ -53,7 +53,7 @@ export class WarehousesService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const [record] = await this.dbService.db
       .select(this.warehousesWithoutDates)
       .from(warehouse)
@@ -83,7 +83,7 @@ export class WarehousesService {
     return plainToInstance(WarehouseResDto, newWarehouse)
   }
 
-  async update(id: string, dto: UpdateWarehouseDto) {
+  async update(id: number, dto: UpdateWarehouseDto) {
     await this.findOne(id)
 
     const [updatedWarehouse] = await this.dbService.db
@@ -96,7 +96,7 @@ export class WarehousesService {
     return plainToInstance(WarehouseResDto, updatedWarehouse)
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     await this.findOne(id)
 
     const [deletedWarehouse] = await this.dbService.db

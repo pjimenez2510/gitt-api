@@ -1,6 +1,7 @@
 import {
   pgTable,
-  uuid,
+  serial,
+  integer,
   decimal,
   text,
   timestamp,
@@ -13,11 +14,11 @@ import { relations } from 'drizzle-orm'
 export const insuredAssetDetail = pgTable(
   'insured_asset_detail',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    policyId: uuid('policy_id')
+    id: serial('id').primaryKey(),
+    policyId: integer('policy_id')
       .references(() => insurancePolicy.id, { onDelete: 'cascade' })
       .notNull(),
-    itemId: uuid('item_id')
+    itemId: integer('item_id')
       .references(() => item.id, { onDelete: 'cascade' })
       .notNull(),
     insuredValue: decimal('insured_value', {

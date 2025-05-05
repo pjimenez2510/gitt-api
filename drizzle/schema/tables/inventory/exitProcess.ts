@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   date,
   timestamp,
@@ -16,7 +16,7 @@ import { relations } from 'drizzle-orm'
 import { exitDetail } from './exitDetail'
 
 export const exitProcess = pgTable('exit_process', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   processCode: varchar('process_code', { length: 50 }).notNull().unique(),
   type: exitProcessType('type').notNull(),
   startDate: date('start_date').notNull(),

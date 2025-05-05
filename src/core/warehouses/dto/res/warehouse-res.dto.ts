@@ -7,7 +7,7 @@ export class WarehouseResDto {
     example: 'asdasd-asdasd-asdasd-asdasd',
   })
   @Expose()
-  id: string
+  id: number
 
   @ApiProperty({
     description: 'nombre del almacén',
@@ -25,10 +25,10 @@ export class WarehouseResDto {
 
   @ApiProperty({
     description: 'ID del responsable del almacén',
-    example: '123e4567-e89b-12d3-a456-426614174000',
+    example: 1,
   })
   @Expose()
-  responsibleId: string
+  responsibleId: number
 
   @ApiProperty({
     description: 'descripción del almacén',

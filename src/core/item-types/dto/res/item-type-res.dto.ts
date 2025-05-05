@@ -7,7 +7,7 @@ export class ItemTypeResDto {
     example: 'asdasd-asdasd-asdasd-asdasd',
   })
   @Expose()
-  id: string
+  id: number
 
   @ApiProperty({
     description: 'código del tipo de ítem',

@@ -53,7 +53,7 @@ export class ItemTypesService {
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: number) {
     const [record] = await this.dbService.db
       .select(this.itemTypesWithoutDates)
       .from(itemType)
@@ -66,7 +66,7 @@ export class ItemTypesService {
     return plainToInstance(ItemTypeResDto, record)
   }
 
-  async existByCode(code?: string, excludeId?: string) {
+  async existByCode(code?: string, excludeId?: number) {
     if (!code) return true
 
     const [alreadyExistItemType] = await this.dbService.db
@@ -108,7 +108,7 @@ export class ItemTypesService {
     return plainToInstance(ItemTypeResDto, newItemType)
   }
 
-  async update(id: string, dto: UpdateItemTypeDto) {
+  async update(id: number, dto: UpdateItemTypeDto) {
     await this.findOne(id)
 
     const alreadyExistItemType = await this.existByCode(dto.code, id)
@@ -130,7 +130,7 @@ export class ItemTypesService {
     return plainToInstance(ItemTypeResDto, updatedItemType)
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     await this.findOne(id)
 
     const [deletedItemType] = await this.dbService.db

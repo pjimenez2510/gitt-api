@@ -5,7 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -40,7 +40,7 @@ export class WarehousesController {
     summary: 'Obtener un almacén por id',
   })
   @ApiStandardResponse(WarehouseResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id)
   }
 
@@ -61,7 +61,7 @@ export class WarehousesController {
   @ApiBody({ type: UpdateWarehouseDto })
   @ApiStandardResponse(WarehouseResDto, HttpStatus.OK)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateWarehouseDto,
   ) {
     return this.service.update(id, dto)
@@ -72,7 +72,7 @@ export class WarehousesController {
     summary: 'Eliminar un almacén por id',
   })
   @ApiStandardResponse(WarehouseResDto, HttpStatus.OK)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id)
   }
 }

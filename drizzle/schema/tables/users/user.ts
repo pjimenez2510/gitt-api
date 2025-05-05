@@ -1,7 +1,8 @@
 import { pgTable, varchar, serial, integer } from 'drizzle-orm/pg-core'
 import { person } from './person'
-import { userRole, userStatus, userType } from 'drizzle/schema'
 import { relations } from 'drizzle-orm'
+import { userStatus, userType } from 'drizzle/schema/enums/user'
+import { userRole } from './userRole'
 
 export const user = pgTable('users', {
   id: serial('id').primaryKey(),
