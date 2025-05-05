@@ -81,7 +81,7 @@ docker compose up -d
 5. Run migrations and initial seed:
 
 ```bash
-bun db:reset:full
+bun db:seed
 ```
 
 6. Start development server:
