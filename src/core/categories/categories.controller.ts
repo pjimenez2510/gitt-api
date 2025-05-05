@@ -5,7 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -40,7 +40,7 @@ export class CategoriesController {
     summary: 'Get a category by id',
   })
   @ApiStandardResponse(CategoryResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id)
   }
 
@@ -61,7 +61,7 @@ export class CategoriesController {
   @ApiBody({ type: UpdateCategoryDto })
   @ApiStandardResponse(CategoryResDto, HttpStatus.OK)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateCategoryDto,
   ) {
     return this.service.update(id, dto)
@@ -72,7 +72,7 @@ export class CategoriesController {
     summary: 'Delete a category by id',
   })
   @ApiStandardResponse(CategoryResDto, HttpStatus.OK)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id)
   }
 }

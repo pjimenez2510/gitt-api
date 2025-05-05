@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   date,
   timestamp,
@@ -13,7 +13,7 @@ import { relations } from 'drizzle-orm'
 import { verificationDetail } from './verificationDetail'
 
 export const physicalVerification = pgTable('physical_verification', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   code: varchar('code', { length: 50 }).notNull().unique(),
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),

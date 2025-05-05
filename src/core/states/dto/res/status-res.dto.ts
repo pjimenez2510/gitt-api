@@ -5,7 +5,7 @@ export class StatusResDto {
     description: 'id of the status',
     example: 'asdasd-asdasd-asdasd-asdasd',
   })
-  id: string
+  id: number
 
   @ApiProperty({
     description: 'name of the status',

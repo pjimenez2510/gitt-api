@@ -1,16 +1,16 @@
 import {
   pgTable,
-  uuid,
   varchar,
   text,
   boolean,
   timestamp,
+  serial,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { item } from './item/item'
 
 export const condition = pgTable('condition', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   name: varchar('name', { length: 50 }).notNull(),
   description: text('description'),
   requiresMaintenance: boolean('requires_maintenance').default(false),

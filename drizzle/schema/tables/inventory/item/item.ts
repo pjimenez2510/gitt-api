@@ -1,12 +1,12 @@
 import {
   pgTable,
-  uuid,
   integer,
   varchar,
   text,
   date,
   boolean,
   timestamp,
+  serial,
 } from 'drizzle-orm/pg-core'
 import { normativeType, origin } from 'drizzle/schema/enums/inventory'
 import { user } from '../../users/user'
@@ -34,23 +34,23 @@ import { label } from '../../labeling/label'
 import { verificationDetail } from '../../reports/verificationDetail'
 
 export const item = pgTable('item', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   assetCode: integer('asset_code').notNull().unique(),
   previousCode: varchar('previous_code', { length: 50 }),
   identifier: varchar('identifier', { length: 50 }).unique(),
-  certificateId: uuid('certificate_id').references(() => certificate.id),
-  itemTypeId: uuid('item_type_id')
+  certificateId: integer('certificate_id').references(() => certificate.id),
+  itemTypeId: integer('item_type_id')
     .references(() => itemType.id)
     .notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
-  categoryId: uuid('category_id')
+  categoryId: integer('category_id')
     .references(() => category.id)
     .notNull(),
-  statusId: uuid('status_id')
+  statusId: integer('status_id')
     .references(() => status.id)
     .notNull(),
-  conditionId: uuid('condition_id').references(() => condition.id),
+  conditionId: integer('condition_id').references(() => condition.id),
   normativeType: normativeType('normative_type').notNull(),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
@@ -80,10 +80,10 @@ export const item = pgTable('item', {
   notes: text('notes'),
   observations: text('observations'),
   availableForLoan: boolean('available_for_loan').default(true),
-  locationId: uuid('location_id').references(() => location.id),
+  locationId: integer('location_id').references(() => location.id),
   custodianId: integer('custodian_id').references(() => user.id),
   activeCustodian: boolean('active_custodian').default(true),
-  insurancePolicyId: uuid('insurance_policy_id').references(
+  insurancePolicyId: integer('insurance_policy_id').references(
     () => insurancePolicy.id,
   ),
   enabled: boolean('enabled').default(true),

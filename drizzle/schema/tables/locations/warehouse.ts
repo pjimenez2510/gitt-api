@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   text,
   boolean,
@@ -12,7 +12,7 @@ import { relations } from 'drizzle-orm'
 import { location } from './location'
 
 export const warehouse = pgTable('warehouse', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   location: varchar('location', { length: 255 }),
   responsibleId: integer('responsible_id').references(() => user.id),

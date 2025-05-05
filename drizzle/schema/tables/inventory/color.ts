@@ -1,16 +1,16 @@
 import {
   pgTable,
-  uuid,
   varchar,
   text,
   timestamp,
   boolean,
+  serial,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { itemColor } from './item/itemColor'
 
 export const color = pgTable('color', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   name: varchar('name', { length: 50 }).notNull(),
   hexCode: varchar('hex_code', { length: 7 }),
   description: text('description'),

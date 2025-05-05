@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   timestamp,
   text,
@@ -15,7 +15,7 @@ import { loanHistory } from './loanHistory'
 import { responsibilityDocument } from './responsibilityDocument'
 
 export const loan = pgTable('loan', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   loanCode: varchar('loan_code', { length: 50 }).notNull().unique(),
   requestDate: timestamp('request_date', {
     withTimezone: true,

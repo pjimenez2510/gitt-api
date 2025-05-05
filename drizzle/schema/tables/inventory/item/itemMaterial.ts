@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   integer,
   boolean,
   timestamp,
@@ -13,11 +13,11 @@ import { relations } from 'drizzle-orm'
 export const itemMaterial = pgTable(
   'item_material',
   {
-    id: uuid('id').primaryKey().defaultRandom(),
-    itemId: uuid('item_id')
+    id: serial('id').primaryKey(),
+    itemId: integer('item_id')
       .references(() => item.id, { onDelete: 'cascade' })
       .notNull(),
-    materialId: uuid('material_id')
+    materialId: integer('material_id')
       .references(() => material.id)
       .notNull(),
     percentage: integer('percentage'),

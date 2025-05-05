@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   timestamp,
   text,
@@ -13,7 +13,7 @@ import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
 export const generatedReport = pgTable('generated_report', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   type: reportType('type').notNull(),
   parameters: text('parameters'),

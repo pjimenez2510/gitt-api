@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   text,
   integer,
@@ -14,11 +14,11 @@ import { item } from '../inventory/item/item'
 import { movement } from '../inventory/movement'
 
 export const location = pgTable('location', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
-  warehouseId: uuid('warehouse_id').references(() => warehouse.id),
-  parentLocationId: uuid('parent_location_id').references(() => location.id),
+  warehouseId: integer('warehouse_id').references(() => warehouse.id),
+  parentLocationId: integer('parent_location_id'),
   type: locationType('type').notNull(),
   building: varchar('building', { length: 100 }),
   floor: varchar('floor', { length: 50 }),

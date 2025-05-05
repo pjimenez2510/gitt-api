@@ -1,22 +1,22 @@
 import {
   pgTable,
-  uuid,
   varchar,
   text,
   integer,
   decimal,
   boolean,
   timestamp,
+  serial,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { item } from './item/item'
 
 export const category = pgTable('category', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   code: varchar('code', { length: 20 }).notNull().unique(),
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),
-  parentCategoryId: uuid('parent_category_id'),
+  parentCategoryId: integer('parent_category_id'),
   standardUsefulLife: integer('standard_useful_life'),
   depreciationPercentage: decimal('depreciation_percentage', {
     precision: 5,

@@ -1,4 +1,4 @@
-import { pgTable, uuid, integer, text, timestamp } from 'drizzle-orm/pg-core'
+import { pgTable, serial, integer, text, timestamp } from 'drizzle-orm/pg-core'
 import { notification } from './notification'
 import {
   notificationChannel,
@@ -7,8 +7,8 @@ import {
 import { relations } from 'drizzle-orm'
 
 export const deliveryRecord = pgTable('delivery_record', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  notificationId: uuid('notification_id')
+  id: serial('id').primaryKey(),
+  notificationId: integer('notification_id')
     .references(() => notification.id, { onDelete: 'cascade' })
     .notNull(),
   channel: notificationChannel('channel').notNull(),

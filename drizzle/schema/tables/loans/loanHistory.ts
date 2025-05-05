@@ -1,11 +1,12 @@
-import { pgTable, uuid, timestamp, text, integer } from 'drizzle-orm/pg-core'
+import { pgTable, serial, timestamp, text, integer } from 'drizzle-orm/pg-core'
 import { loan } from './loan'
 import { loanStatus } from 'drizzle/schema/enums/loans'
 import { user } from '../users/user'
+import { relations } from 'drizzle-orm'
 
 export const loanHistory = pgTable('loan_history', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  loanId: uuid('loan_id')
+  id: serial('id').primaryKey(),
+  loanId: integer('loan_id')
     .references(() => loan.id, { onDelete: 'cascade' })
     .notNull(),
   previousStatus: loanStatus('previous_status'),
@@ -23,3 +24,14 @@ export const loanHistory = pgTable('loan_history', {
     mode: 'date',
   }).defaultNow(),
 })
+
+export const loanHistoryRelations = relations(loanHistory, ({ one }) => ({
+  loan: one(loan, {
+    fields: [loanHistory.loanId],
+    references: [loan.id],
+  }),
+  user: one(user, {
+    fields: [loanHistory.userId],
+    references: [user.id],
+  }),
+}))

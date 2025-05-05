@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   text,
   timestamp,
@@ -10,7 +10,7 @@ import { relations } from 'drizzle-orm'
 import { item } from './item/item'
 
 export const itemType = pgTable('item_type', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   code: varchar('code', { length: 20 }).notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),

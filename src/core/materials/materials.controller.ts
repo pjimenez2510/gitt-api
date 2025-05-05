@@ -5,7 +5,7 @@ import {
   Get,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -40,7 +40,7 @@ export class MaterialsController {
     summary: 'Obtener un material por id',
   })
   @ApiStandardResponse(MaterialResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id)
   }
 
@@ -61,7 +61,7 @@ export class MaterialsController {
   @ApiBody({ type: UpdateMaterialDto })
   @ApiStandardResponse(MaterialResDto, HttpStatus.OK)
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateMaterialDto,
   ) {
     return this.service.update(id, dto)
@@ -72,7 +72,7 @@ export class MaterialsController {
     summary: 'Eliminar un material por id',
   })
   @ApiStandardResponse(MaterialResDto, HttpStatus.OK)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseIntPipe) id: number) {
     return this.service.remove(id)
   }
 }

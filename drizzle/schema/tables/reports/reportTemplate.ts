@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   varchar,
   text,
   boolean,
@@ -9,9 +9,10 @@ import {
 } from 'drizzle-orm/pg-core'
 import { reportType } from 'drizzle/schema/enums/reports'
 import { user } from '../users/user'
+import { relations } from 'drizzle-orm'
 
 export const reportTemplate = pgTable('report_template', {
-  id: uuid('id').primaryKey().defaultRandom(),
+  id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull().unique(),
   description: text('description'),
   type: reportType('type').notNull(),
@@ -30,3 +31,10 @@ export const reportTemplate = pgTable('report_template', {
     mode: 'date',
   }).defaultNow(),
 })
+
+export const reportTemplateRelations = relations(reportTemplate, ({ one }) => ({
+  creator: one(user, {
+    fields: [reportTemplate.creatorId],
+    references: [user.id],
+  }),
+}))

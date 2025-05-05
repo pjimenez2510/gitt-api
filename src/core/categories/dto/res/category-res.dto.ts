@@ -5,7 +5,7 @@ export class CategoryResDto {
     description: 'id of the category',
     example: 'asdasd-asdasd-asdasd-asdasd',
   })
-  id: string
+  id: number
 
   @ApiProperty({
     description: 'code of the category',
@@ -29,7 +29,7 @@ export class CategoryResDto {
     description: 'parentCategoryId of the category',
     example: 'asdasd-asdasd-asdasd-asdasd',
   })
-  parentCategoryId: string
+  parentCategoryId: number
 
   @ApiProperty({
     description: 'standardUsefulLife of the category',

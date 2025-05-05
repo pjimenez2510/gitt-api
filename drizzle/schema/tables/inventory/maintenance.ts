@@ -1,6 +1,6 @@
 import {
   pgTable,
-  uuid,
+  serial,
   date,
   varchar,
   text,
@@ -14,10 +14,11 @@ import {
   maintenanceType,
 } from 'drizzle/schema/enums/inventory'
 import { user } from '../users/user'
+import { relations } from 'drizzle-orm'
 
 export const maintenance = pgTable('maintenance', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  itemId: uuid('item_id')
+  id: serial('id').primaryKey(),
+  itemId: integer('item_id')
     .references(() => item.id, { onDelete: 'cascade' })
     .notNull(),
   maintenanceDate: date('maintenance_date').notNull(),
@@ -42,3 +43,14 @@ export const maintenance = pgTable('maintenance', {
     mode: 'date',
   }).defaultNow(),
 })
+
+export const maintenanceRelations = relations(maintenance, ({ one }) => ({
+  item: one(item, {
+    fields: [maintenance.itemId],
+    references: [item.id],
+  }),
+  responsible: one(user, {
+    fields: [maintenance.responsibleId],
+    references: [user.id],
+  }),
+}))

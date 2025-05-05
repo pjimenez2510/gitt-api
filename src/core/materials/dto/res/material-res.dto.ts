@@ -7,7 +7,7 @@ export class MaterialResDto {
     example: 'asdasd-asdasd-asdasd-asdasd',
   })
   @Expose()
-  id: string
+  id: number
 
   @ApiProperty({
     description: 'nombre del material',
