@@ -3,7 +3,7 @@ import { user } from './user'
 import { role } from './role'
 import { relations } from 'drizzle-orm'
 
-export const userRole = pgTable('user_role', {
+export const userRole = pgTable('user_roles', {
   id: serial('id').primaryKey(),
   userId: integer('user_id')
     .notNull()
