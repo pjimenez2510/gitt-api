@@ -1,4 +1,11 @@
-import { pgTable, uuid, varchar, text, timestamp } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  uuid,
+  varchar,
+  text,
+  timestamp,
+  integer,
+} from 'drizzle-orm/pg-core'
 import {
   notificationType,
   notificationStatus,
@@ -9,7 +16,7 @@ import { deliveryRecord } from './deliveryRecord'
 
 export const notification = pgTable('notification', {
   id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id')
+  userId: integer('user_id')
     .references(() => user.id, { onDelete: 'cascade' })
     .notNull(),
   type: notificationType('type').notNull(),

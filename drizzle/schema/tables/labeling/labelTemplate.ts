@@ -5,6 +5,7 @@ import {
   text,
   boolean,
   timestamp,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { user } from '../users/user'
 
@@ -14,7 +15,7 @@ export const labelTemplate = pgTable('label_template', {
   description: text('description'),
   configuration: text('configuration').notNull(),
   defaultTemplate: boolean('default_template').default(false),
-  creatorId: uuid('creator_id')
+  creatorId: integer('creator_id')
     .references(() => user.id)
     .notNull(),
   creationDate: timestamp('creation_date', {

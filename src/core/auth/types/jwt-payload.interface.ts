@@ -1,6 +1,6 @@
 import { UserRole } from './user-role'
 
 export class JwtPayload {
-  id: string
+  id: number
   role: UserRole
 }

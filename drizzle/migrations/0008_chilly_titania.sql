@@ -1,1 +1,0 @@
-ALTER TABLE "warehouse" ALTER COLUMN "active" SET NOT NULL;

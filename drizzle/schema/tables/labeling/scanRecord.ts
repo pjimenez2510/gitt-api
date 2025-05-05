@@ -1,4 +1,11 @@
-import { pgTable, uuid, timestamp, text, varchar } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  uuid,
+  timestamp,
+  text,
+  varchar,
+  integer,
+} from 'drizzle-orm/pg-core'
 import { label } from './label'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
@@ -8,7 +15,7 @@ export const scanRecord = pgTable('scan_record', {
   labelId: uuid('label_id')
     .references(() => label.id, { onDelete: 'cascade' })
     .notNull(),
-  userId: uuid('user_id')
+  userId: integer('user_id')
     .references(() => user.id)
     .notNull(),
   scanDate: timestamp('scan_date', {

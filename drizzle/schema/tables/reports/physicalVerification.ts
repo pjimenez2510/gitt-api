@@ -5,6 +5,7 @@ import {
   date,
   timestamp,
   text,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { verificationStatus } from 'drizzle/schema/enums/reports'
 import { user } from '../users/user'
@@ -16,7 +17,7 @@ export const physicalVerification = pgTable('physical_verification', {
   code: varchar('code', { length: 50 }).notNull().unique(),
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),
-  responsibleId: uuid('responsible_id')
+  responsibleId: integer('responsible_id')
     .references(() => user.id)
     .notNull(),
   status: verificationStatus('status').notNull(),

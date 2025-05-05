@@ -5,6 +5,7 @@ import {
   boolean,
   timestamp,
   unique,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
@@ -13,7 +14,7 @@ export const notificationPreference = pgTable(
   'notification_preference',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('user_id')
+    userId: integer('user_id')
       .references(() => user.id, { onDelete: 'cascade' })
       .notNull(),
     notificationType: varchar('notification_type', { length: 50 }).notNull(),

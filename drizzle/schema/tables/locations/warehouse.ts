@@ -5,6 +5,7 @@ import {
   text,
   boolean,
   timestamp,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
@@ -14,7 +15,7 @@ export const warehouse = pgTable('warehouse', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
   location: varchar('location', { length: 255 }),
-  responsibleId: uuid('responsible_id').references(() => user.id),
+  responsibleId: integer('responsible_id').references(() => user.id),
   description: text('description'),
   active: boolean('active').notNull().default(true),
   registrationDate: timestamp('registration_date', {

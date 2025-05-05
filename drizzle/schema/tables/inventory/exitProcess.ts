@@ -5,6 +5,7 @@ import {
   date,
   timestamp,
   text,
+  integer,
 } from 'drizzle-orm/pg-core'
 import {
   exitProcessStatus,
@@ -21,7 +22,7 @@ export const exitProcess = pgTable('exit_process', {
   startDate: date('start_date').notNull(),
   endDate: date('end_date'),
   status: exitProcessStatus('status').notNull(),
-  authorizedById: uuid('authorized_by_id')
+  authorizedById: integer('authorized_by_id')
     .references(() => user.id)
     .notNull(),
   supportingDocument: varchar('supporting_document', { length: 255 }),

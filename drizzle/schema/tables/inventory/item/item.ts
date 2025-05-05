@@ -56,7 +56,7 @@ export const item = pgTable('item', {
     withTimezone: true,
     mode: 'date',
   }).defaultNow(),
-  registrationUserId: uuid('registration_user_id')
+  registrationUserId: integer('registration_user_id')
     .references(() => user.id)
     .notNull(),
   origin: origin('origin'),
@@ -81,7 +81,7 @@ export const item = pgTable('item', {
   observations: text('observations'),
   availableForLoan: boolean('available_for_loan').default(true),
   locationId: uuid('location_id').references(() => location.id),
-  custodianId: uuid('custodian_id').references(() => user.id),
+  custodianId: integer('custodian_id').references(() => user.id),
   activeCustodian: boolean('active_custodian').default(true),
   insurancePolicyId: uuid('insurance_policy_id').references(
     () => insurancePolicy.id,

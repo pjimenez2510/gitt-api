@@ -6,6 +6,7 @@ import {
   text,
   decimal,
   timestamp,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { item } from './item/item'
 import {
@@ -21,7 +22,7 @@ export const maintenance = pgTable('maintenance', {
     .notNull(),
   maintenanceDate: date('maintenance_date').notNull(),
   type: maintenanceType('type').notNull(),
-  responsibleId: uuid('responsible_id').references(() => user.id),
+  responsibleId: integer('responsible_id').references(() => user.id),
   externalResponsible: varchar('external_responsible', { length: 255 }),
   description: text('description'),
   cost: decimal('cost', { precision: 10, scale: 2 }),

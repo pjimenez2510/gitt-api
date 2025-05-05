@@ -1,5 +1,4 @@
 export * from './user'
 export * from './role'
 export * from './userRole'
-export * from './userSession'
-export * from './activityLog'
+export * from './person'

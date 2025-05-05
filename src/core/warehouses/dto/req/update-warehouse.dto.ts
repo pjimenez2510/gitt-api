@@ -2,6 +2,7 @@ import { PartialType } from '@nestjs/mapped-types'
 import { ApiPropertyOptional } from '@nestjs/swagger'
 import {
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
@@ -34,9 +35,9 @@ export class UpdateWarehouseDto extends PartialType(CreateWarehouseDto) {
     description: 'ID del responsable del almacén (es opcional)',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  @IsUUID('4', { message: 'El ID del responsable debe ser un UUID válido' })
+  @IsNumber()
   @IsOptional()
-  responsibleId?: string
+  responsibleId?: number
 
   @ApiPropertyOptional({
     description: 'descripción del almacén (es opcional)',

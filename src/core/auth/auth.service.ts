@@ -5,7 +5,7 @@ import { JwtPayload } from './types/jwt-payload.interface'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { comparePassword } from 'src/common/utils/encrypter'
 import { DatabaseService } from 'src/global/database/database.service'
-import { user } from 'drizzle/schema'
+import { person, user } from 'drizzle/schema'
 import { eq } from 'drizzle-orm'
 import { UserRole } from './types/user-role'
 
@@ -17,17 +17,23 @@ export class AuthService {
   ) {}
 
   async login({ email, password }: SignInDto) {
-    const [userFound] = await this.dbService.db
+    const [personFound] = await this.dbService.db
       .select()
-      .from(user)
-      .where(eq(user.email, email))
+      .from(person)
+      .where(eq(person.email, email))
       .limit(1)
 
-    if (!userFound)
+    if (!personFound)
       throw new DisplayableException(
         'Usuario no encontrado',
         HttpStatus.NOT_FOUND,
       )
+
+    const [userFound] = await this.dbService.db
+      .select()
+      .from(user)
+      .where(eq(user.personId, personFound.id))
+      .limit(1)
 
     this.verifyPassword(password, userFound.passwordHash)
 
