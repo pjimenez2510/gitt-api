@@ -1,4 +1,11 @@
-import { pgTable, uuid, date, decimal, timestamp } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  uuid,
+  date,
+  decimal,
+  timestamp,
+  integer,
+} from 'drizzle-orm/pg-core'
 import { item } from './item/item'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
@@ -19,7 +26,7 @@ export const depreciation = pgTable('depreciation', {
     scale: 2,
   }).notNull(),
   currentValue: decimal('current_value', { precision: 12, scale: 2 }).notNull(),
-  registrationUserId: uuid('registration_user_id')
+  registrationUserId: integer('registration_user_id')
     .references(() => user.id)
     .notNull(),
   registrationDate: timestamp('registration_date', {

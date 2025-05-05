@@ -21,10 +21,10 @@ export const certificate = pgTable('certificate', {
   date: date('date'),
   type: certificateType('type'),
   status: certificateStatus('status'),
-  deliveryResponsibleId: uuid('delivery_responsible_id').references(
+  deliveryResponsibleId: integer('delivery_responsible_id').references(
     () => user.id,
   ),
-  receptionResponsibleId: uuid('reception_responsible_id').references(
+  receptionResponsibleId: integer('reception_responsible_id').references(
     () => user.id,
   ),
   observations: text('observations'),

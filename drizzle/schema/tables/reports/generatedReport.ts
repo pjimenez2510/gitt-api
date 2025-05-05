@@ -5,6 +5,7 @@ import {
   timestamp,
   text,
   boolean,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { reportFrequency } from 'drizzle/schema/enums/reports'
 import { reportFormat, reportType } from 'drizzle/schema/enums/reports'
@@ -20,7 +21,7 @@ export const generatedReport = pgTable('generated_report', {
     withTimezone: true,
     mode: 'date',
   }).defaultNow(),
-  userId: uuid('user_id')
+  userId: integer('user_id')
     .references(() => user.id)
     .notNull(),
   documentUrl: varchar('document_url', { length: 255 }).notNull(),

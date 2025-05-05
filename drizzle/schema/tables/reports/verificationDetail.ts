@@ -5,6 +5,7 @@ import {
   text,
   varchar,
   unique,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { foundStatus } from 'drizzle/schema/enums/reports'
 import { item } from '../inventory/item/item'
@@ -25,7 +26,7 @@ export const verificationDetail = pgTable(
       .notNull(),
     foundStatus: foundStatus('found_status').notNull(),
     foundLocationId: uuid('found_location_id').references(() => location.id),
-    foundUserId: uuid('found_user_id').references(() => user.id),
+    foundUserId: integer('found_user_id').references(() => user.id),
     observations: text('observations'),
     evidencePhoto: varchar('evidence_photo', { length: 255 }),
     registrationDate: timestamp('registration_date', {

@@ -115,28 +115,20 @@ import {
 } from './schema/tables/reports'
 import {
   user,
-  userRelations,
   role,
   roleRelations,
+  person,
   userRole,
   userRoleRelations,
-  userSession,
-  userSessionRelations,
-  activityLog,
-  activityLogRelations,
 } from './schema/tables/users'
 
 export {
+  person,
   user,
-  userRelations,
   role,
   roleRelations,
   userRole,
   userRoleRelations,
-  userSession,
-  userSessionRelations,
-  activityLog,
-  activityLogRelations,
 
   // Ubicaciones
   warehouse,

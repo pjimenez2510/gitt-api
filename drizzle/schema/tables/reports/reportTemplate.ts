@@ -5,6 +5,7 @@ import {
   text,
   boolean,
   timestamp,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { reportType } from 'drizzle/schema/enums/reports'
 import { user } from '../users/user'
@@ -15,7 +16,7 @@ export const reportTemplate = pgTable('report_template', {
   description: text('description'),
   type: reportType('type').notNull(),
   definition: text('definition').notNull(),
-  creatorId: uuid('creator_id')
+  creatorId: integer('creator_id')
     .references(() => user.id)
     .notNull(),
   creationDate: timestamp('creation_date', {

@@ -1,1 +1,0 @@
-ALTER TABLE "condition" ADD COLUMN "active" boolean DEFAULT true NOT NULL;

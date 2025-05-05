@@ -1,4 +1,11 @@
-import { pgTable, uuid, timestamp, text, varchar } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  uuid,
+  timestamp,
+  text,
+  varchar,
+  integer,
+} from 'drizzle-orm/pg-core'
 import { movementType } from 'drizzle/schema/enums/locations'
 import { item } from './item/item'
 import { location } from '../locations/location'
@@ -17,7 +24,7 @@ export const movement = pgTable('movement', {
     withTimezone: true,
     mode: 'date',
   }).defaultNow(),
-  userId: uuid('user_id')
+  userId: integer('user_id')
     .references(() => user.id)
     .notNull(),
   loanId: uuid('loan_id'), // Will reference loan table

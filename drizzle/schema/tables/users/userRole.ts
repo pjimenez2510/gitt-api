@@ -1,29 +1,18 @@
-import { pgTable, uuid, timestamp, unique } from 'drizzle-orm/pg-core'
+import { pgTable, timestamp, serial, integer } from 'drizzle-orm/pg-core'
 import { user } from './user'
 import { role } from './role'
 import { relations } from 'drizzle-orm'
 
-export const userRole = pgTable(
-  'user_role',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    userId: uuid('user_id')
-      .references(() => user.id)
-      .notNull(),
-    roleId: uuid('role_id')
-      .references(() => role.id)
-      .notNull(),
-    assignmentDate: timestamp('assignment_date', {
-      withTimezone: true,
-      mode: 'date',
-    }).defaultNow(),
-    updateDate: timestamp('update_date', {
-      withTimezone: true,
-      mode: 'date',
-    }).defaultNow(),
-  },
-  (table) => [unique().on(table.userId, table.roleId)],
-)
+export const userRole = pgTable('user_role', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => user.id),
+  roleId: integer('role_id')
+    .notNull()
+    .references(() => role.id),
+  assignedAt: timestamp('assigned_at').defaultNow().notNull(),
+})
 
 export const userRoleRelations = relations(userRole, ({ one }) => ({
   user: one(user, {

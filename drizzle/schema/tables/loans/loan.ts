@@ -5,6 +5,7 @@ import {
   timestamp,
   text,
   boolean,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { loanStatus } from 'drizzle/schema/enums/loans'
 import { user } from '../users/user'
@@ -37,10 +38,10 @@ export const loan = pgTable('loan', {
     mode: 'date',
   }),
   status: loanStatus('status').notNull(),
-  requestorId: uuid('requestor_id')
+  requestorId: integer('requestor_id')
     .references(() => user.id)
     .notNull(),
-  approverId: uuid('approver_id').references(() => user.id),
+  approverId: integer('approver_id').references(() => user.id),
   reason: text('reason').notNull(),
   associatedEvent: varchar('associated_event', { length: 255 }),
   externalLocation: varchar('external_location', { length: 255 }),

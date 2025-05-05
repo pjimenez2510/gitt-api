@@ -5,6 +5,7 @@ import {
   date,
   text,
   timestamp,
+  integer,
 } from 'drizzle-orm/pg-core'
 import { item } from './item/item'
 import { user } from '../users/user'
@@ -19,7 +20,7 @@ export const assetLoan = pgTable('asset_loan', {
   beneficiaryInstitution: varchar('beneficiary_institution', {
     length: 255,
   }).notNull(),
-  deliveryResponsibleId: uuid('delivery_responsible_id')
+  deliveryResponsibleId: integer('delivery_responsible_id')
     .references(() => user.id)
     .notNull(),
   receptionResponsible: varchar('reception_responsible', {

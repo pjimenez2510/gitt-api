@@ -1,4 +1,4 @@
-import { pgTable, uuid, timestamp, text } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, timestamp, text, integer } from 'drizzle-orm/pg-core'
 import { loan } from './loan'
 import { loanStatus } from 'drizzle/schema/enums/loans'
 import { user } from '../users/user'
@@ -14,7 +14,7 @@ export const loanHistory = pgTable('loan_history', {
     withTimezone: true,
     mode: 'date',
   }).defaultNow(),
-  userId: uuid('user_id')
+  userId: integer('user_id')
     .references(() => user.id)
     .notNull(),
   comments: text('comments'),

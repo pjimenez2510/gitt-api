@@ -1,4 +1,11 @@
-import { pgTable, uuid, timestamp, text, varchar } from 'drizzle-orm/pg-core'
+import {
+  pgTable,
+  uuid,
+  timestamp,
+  text,
+  varchar,
+  integer,
+} from 'drizzle-orm/pg-core'
 import { item } from './item/item'
 import { status } from './status'
 import { user } from '../users/user'
@@ -17,7 +24,7 @@ export const statusChange = pgTable('status_change', {
     withTimezone: true,
     mode: 'date',
   }).defaultNow(),
-  userId: uuid('user_id')
+  userId: integer('user_id')
     .references(() => user.id)
     .notNull(),
   loanId: uuid('loan_id')
