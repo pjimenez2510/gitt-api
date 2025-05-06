@@ -12,9 +12,9 @@ import { MaterialResDto } from './dto/res/material-res.dto'
 
 @Injectable()
 export class MaterialsService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
-  private materialsWithoutDates = excludeColumns(
+  private readonly materialsWithoutDates = excludeColumns(
     material,
     'registrationDate',
     'updateDate',

@@ -19,12 +19,4 @@ export class AuthController {
   async login(@Body() dto: SignInDto) {
     return this.service.login(dto)
   }
-
-  // @AdminAuth()
-  // @Get('me')
-  // getProfile(@Request() req) {
-  //   const user = req.user
-
-  //   return user
-  // }
 }

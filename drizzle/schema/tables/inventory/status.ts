@@ -11,7 +11,7 @@ import { item } from './item/item'
 import { statusChange } from './statusChange'
 import { loanDetail } from '../loans/loanDetail'
 
-export const status = pgTable('status', {
+export const status = pgTable('states', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 50 }).notNull().unique(),
   description: text('description'),

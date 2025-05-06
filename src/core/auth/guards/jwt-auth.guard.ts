@@ -3,9 +3,9 @@ import {
   ForbiddenException,
   Injectable,
   UnauthorizedException,
+  ExecutionContext,
 } from '@nestjs/common'
 import { AuthGuard } from '@nestjs/passport'
-import { ExecutionContext } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { Reflector } from '@nestjs/core'
 import { META_ROLES } from '../decorators/role-protected.decorator'
@@ -45,7 +45,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   handleRequest(err, user) {
     if (err || !user) {
-      throw err || new UnauthorizedException('Unauthorized access')
+      throw err ?? new UnauthorizedException('Unauthorized access')
     }
     return user
   }
