@@ -12,7 +12,7 @@ import { UpdateCategoryDto } from './dto/req/update-category.dto'
 export class CategoriesService {
   constructor(private dbService: DatabaseService) {}
 
-  private categoriesWithoutDates = excludeColumns(
+  private readonly categoriesWithoutDates = excludeColumns(
     category,
     'registrationDate',
     'updateDate',

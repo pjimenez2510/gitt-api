@@ -28,7 +28,7 @@ export class StatesController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all categories',
+    summary: 'Get all states',
   })
   @ApiPaginatedResponse(StatusResDto, HttpStatus.OK)
   findAll(@Query() paginationDto: BaseParamsDto) {
@@ -37,7 +37,7 @@ export class StatesController {
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Get a category by id',
+    summary: 'Get a status by id',
   })
   @ApiStandardResponse(StatusResDto, HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -46,7 +46,7 @@ export class StatesController {
 
   @Post()
   @ApiOperation({
-    summary: 'Create a new category',
+    summary: 'Create a new status',
   })
   @ApiBody({ type: CreateStatusDto })
   @ApiStandardResponse(StatusResDto, HttpStatus.CREATED)
@@ -56,7 +56,7 @@ export class StatesController {
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'Update a category by id',
+    summary: 'Update a status by id',
   })
   @ApiBody({ type: UpdateStatusDto })
   @ApiStandardResponse(StatusResDto, HttpStatus.OK)
@@ -66,7 +66,7 @@ export class StatesController {
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Delete a category by id',
+    summary: 'Delete a status by id',
   })
   @ApiStandardResponse(StatusResDto, HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {

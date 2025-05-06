@@ -12,9 +12,9 @@ import { WarehouseResDto } from './dto/res/warehouse-res.dto'
 
 @Injectable()
 export class WarehousesService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
-  private warehousesWithoutDates = excludeColumns(
+  private readonly warehousesWithoutDates = excludeColumns(
     warehouse,
     'registrationDate',
     'updateDate',

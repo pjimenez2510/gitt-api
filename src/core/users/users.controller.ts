@@ -1,25 +1,7 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpStatus,
-  Param,
-  ParseIntPipe,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common'
+import { Controller } from '@nestjs/common'
 import { UsersService } from './users.service'
-import { CreateUserDto } from './dto/req/create-user.dto'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { UpdateUserDto } from './dto/req/update-user.dto'
-import { UserResDto } from './dto/res/user-res.dto'
-import {
-  ApiPaginatedResponse,
-  ApiStandardResponse,
-} from 'src/common/decorators/api-standard-response.decorator'
+
+import { ApiTags } from '@nestjs/swagger'
 
 @ApiTags('Users')
 @Controller('users')

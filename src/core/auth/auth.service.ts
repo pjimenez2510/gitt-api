@@ -61,7 +61,7 @@ export class AuthService {
     return isPasswordValid
   }
 
-  private createToken = (payload: JwtPayload) => {
+  private readonly createToken = (payload: JwtPayload) => {
     return this.jwtService.sign(payload)
   }
 
