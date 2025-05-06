@@ -12,6 +12,8 @@ import { MaterialsModule } from './core/materials/materials.module'
 import { ColorsModule } from './core/colors/colors.module'
 import { WarehousesModule } from './core/warehouses/warehouses.module'
 import { AssetsValueModule } from './core/assets-value/assets-value.module';
+import { LocationsModule } from './core/locations/locations.module'
+
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { AssetsValueModule } from './core/assets-value/assets-value.module';
     ColorsModule,
     WarehousesModule,
     AssetsValueModule,
+    LocationsModule,
   ],
   providers: [ResponseInterceptor],
 })
