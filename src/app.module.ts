@@ -11,9 +11,8 @@ import { ConditionsModule } from './core/conditions/conditions.module'
 import { MaterialsModule } from './core/materials/materials.module'
 import { ColorsModule } from './core/colors/colors.module'
 import { WarehousesModule } from './core/warehouses/warehouses.module'
-import { AssetsValueModule } from './core/assets-value/assets-value.module';
+import { AssetsValueModule } from './core/assets-value/assets-value.module'
 import { LocationsModule } from './core/locations/locations.module'
-
 
 @Module({
   imports: [

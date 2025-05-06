@@ -4,17 +4,16 @@ import {
   Injectable,
   UnauthorizedException,
   ExecutionContext,
+  CanActivate,
 } from '@nestjs/common'
-import { AuthGuard } from '@nestjs/passport'
 import { Observable } from 'rxjs'
 import { Reflector } from '@nestjs/core'
 import { META_ROLES } from '../decorators/role-protected.decorator'
+import { user } from 'drizzle/schema'
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private readonly reflector: Reflector) {
-    super()
-  }
+export class JwtAuthGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(
     context: ExecutionContext,
@@ -28,18 +27,20 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (validRoles.length === 0) return true
 
     const req = context.switchToHttp().getRequest()
-    const user = req.user
+    const userReq: typeof user.$inferSelect | null = req.user
 
-    if (!user) throw new BadRequestException('User not found')
+    if (!userReq) throw new BadRequestException('User not found')
 
-    for (const role of user.roles) {
-      if (validRoles.includes(role as string)) {
-        return true
-      }
-    }
+    // for (const role of userReq.userType) {
+    //   if (validRoles.includes(role as string)) {
+    //     return true
+    //   }
+    // }
+
+    if (validRoles.includes(userReq.userType as string)) return true
 
     throw new ForbiddenException(
-      `User ${user.fullName} need a valid role: [${validRoles.join(', ')}]`,
+      `User ${userReq.username} need a valid role: [${validRoles.join(', ')}]`,
     )
   }
 
