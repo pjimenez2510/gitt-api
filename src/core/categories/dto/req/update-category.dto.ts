@@ -46,7 +46,7 @@ export class UpdateCategoryDto extends PartialType(CreateCategoryDto) {
 
   @ApiPropertyOptional({
     description: 'standardUsefulLife (is optional)',
-    example: '5',
+    example: 5,
   })
   standardUsefulLife?: number
 

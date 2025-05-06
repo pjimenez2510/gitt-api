@@ -41,7 +41,7 @@ export class CreateCategoryDto {
 
   @ApiProperty({
     description: 'standardUsefulLife (is optional)',
-    example: '5',
+    example: 5,
   })
   @IsInt({ message: 'standardUsefulLife must be a integer' })
   @IsOptional()
