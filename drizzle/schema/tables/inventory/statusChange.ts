@@ -12,7 +12,7 @@ import { user } from '../users/user'
 import { loan } from '../loans/loan'
 import { relations } from 'drizzle-orm'
 
-export const statusChange = pgTable('status_change', {
+export const statusChange = pgTable('status_changes', {
   id: serial('id').primaryKey(),
   itemId: integer('item_id')
     .references(() => item.id, { onDelete: 'cascade' })

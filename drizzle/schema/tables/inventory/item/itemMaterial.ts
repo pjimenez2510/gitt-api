@@ -11,7 +11,7 @@ import { material } from '../material'
 import { relations } from 'drizzle-orm'
 
 export const itemMaterial = pgTable(
-  'item_material',
+  'item_materials',
   {
     id: serial('id').primaryKey(),
     itemId: integer('item_id')

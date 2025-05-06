@@ -16,7 +16,7 @@ import {
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
-export const maintenance = pgTable('maintenance', {
+export const maintenance = pgTable('maintenances', {
   id: serial('id').primaryKey(),
   itemId: integer('item_id')
     .references(() => item.id, { onDelete: 'cascade' })

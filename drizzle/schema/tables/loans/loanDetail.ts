@@ -14,7 +14,7 @@ import { status } from '../inventory/status'
 import { relations } from 'drizzle-orm'
 
 export const loanDetail = pgTable(
-  'loan_detail',
+  'loan_details',
   {
     id: serial('id').primaryKey(),
     loanId: integer('loan_id')
@@ -39,9 +39,7 @@ export const loanDetail = pgTable(
       mode: 'date',
     }).defaultNow(),
   },
-  (t) => ({
-    unq: unique().on(t.loanId, t.itemId),
-  }),
+  (t) => [unique().on(t.loanId, t.itemId)],
 )
 
 export const loanDetailRelations = relations(loanDetail, ({ one }) => ({

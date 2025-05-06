@@ -12,7 +12,7 @@ import { user } from '../users/user'
 import { assetLoanStatus } from 'drizzle/schema/enums/inventory'
 import { relations } from 'drizzle-orm'
 
-export const assetLoan = pgTable('asset_loan', {
+export const assetLoan = pgTable('asset_loans', {
   id: serial('id').primaryKey(),
   itemId: integer('item_id')
     .references(() => item.id, { onDelete: 'cascade' })

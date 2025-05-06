@@ -56,7 +56,9 @@ export class AssetsValueService {
       .limit(1)
       .execute()
     if (!record) {
-      throw new NotFoundException(`Asset Value with Itemid ${id} not found`)
+      throw new NotFoundException(
+        `Valor de activo para el item ${id} no encontrado`,
+      )
     }
     return record
   }
@@ -69,7 +71,9 @@ export class AssetsValueService {
       .limit(1)
       .execute()
     if (!record) {
-      throw new NotFoundException(`Asset Value with Itemid ${id} not found`)
+      throw new NotFoundException(
+        `Valor de activo para el item ${id} no encontrado`,
+      )
     }
     return record
   }
@@ -84,7 +88,7 @@ export class AssetsValueService {
 
     if (alreadyExistAssetValue) {
       throw new DisplayableException(
-        'Ya existe una categoria con este codigo',
+        'Ya existe un valor de activo para este item',
         HttpStatus.CONFLICT,
       )
     }
@@ -137,7 +141,7 @@ export class AssetsValueService {
       .execute()
     if (!deletedAssetValue) {
       throw new DisplayableException(
-        `Error deleting asset value with itemid ${id}`,
+        `Error al eliminar el valor de activo para el item ${id}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       )
     }

@@ -10,7 +10,7 @@ import {
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
-export const labelTemplate = pgTable('label_template', {
+export const labelTemplate = pgTable('label_templates', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull().unique(),
   description: text('description'),

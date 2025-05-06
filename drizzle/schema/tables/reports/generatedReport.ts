@@ -15,7 +15,7 @@ import {
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
-export const generatedReport = pgTable('generated_report', {
+export const generatedReport = pgTable('generated_reports', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   type: reportType('type').notNull(),
