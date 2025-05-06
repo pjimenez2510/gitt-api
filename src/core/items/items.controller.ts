@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { CreateItemDto } from './dto/req/create-item.dto'
 import {
   ApiPaginatedResponse,
@@ -27,6 +27,7 @@ import { SimpleUserResDto } from '../auth/dto/res/simple-user-res.dto'
 
 @ApiTags('Items')
 @Controller('items')
+@ApiBearerAuth()
 export class ItemsController {
   constructor(private readonly service: ItemsService) {}
 
