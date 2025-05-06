@@ -12,7 +12,7 @@ import { location } from '../locations/location'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
-export const movement = pgTable('movement', {
+export const movement = pgTable('movements', {
   id: serial('id').primaryKey(),
   itemId: integer('item_id')
     .references(() => item.id)

@@ -13,7 +13,7 @@ import { item } from './item/item'
 import { relations } from 'drizzle-orm'
 
 export const exitDetail = pgTable(
-  'exit_detail',
+  'exit_details',
   {
     id: serial('id').primaryKey(),
     processId: integer('process_id')

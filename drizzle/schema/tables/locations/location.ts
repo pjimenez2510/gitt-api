@@ -13,7 +13,7 @@ import { relations } from 'drizzle-orm'
 import { item } from '../inventory/item/item'
 import { movement } from '../inventory/movement'
 
-export const location = pgTable('location', {
+export const location = pgTable('locations', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),

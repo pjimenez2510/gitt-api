@@ -33,9 +33,9 @@ import { insuranceClaim } from '../insuranceClaim'
 import { label } from '../../labeling/label'
 import { verificationDetail } from '../../reports/verificationDetail'
 
-export const item = pgTable('item', {
+export const item = pgTable('items', {
   id: serial('id').primaryKey(),
-  assetCode: integer('asset_code').notNull().unique(),
+  code: integer('code').notNull().unique(),
   previousCode: varchar('previous_code', { length: 50 }),
   identifier: varchar('identifier', { length: 50 }).unique(),
   certificateId: integer('certificate_id').references(() => certificate.id),
@@ -52,13 +52,6 @@ export const item = pgTable('item', {
     .notNull(),
   conditionId: integer('condition_id').references(() => condition.id),
   normativeType: normativeType('normative_type').notNull(),
-  registrationDate: timestamp('registration_date', {
-    withTimezone: true,
-    mode: 'date',
-  }).defaultNow(),
-  registrationUserId: integer('registration_user_id')
-    .references(() => user.id)
-    .notNull(),
   origin: origin('origin'),
   entryOrigin: varchar('entry_origin', { length: 100 }),
   entryType: varchar('entry_type', { length: 100 }),
@@ -67,17 +60,15 @@ export const item = pgTable('item', {
   modelCharacteristics: varchar('model_characteristics', { length: 200 }),
   brandBreedOther: varchar('brand_breed_other', { length: 100 }),
   identificationSeries: varchar('identification_series', { length: 100 }),
-  serialNumber: varchar('serial_number', { length: 100 }),
   warrantyDate: date('warranty_date'),
   dimensions: varchar('dimensions', { length: 100 }),
   critical: boolean('critical').default(false),
   dangerous: boolean('dangerous').default(false),
   requiresSpecialHandling: boolean('requires_special_handling').default(false),
-  perishableMaterial: boolean('perishable_material').default(false),
+  perishable: boolean('perishable').default(false),
   expirationDate: date('expiration_date'),
   itemLine: integer('item_line'),
   accountingAccount: varchar('accounting_account', { length: 50 }),
-  notes: text('notes'),
   observations: text('observations'),
   availableForLoan: boolean('available_for_loan').default(true),
   locationId: integer('location_id').references(() => location.id),
@@ -86,8 +77,14 @@ export const item = pgTable('item', {
   insurancePolicyId: integer('insurance_policy_id').references(
     () => insurancePolicy.id,
   ),
-  enabled: boolean('enabled').default(true),
   active: boolean('active').default(true),
+  registrationUserId: integer('registration_user_id')
+    .references(() => user.id)
+    .notNull(),
+  registrationDate: timestamp('registration_date', {
+    withTimezone: true,
+    mode: 'date',
+  }).defaultNow(),
   updateDate: timestamp('update_date', {
     withTimezone: true,
     mode: 'date',

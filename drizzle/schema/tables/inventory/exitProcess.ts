@@ -15,7 +15,7 @@ import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 import { exitDetail } from './exitDetail'
 
-export const exitProcess = pgTable('exit_process', {
+export const exitProcess = pgTable('exit_processes', {
   id: serial('id').primaryKey(),
   processCode: varchar('process_code', { length: 50 }).notNull().unique(),
   type: exitProcessType('type').notNull(),

@@ -13,7 +13,7 @@ import { insuredAssetDetail } from './insuredAssetDetail'
 import { insuranceClaim } from './insuranceClaim'
 import { item } from './item/item'
 
-export const insurancePolicy = pgTable('insurance_policy', {
+export const insurancePolicy = pgTable('insurance_policies', {
   id: serial('id').primaryKey(),
   policyNumber: varchar('policy_number', { length: 50 }).notNull().unique(),
   insuranceCompany: varchar('insurance_company', { length: 255 }).notNull(),
