@@ -1,129 +1,95 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { CreateUserDto } from './dto/req/create-user.dto'
-import { UpdateUserDto } from './dto/req/update-user.dto'
-import { DisplayableException } from 'src/common/exceptions/displayable.exception'
-import { hashPassword } from 'src/common/utils/encrypter'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
-import { DatabaseService } from 'src/global/database/database.service'
-import { count, desc, eq, sql } from 'drizzle-orm'
-import { users } from 'drizzle/schema'
-import { excludeColumns } from 'src/common/utils/drizzle-helpers'
+import { Injectable } from '@nestjs/common'
 
 @Injectable()
 export class UsersService {
-  constructor(private dbService: DatabaseService) {}
-
-  private usersWithoutPassword = excludeColumns(users, 'password')
-
-  async findAll({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
-
-    const query = this.dbService.db
-      .select(this.usersWithoutPassword)
-      .from(users)
-      .orderBy(desc(users.id))
-      .limit(limit)
-      .offset(offset)
-
-    const totalQuery = this.dbService.db.select({ count: count() }).from(users)
-
-    const [records, totalResult] = await Promise.all([
-      query.execute(),
-      totalQuery.execute(),
-    ])
-
-    const total = totalResult[0].count
-
-    return {
-      records,
-      total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
-    }
-  }
-
-  async create(dto: CreateUserDto) {
-    // Check if person is already associated
-    const [alreadyExistPersonAssociated] = await this.dbService.db
-      .select(this.usersWithoutPassword)
-      .from(users)
-      .where(
-        eq(sql<string>`lower(${users.userName})`, dto.userName.toLowerCase()),
-      )
-      .limit(1)
-      .execute()
-
-    if (alreadyExistPersonAssociated) {
-      throw new DisplayableException(
-        'Ya existe una persona asociada a este usuario',
-        HttpStatus.CONFLICT,
-      )
-    }
-
-    const hashedPassword = hashPassword(dto.password)
-
-    const [newUser] = await this.dbService.db
-      .insert(users)
-      .values({
-        userName: dto.userName,
-        password: hashedPassword,
-      })
-      .returning(this.usersWithoutPassword)
-      .execute()
-
-    return newUser
-  }
-
-  async update(id: number, dto: UpdateUserDto) {
-    await this.findOne(id) // Verify user exists
-
-    const updateData: Partial<UpdateUserDto> = { ...dto }
-    if (dto.password) {
-      updateData.password = hashPassword(dto.password)
-    }
-
-    const [updatedUser] = await this.dbService.db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, id))
-      .returning(this.usersWithoutPassword)
-      .execute()
-
-    return updatedUser
-  }
-
-  async findOne(id: number) {
-    const [user] = await this.dbService.db
-      .select(this.usersWithoutPassword)
-      .from(users)
-      .where(eq(users.id, id))
-      .limit(1)
-      .execute()
-
-    if (!user) {
-      throw new NotFoundException(`User with id ${id} not found`)
-    }
-
-    return user
-  }
-
-  async remove(id: number) {
-    await this.findOne(id) // Verify user exists
-
-    const [deletedUser] = await this.dbService.db
-      .delete(users)
-      .where(eq(users.id, id))
-      .returning(this.usersWithoutPassword)
-      .execute()
-
-    if (!deletedUser) {
-      throw new DisplayableException(
-        `Error deleting user with id ${id}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      )
-    }
-
-    return deletedUser
-  }
+  // constructor(private dbService: DatabaseService) {}
+  // private usersWithoutPassword = excludeColumns(user, 'passwordHash')
+  // async findAll({ limit, page }: BaseParamsDto) {
+  //   const offset = (page - 1) * limit
+  //   const query = this.dbService.db
+  //     .select(this.usersWithoutPassword)
+  //     .from(user)
+  //     .orderBy(desc(user.id))
+  //     .limit(limit)
+  //     .offset(offset)
+  //   const totalQuery = this.dbService.db.select({ count: count() }).from(user)
+  //   const [records, totalResult] = await Promise.all([
+  //     query.execute(),
+  //     totalQuery.execute(),
+  //   ])
+  //   const total = totalResult[0].count
+  //   return {
+  //     records,
+  //     total,
+  //     limit,
+  //     page,
+  //     pages: Math.ceil(total / limit),
+  //   }
+  // }
+  // async create(dto: CreateUserDto) {
+  //   // Check if person is already associated
+  //   const [alreadyExistPersonAssociated] = await this.dbService.db
+  //     .select(this.usersWithoutPassword)
+  //     .from(user)
+  //     .where(eq(sql<string>`lower(${user.email})`, dto.userName.toLowerCase()))
+  //     .limit(1)
+  //     .execute()
+  //   if (alreadyExistPersonAssociated) {
+  //     throw new DisplayableException(
+  //       'Ya existe una persona asociada a este usuario',
+  //       HttpStatus.CONFLICT,
+  //     )
+  //   }
+  //   const hashedPassword = hashPassword(dto.password)
+  //   const [newUser] = await this.dbService.db
+  //     .insert(user)
+  //     .values({
+  //       userName: dto.userName,
+  //       password: hashedPassword,
+  //     })
+  //     .returning(this.usersWithoutPassword)
+  //     .execute()
+  //   return newUser
+  // }
+  // async update(id: number, dto: UpdateUserDto) {
+  //   await this.findOne(id) // Verify user exists
+  //   const updateData: Partial<UpdateUserDto> = { ...dto }
+  //   if (dto.password) {
+  //     updateData.password = hashPassword(dto.password)
+  //   }
+  //   const [updatedUser] = await this.dbService.db
+  //     .update(user)
+  //     .set(updateData)
+  //     .where(eq(user.id, id))
+  //     .returning(this.usersWithoutPassword)
+  //     .execute()
+  //   return updatedUser
+  // }
+  // async findOne(id: number) {
+  //   const [user] = await this.dbService.db
+  //     .select(this.usersWithoutPassword)
+  //     .from(user)
+  //     .where(eq(user.id, id))
+  //     .limit(1)
+  //     .execute()
+  //   if (!user) {
+  //     throw new NotFoundException(`User with id ${id} not found`)
+  //   }
+  //   return user
+  // }
+  // async remove(id: number) {
+  //   await this.findOne(id) // Verify user exists
+  //   const [deletedUser] = await this.dbService.db
+  //     .delete(user)
+  //     .where(eq(user.id, id))
+  //     .returning(this.usersWithoutPassword)
+  //     .execute()
+  //   if (!deletedUser) {
+  //     throw new DisplayableException(
+  //       `Error deleting user with id ${id}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     )
+  //   }
+  //   return deletedUser
+  // }
 }
