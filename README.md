@@ -14,6 +14,7 @@ RESTful API for inventory management and control
   - Pre-commits with Husky
   - Auto-formatting (Prettier)
   - Linting (ESLint)
+  - 
 
 ## Technologies 🛠️
 
