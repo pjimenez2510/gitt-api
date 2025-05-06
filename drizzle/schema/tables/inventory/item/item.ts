@@ -14,7 +14,6 @@ import { itemType } from '../itemType'
 import { category } from '../category'
 import { certificate } from '../certificate'
 import { condition } from '../condition'
-import { insurancePolicy } from '../insurancePolicy'
 import { status } from '../status'
 import { location } from '../../locations/location'
 import { relations } from 'drizzle-orm'
@@ -74,9 +73,6 @@ export const item = pgTable('items', {
   locationId: integer('location_id').references(() => location.id),
   custodianId: integer('custodian_id').references(() => user.id),
   activeCustodian: boolean('active_custodian').default(true),
-  insurancePolicyId: integer('insurance_policy_id').references(
-    () => insurancePolicy.id,
-  ),
   active: boolean('active').default(true),
   registrationUserId: integer('registration_user_id')
     .references(() => user.id)
@@ -125,10 +121,6 @@ export const itemRelations = relations(item, ({ one, many }) => ({
     fields: [item.custodianId],
     references: [user.id],
     relationName: 'custodian',
-  }),
-  insurancePolicy: one(insurancePolicy, {
-    fields: [item.insurancePolicyId],
-    references: [insurancePolicy.id],
   }),
 
   colors: many(itemColor),

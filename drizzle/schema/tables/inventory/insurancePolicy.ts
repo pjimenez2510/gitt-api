@@ -11,7 +11,6 @@ import { policyStatus } from 'drizzle/schema/enums/inventory'
 import { relations } from 'drizzle-orm'
 import { insuredAssetDetail } from './insuredAssetDetail'
 import { insuranceClaim } from './insuranceClaim'
-import { item } from './item/item'
 
 export const insurancePolicy = pgTable('insurance_policies', {
   id: serial('id').primaryKey(),
@@ -43,6 +42,5 @@ export const insurancePolicyRelations = relations(
   ({ many }) => ({
     insuredAssets: many(insuredAssetDetail),
     claims: many(insuranceClaim),
-    items: many(item),
   }),
 )
