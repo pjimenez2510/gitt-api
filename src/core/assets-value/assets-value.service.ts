@@ -6,6 +6,7 @@ import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateAssetValueDto } from './dto/req/create-asset-value.dto'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
+import { UpdateAssetValueDto } from './dto/req/update-asset-value.dto'
 
 @Injectable()
 export class AssetsValueService {
@@ -107,5 +108,39 @@ export class AssetsValueService {
       .execute()
 
     return newAssetValue
+  }
+
+  async update(id: number, dto: UpdateAssetValueDto) {
+    await this.findByItemId(id)
+
+    const updateData: Partial<CreateAssetValueDto> = {
+      ...dto,
+    }
+
+    const [updateAssetValue] = await this.dbService.db
+      .update(assetValue)
+      .set(updateData)
+      .where(eq(assetValue.itemId, id))
+      .returning(this.assetValueWithoutDates)
+      .execute()
+
+    return updateAssetValue
+  }
+
+  async remove(id: number) {
+    await this.findByItemId(id)
+
+    const [deletedAssetValue] = await this.dbService.db
+      .delete(assetValue)
+      .where(eq(assetValue.itemId, id))
+      .returning(this.assetValueWithoutDates)
+      .execute()
+    if (!deletedAssetValue) {
+      throw new DisplayableException(
+        `Error deleting asset value with itemid ${id}`,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      )
+    }
+    return deletedAssetValue
   }
 }
