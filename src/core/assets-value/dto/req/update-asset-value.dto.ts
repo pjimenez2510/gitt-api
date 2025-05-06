@@ -37,21 +37,21 @@ export class UpdateAssetValueDto extends PartialType(CreateAssetValueDto) {
     example: '9999999999.99',
   })
   @IsOptional()
-  bookValue?: number
+  bookValue?: string
 
   @ApiPropertyOptional({
     description: 'residualValue (is optional)',
     example: '9999999999.99',
   })
   @IsOptional()
-  residualValue?: number
+  residualValue?: string
 
   @ApiPropertyOptional({
     description: 'ledgerValue (is optional)',
     example: '9999999999.99',
   })
   @IsOptional()
-  ledgerValue?: number
+  ledgerValue?: string
 
   @ApiPropertyOptional({
     description: 'accumulatedDepreciationValue (is optional)',

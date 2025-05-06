@@ -38,7 +38,7 @@ export class CreateAssetValueDto {
     },
   )
   @IsNotEmpty({ message: 'purchaseValue is required' })
-  purchaseValue: number
+  purchaseValue: string
 
   @ApiPropertyOptional({
     description: 'repurchase (is optional)',
@@ -62,7 +62,7 @@ export class CreateAssetValueDto {
   })
   @IsDateString({ strict: true }, { message: 'entryDate must be a date' })
   @IsNotEmpty({ message: 'entryDate is required' })
-  entryDate: Date
+  entryDate: string
 
   @ApiPropertyOptional({
     description: 'usefulLife (is optional)',
@@ -81,7 +81,7 @@ export class CreateAssetValueDto {
     { message: 'depreciationEndDate must be a date' },
   )
   @IsOptional()
-  depreciationEndDate?: Date
+  depreciationEndDate?: string
 
   @ApiPropertyOptional({
     description: 'bookValue (is optional)',
@@ -94,7 +94,7 @@ export class CreateAssetValueDto {
     },
   )
   @IsOptional()
-  bookValue?: number
+  bookValue?: string
 
   @ApiPropertyOptional({
     description: 'residualValue (is optional)',
@@ -107,7 +107,7 @@ export class CreateAssetValueDto {
     },
   )
   @IsOptional()
-  residualValue?: number
+  residualValue?: string
 
   @ApiPropertyOptional({
     description: 'ledgerValue (is optional)',
@@ -120,5 +120,5 @@ export class CreateAssetValueDto {
     },
   )
   @IsOptional()
-  ledgerValue?: number
+  ledgerValue?: string
 }

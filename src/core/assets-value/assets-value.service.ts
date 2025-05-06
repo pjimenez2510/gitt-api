@@ -1,9 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { count, desc, eq } from 'drizzle-orm'
 import { assetValue } from 'drizzle/schema'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
+import { CreateAssetValueDto } from './dto/req/create-asset-value.dto'
+import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 
 @Injectable()
 export class AssetsValueService {
@@ -69,5 +71,41 @@ export class AssetsValueService {
       throw new NotFoundException(`Asset Value with Itemid ${id} not found`)
     }
     return record
+  }
+
+  async create(dto: CreateAssetValueDto) {
+    const [alreadyExistAssetValue] = await this.dbService.db
+      .select(this.assetValueWithoutDates)
+      .from(assetValue)
+      .where(eq(assetValue.itemId, dto.itemId))
+      .limit(1)
+      .execute()
+
+    if (alreadyExistAssetValue) {
+      throw new DisplayableException(
+        'Ya existe una categoria con este codigo',
+        HttpStatus.CONFLICT,
+      )
+    }
+
+    const [newAssetValue] = await this.dbService.db
+      .insert(assetValue)
+      .values({
+        itemId: dto.itemId,
+        currency: dto.currency,
+        purchaseValue: dto.purchaseValue,
+        repurchase: dto.repurchase,
+        depreciable: dto.depreciable,
+        entryDate: dto.entryDate,
+        usefulLife: dto.usefulLife,
+        depreciationEndDate: dto.depreciationEndDate,
+        bookValue: dto.bookValue,
+        residualValue: dto.residualValue,
+        ledgerValue: dto.ledgerValue,
+      })
+      .returning()
+      .execute()
+
+    return newAssetValue
   }
 }
