@@ -13,10 +13,10 @@ export class ItemResDto {
 
   @ApiProperty({
     description: 'código del item',
-    example: 10001,
+    example: '10001',
   })
   @Expose()
-  code: number
+  code: string
 
   @ApiProperty({
     description: 'nombre del item',

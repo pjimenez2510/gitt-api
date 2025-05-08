@@ -34,9 +34,9 @@ import { verificationDetail } from '../../reports/verificationDetail'
 
 export const item = pgTable('items', {
   id: serial('id').primaryKey(),
-  code: integer('code').notNull().unique(),
+  code: varchar('code', { length: 50 }).notNull().unique(),
   previousCode: varchar('previous_code', { length: 50 }),
-  identifier: varchar('identifier', { length: 50 }).unique(),
+  identifier: varchar('identifier', { length: 50 }),
   certificateId: integer('certificate_id').references(() => certificate.id),
   itemTypeId: integer('item_type_id')
     .references(() => itemType.id)

@@ -20,6 +20,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:reset": "tsx drizzle/reset-db.ts && drizzle-kit push",
     "db:seed": "tsx drizzle/reset-db.ts && drizzle-kit push && tsx drizzle/seed.ts",
+    "db:import-csv": "tsx drizzle/data/csv-importer-runner.ts",
+    "db:load-franklin-csv": "npm run db:import-csv -- drizzle/data/BIENES_FRANKLIN_SALAZAR_FINAL.csv",
     "prepare": "husky"
   },
   "dependencies": {
@@ -34,6 +36,7 @@
     "bcrypt": "^5.1.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "csv-parse": "^5.6.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.43.1",
     "joi": "^17.13.3",
