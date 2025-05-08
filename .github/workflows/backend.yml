@@ -1,27 +1,33 @@
-name: CI/CD - NestJS Backend -Test
+name: CI - NestJS Backend
 
 on:
   push:
-    branches: [dev]
+    branches: [main, dev]
 
 jobs:
-  build-and-deploy:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout
+      - name: 📥 Checkout repository
         uses: actions/checkout@v3
 
-      - name: 🟢 Setup Node
+      - name: 🟢 Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 22
 
       - name: 📦 Install dependencies
         run: npm install
 
+      - name: 💅 Check code formatting
+        run: npm run format
+
+      - name: ✅ Lint code
+        run: npm run lint
+
+      - name: 🧪 Run tests
+        run: npm run test
+
       - name: 🏗️ Build project
         run: npm run build
-
-      - name: 🚀 Deploy to Render
-        run: curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
