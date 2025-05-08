@@ -9,7 +9,7 @@ import {
 import { relations } from 'drizzle-orm'
 import { itemMaterial } from './item/itemMaterial'
 
-export const material = pgTable('material', {
+export const material = pgTable('materials', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),

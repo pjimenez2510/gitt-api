@@ -11,7 +11,7 @@ import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
 export const notificationPreference = pgTable(
-  'notification_preference',
+  'notification_preferences',
   {
     id: serial('id').primaryKey(),
     userId: integer('user_id')

@@ -11,7 +11,7 @@ import { color } from '../color'
 import { relations } from 'drizzle-orm'
 
 export const itemColor = pgTable(
-  'item_color',
+  'item_colors',
   {
     id: serial('id').primaryKey(),
     itemId: integer('item_id')

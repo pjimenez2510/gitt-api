@@ -11,7 +11,7 @@ import { reportType } from 'drizzle/schema/enums/reports'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
-export const reportTemplate = pgTable('report_template', {
+export const reportTemplate = pgTable('report_templates', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 100 }).notNull().unique(),
   description: text('description'),

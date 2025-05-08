@@ -15,7 +15,7 @@ import { location } from '../locations/location'
 import { relations } from 'drizzle-orm'
 
 export const verificationDetail = pgTable(
-  'verification_detail',
+  'verification_details',
   {
     id: serial('id').primaryKey(),
     verificationId: integer('verification_id')

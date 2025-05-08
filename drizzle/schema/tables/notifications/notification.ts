@@ -14,7 +14,7 @@ import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 import { deliveryRecord } from './deliveryRecord'
 
-export const notification = pgTable('notification', {
+export const notification = pgTable('notifications', {
   id: serial('id').primaryKey(),
   userId: integer('user_id')
     .references(() => user.id, { onDelete: 'cascade' })

@@ -14,7 +14,7 @@ import { item } from '../inventory/item/item'
 import { relations } from 'drizzle-orm'
 import { scanRecord } from './scanRecord'
 
-export const label = pgTable('label', {
+export const label = pgTable('labels', {
   id: serial('id').primaryKey(),
   itemId: integer('item_id')
     .references(() => item.id, { onDelete: 'cascade' })
