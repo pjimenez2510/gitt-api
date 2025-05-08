@@ -28,7 +28,7 @@ export class ItemMaterialsController {
 
   @Get('item/:id')
   @ApiOperation({
-    summary: 'Obtener todos los colores de un ítem',
+    summary: 'Obtener todos los detalles de materiales de un ítem',
   })
   @ApiPaginatedResponse(ItemMaterialResDto, HttpStatus.OK)
   findAll(
@@ -40,7 +40,7 @@ export class ItemMaterialsController {
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Obtener un detalle color de ítem por id',
+    summary: 'Obtener un detalle material de ítem por id',
   })
   @ApiStandardResponse(ItemMaterialResDto, HttpStatus.OK)
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -49,7 +49,7 @@ export class ItemMaterialsController {
 
   @Post()
   @ApiOperation({
-    summary: 'Crear un nuevo tipo de ítem',
+    summary: 'Crear un nuevo material para un ítem',
   })
   @ApiBody({ type: CreateItemMaterialDto })
   @ApiStandardResponse(ItemMaterialResDto, HttpStatus.CREATED)
@@ -59,7 +59,7 @@ export class ItemMaterialsController {
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'Actualizar un tipo de ítem por id',
+    summary: 'Actualizar un material de ítem por id',
   })
   @ApiBody({ type: UpdateItemMaterialDto })
   @ApiStandardResponse(ItemMaterialResDto, HttpStatus.OK)
@@ -72,7 +72,7 @@ export class ItemMaterialsController {
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Eliminar un tipo de ítem por id',
+    summary: 'Eliminar un material de ítem por id',
   })
   @ApiStandardResponse(ItemMaterialResDto, HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
