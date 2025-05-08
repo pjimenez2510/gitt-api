@@ -5,7 +5,6 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   MaxLength,
@@ -16,11 +15,12 @@ import { Origin } from '../../enums/origin.enum'
 export class CreateItemDto {
   @ApiProperty({
     description: 'código del item',
-    example: 10001,
+    example: '10001',
   })
-  @IsNumber({}, { message: 'El código debe ser un número' })
+  @IsString({ message: 'El código debe ser un string' })
   @IsNotEmpty({ message: 'El código es requerido' })
-  code: number
+  @MaxLength(50, { message: 'El código no puede tener más de 50 caracteres' })
+  code: string
 
   @ApiProperty({
     description: 'nombre del item',
