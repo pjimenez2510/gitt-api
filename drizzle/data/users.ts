@@ -1,5 +1,7 @@
 import { person, user } from 'drizzle/schema'
 import { hashPassword } from 'src/common/utils/encrypter'
+import { USER_STATUS } from 'src/core/users/types/user-status.enum'
+import { USER_TYPE } from 'src/core/users/types/user-type.enum'
 
 export const peopleSeed: (typeof person.$inferInsert)[] = [
   {
@@ -14,9 +16,9 @@ export const peopleSeed: (typeof person.$inferInsert)[] = [
 export const usersSeed: (typeof user.$inferInsert)[] = [
   {
     personId: 1,
-    username: 'ezhu7643',
+    userName: 'ezhu7643',
     passwordHash: hashPassword('123456'),
-    userType: 'ADMINISTRATOR',
-    status: 'ACTIVE',
+    userType: USER_TYPE.ADMINISTRATOR,
+    status: USER_STATUS.ACTIVE,
   },
 ]
