@@ -99,7 +99,6 @@ import {
   notificationPreference,
   notificationPreferenceRelations,
   notificationTemplate,
-  notificationTemplateRelations,
   deliveryRecord,
   deliveryRecordRelations,
 } from './schema/tables/notifications'
@@ -139,8 +138,8 @@ export {
   // Inventario - tablas principales
   item,
   itemRelations,
-  itemType as assetType,
-  itemTypeRelations as assetTypeRelations,
+  itemType,
+  itemTypeRelations,
   category,
   categoryRelations,
   status,
@@ -219,7 +218,6 @@ export {
   notificationPreference,
   notificationPreferenceRelations,
   notificationTemplate,
-  notificationTemplateRelations,
   deliveryRecord,
   deliveryRecordRelations,
 

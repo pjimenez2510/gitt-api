@@ -9,7 +9,7 @@ import { loan } from './loan'
 import { documentType } from 'drizzle/schema/enums/loans'
 import { relations } from 'drizzle-orm'
 
-export const responsibilityDocument = pgTable('responsibility_document', {
+export const responsibilityDocument = pgTable('responsibility_documents', {
   id: serial('id').primaryKey(),
   loanId: integer('loan_id')
     .references(() => loan.id, { onDelete: 'cascade' })

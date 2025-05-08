@@ -23,6 +23,6 @@ import { CustomConfigModule } from 'src/global/config/config.module'
       global: true,
     }),
   ],
-  exports: [AuthService],
+  exports: [PassportModule, AuthService],
 })
 export class AuthModule {}

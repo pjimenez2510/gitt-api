@@ -12,9 +12,9 @@ import { ConditionResDto } from './dto/res/condition-res.dto'
 
 @Injectable()
 export class ConditionsService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
-  private conditionsWithoutDates = excludeColumns(
+  private readonly conditionsWithoutDates = excludeColumns(
     condition,
     'registrationDate',
     'updateDate',

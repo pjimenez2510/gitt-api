@@ -13,7 +13,7 @@ import { item } from './item/item'
 import { claimStatus } from 'drizzle/schema/enums/inventory'
 import { relations } from 'drizzle-orm'
 
-export const insuranceClaim = pgTable('insurance_claim', {
+export const insuranceClaim = pgTable('insurance_claims', {
   id: serial('id').primaryKey(),
   policyId: integer('policy_id')
     .references(() => insurancePolicy.id)

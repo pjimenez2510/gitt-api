@@ -38,19 +38,16 @@ async function bootstrap() {
       'Complete API documentation for the GITT application. This API is designed to provide a comprehensive set of endpoints for managing and interacting with the GITT application.',
     )
     .setVersion('1.0')
-    .addServer(`http://localhost:${port}`, 'Servidor local')
-    // .addServer('https://api.produccion.com', 'Servidor de producción')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'JWT',
-        description: 'Enter your JWT token',
-        in: 'header',
-      },
-      'access-token',
-    )
+    //.addServer(`http://localhost:${port}`, 'Servidor local')
+    .addServer('https://gitt-api-3tw6.onrender.com', 'Servidor de producción')
+    .addBearerAuth({
+      type: 'http',
+      scheme: 'bearer',
+      bearerFormat: 'JWT',
+      name: 'JWT',
+      description: 'Enter your JWT token',
+      in: 'header',
+    })
     .build()
 
   const document = SwaggerModule.createDocument(app, config, {

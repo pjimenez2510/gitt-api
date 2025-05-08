@@ -5,7 +5,6 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
   MaxLength,
 } from 'class-validator'
 import { CreateWarehouseDto } from './create-warehouse.dto'

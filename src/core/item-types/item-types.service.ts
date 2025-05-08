@@ -12,9 +12,9 @@ import { ItemTypeResDto } from './dto/res/item-type-res.dto'
 
 @Injectable()
 export class ItemTypesService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
-  private itemTypesWithoutDates = excludeColumns(
+  private readonly itemTypesWithoutDates = excludeColumns(
     itemType,
     'registrationDate',
     'updateDate',

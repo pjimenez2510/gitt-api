@@ -7,6 +7,7 @@ import { CustomConfigService } from 'src/global/config/config.service'
 import { DatabaseService } from 'src/global/database/database.service'
 import { user } from 'drizzle/schema'
 import { eq } from 'drizzle-orm'
+import { USER_STATUS } from 'src/core/users/types/user-status.enum'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -38,7 +39,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     if (!userFound) throw new UnauthorizedException('Token not valid')
 
-    if (userFound.status !== 'ACTIVE')
+    if (userFound.status !== USER_STATUS.ACTIVE)
       throw new UnauthorizedException('User is inactive, talk with an admin')
 
     return userFound

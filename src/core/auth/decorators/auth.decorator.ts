@@ -1,8 +1,12 @@
 import { applyDecorators, UseGuards } from '@nestjs/common'
 import { JwtAuthGuard } from '../guards/jwt-auth.guard'
 import { RoleProtected } from './role-protected.decorator'
-import { UserRole } from '../types/user-role'
+import { AuthGuard } from '@nestjs/passport'
+import { USER_TYPE } from 'src/core/users/types/user-type.enum'
 
-export function Auth(...roles: UserRole[]) {
-  return applyDecorators(RoleProtected(...roles), UseGuards(JwtAuthGuard))
+export function Auth(...roles: USER_TYPE[]) {
+  return applyDecorators(
+    RoleProtected(...roles),
+    UseGuards(AuthGuard(), JwtAuthGuard),
+  )
 }

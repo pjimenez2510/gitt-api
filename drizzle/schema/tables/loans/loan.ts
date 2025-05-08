@@ -14,7 +14,7 @@ import { loanDetail } from './loanDetail'
 import { loanHistory } from './loanHistory'
 import { responsibilityDocument } from './responsibilityDocument'
 
-export const loan = pgTable('loan', {
+export const loan = pgTable('loans', {
   id: serial('id').primaryKey(),
   loanCode: varchar('loan_code', { length: 50 }).notNull().unique(),
   requestDate: timestamp('request_date', {

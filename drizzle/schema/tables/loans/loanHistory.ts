@@ -4,7 +4,7 @@ import { loanStatus } from 'drizzle/schema/enums/loans'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
-export const loanHistory = pgTable('loan_history', {
+export const loanHistory = pgTable('loan_histories', {
   id: serial('id').primaryKey(),
   loanId: integer('loan_id')
     .references(() => loan.id, { onDelete: 'cascade' })
