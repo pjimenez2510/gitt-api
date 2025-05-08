@@ -40,7 +40,7 @@ export class JwtAuthGuard implements CanActivate {
     if (validRoles.includes(userReq.userType as string)) return true
 
     throw new ForbiddenException(
-      `User ${userReq.username} need a valid role: [${validRoles.join(', ')}]`,
+      `User ${userReq.userName} need a valid role: [${validRoles.join(', ')}]`,
     )
   }
 

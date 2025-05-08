@@ -14,7 +14,7 @@ import { ApiStandardResponse } from 'src/common/decorators/api-standard-response
 import { SignInResDto } from './dto/res/sign-in-res.dto'
 import { Auth } from './decorators/auth.decorator'
 import { Request } from 'express'
-import { UserRole } from './types/user-role'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -36,7 +36,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Get Me',
   })
-  @Auth(UserRole.ADMINISTRATOR)
+  @Auth(USER_TYPE.ADMINISTRATOR)
   getMe(@Req() req: Request) {
     return req.user
   }

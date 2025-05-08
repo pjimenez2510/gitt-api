@@ -21,9 +21,9 @@ import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateItemDto } from './dto/req/update-item.dto'
 import { ItemsService } from './items.service'
 import { Auth } from 'src/core/auth/decorators/auth.decorator'
-import { UserRole } from 'src/core/auth/types/user-role'
 import { GetUser } from 'src/core/auth/decorators/get-user.decorator'
 import { SimpleUserResDto } from '../auth/dto/res/simple-user-res.dto'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Items')
 @Controller('items')
@@ -33,10 +33,10 @@ export class ItemsController {
 
   @Get()
   @Auth(
-    UserRole.ADMINISTRATOR,
-    UserRole.MANAGER,
-    UserRole.TEACHER,
-    UserRole.STUDENT,
+    USER_TYPE.ADMINISTRATOR,
+    USER_TYPE.MANAGER,
+    USER_TYPE.TEACHER,
+    USER_TYPE.STUDENT,
   )
   @ApiOperation({
     summary: 'Obtener todos los items',
@@ -48,10 +48,10 @@ export class ItemsController {
 
   @Get(':id')
   @Auth(
-    UserRole.ADMINISTRATOR,
-    UserRole.MANAGER,
-    UserRole.TEACHER,
-    UserRole.STUDENT,
+    USER_TYPE.ADMINISTRATOR,
+    USER_TYPE.MANAGER,
+    USER_TYPE.TEACHER,
+    USER_TYPE.STUDENT,
   )
   @ApiOperation({
     summary: 'Obtener un item por id',
@@ -62,7 +62,7 @@ export class ItemsController {
   }
 
   @Post()
-  @Auth(UserRole.ADMINISTRATOR, UserRole.MANAGER)
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
   @ApiOperation({
     summary: 'Crear un nuevo item',
   })
@@ -73,7 +73,7 @@ export class ItemsController {
   }
 
   @Patch(':id')
-  @Auth(UserRole.ADMINISTRATOR, UserRole.MANAGER)
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
   @ApiOperation({
     summary: 'Actualizar un item por id',
   })
@@ -84,7 +84,7 @@ export class ItemsController {
   }
 
   @Delete(':id')
-  @Auth(UserRole.ADMINISTRATOR)
+  @Auth(USER_TYPE.ADMINISTRATOR)
   @ApiOperation({
     summary: 'Eliminar un item por id',
   })
