@@ -14,8 +14,12 @@ import { WarehousesModule } from './core/warehouses/warehouses.module'
 import { AssetsValueModule } from './core/assets-value/assets-value.module'
 import { LocationsModule } from './core/locations/locations.module'
 import { ItemsModule } from './core/items/items.module'
+
+import { CertificatesModule } from './core/certificates/certificates.module'
+
 import { ItemColorsModule } from './core/item-colors/item-colors.module';
 import { ItemMaterialsModule } from './core/item-materials/item-materials.module';
+
 
 @Module({
   imports: [
@@ -33,8 +37,12 @@ import { ItemMaterialsModule } from './core/item-materials/item-materials.module
     AssetsValueModule,
     LocationsModule,
     ItemsModule,
+
+    CertificatesModule,
+
     ItemColorsModule,
     ItemMaterialsModule,
+
   ],
   providers: [ResponseInterceptor],
 })
