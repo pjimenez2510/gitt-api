@@ -138,8 +138,8 @@ export {
   // Inventario - tablas principales
   item,
   itemRelations,
-  itemType as assetType,
-  itemTypeRelations as assetTypeRelations,
+  itemType,
+  itemTypeRelations,
   category,
   categoryRelations,
   status,
