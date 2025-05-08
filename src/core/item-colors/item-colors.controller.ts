@@ -26,7 +26,7 @@ import { UpdateItemColorDto } from './dto/req/update-item-color.dto'
 export class ItemColorsController {
   constructor(private readonly service: ItemColorsService) {}
 
-  @Get(':id')
+  @Get('item/:id')
   @ApiOperation({
     summary: 'Obtener todos los colores de un ítem',
   })
