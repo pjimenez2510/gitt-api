@@ -20,7 +20,6 @@ export const itemColor = pgTable(
     colorId: integer('color_id')
       .references(() => color.id)
       .notNull(),
-    percentage: integer('percentage'),
     isMainColor: boolean('is_main_color').default(false),
     registrationDate: timestamp('registration_date', {
       withTimezone: true,
