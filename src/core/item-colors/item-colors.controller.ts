@@ -49,7 +49,7 @@ export class ItemColorsController {
 
   @Post()
   @ApiOperation({
-    summary: 'Crear un nuevo tipo de ítem',
+    summary: 'Crear un nuevo color de ítem',
   })
   @ApiBody({ type: CreateItemColorDto })
   @ApiStandardResponse(ItemColorResDto, HttpStatus.CREATED)
@@ -59,7 +59,7 @@ export class ItemColorsController {
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'Actualizar un tipo de ítem por id',
+    summary: 'Actualizar un color de ítem por id',
   })
   @ApiBody({ type: UpdateItemColorDto })
   @ApiStandardResponse(ItemColorResDto, HttpStatus.OK)
@@ -72,7 +72,7 @@ export class ItemColorsController {
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Eliminar un tipo de ítem por id',
+    summary: 'Eliminar un color de ítem por id',
   })
   @ApiStandardResponse(ItemColorResDto, HttpStatus.OK)
   remove(@Param('id', ParseIntPipe) id: number) {
