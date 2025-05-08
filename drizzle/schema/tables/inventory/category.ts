@@ -11,7 +11,7 @@ import {
 import { relations } from 'drizzle-orm'
 import { item } from './item/item'
 
-export const category = pgTable('category', {
+export const category = pgTable('categories', {
   id: serial('id').primaryKey(),
   code: varchar('code', { length: 20 }).notNull().unique(),
   name: varchar('name', { length: 100 }).notNull(),

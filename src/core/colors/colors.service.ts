@@ -12,9 +12,9 @@ import { ColorResDto } from './dto/res/color-res.dto'
 
 @Injectable()
 export class ColorsService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
-  private colorsWithoutDates = excludeColumns(
+  private readonly colorsWithoutDates = excludeColumns(
     color,
     'registrationDate',
     'updateDate',

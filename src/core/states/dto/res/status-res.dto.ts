@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger'
 export class StatusResDto {
   @ApiProperty({
     description: 'id of the status',
-    example: 'asdasd-asdasd-asdasd-asdasd',
+    example: 1,
   })
   id: number
 

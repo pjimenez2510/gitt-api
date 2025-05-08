@@ -10,9 +10,9 @@ import { UpdateStatusDto } from './dto/req/update-status.dto'
 
 @Injectable()
 export class StatesService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
-  private statesWithoutDates = excludeColumns(
+  private readonly statesWithoutDates = excludeColumns(
     status,
     'registrationDate',
     'updateDate',

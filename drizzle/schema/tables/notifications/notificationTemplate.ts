@@ -1,18 +1,10 @@
-import {
-  pgTable,
-  serial,
-  varchar,
-  text,
-  boolean,
-  timestamp,
-} from 'drizzle-orm/pg-core'
+import { pgTable, serial, text, boolean, timestamp } from 'drizzle-orm/pg-core'
 import {
   notificationChannel,
   notificationType,
 } from 'drizzle/schema/enums/notifications'
-import { relations } from 'drizzle-orm'
 
-export const notificationTemplate = pgTable('notification_template', {
+export const notificationTemplate = pgTable('notification_templates', {
   id: serial('id').primaryKey(),
   type: notificationType('type').notNull().unique(),
   templateTitle: text('template_title').notNull(),
@@ -28,9 +20,3 @@ export const notificationTemplate = pgTable('notification_template', {
     mode: 'date',
   }).defaultNow(),
 })
-
-// No hay relaciones directas con otras tablas a través de claves foráneas
-export const notificationTemplateRelations = relations(
-  notificationTemplate,
-  ({}) => ({}),
-)

@@ -12,7 +12,7 @@ import { item } from './item/item'
 import { relations } from 'drizzle-orm'
 
 export const insuredAssetDetail = pgTable(
-  'insured_asset_detail',
+  'insured_asset_details',
   {
     id: serial('id').primaryKey(),
     policyId: integer('policy_id')

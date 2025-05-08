@@ -11,7 +11,7 @@ import {
 import { item } from './item'
 import { relations } from 'drizzle-orm'
 
-export const itemImage = pgTable('item_image', {
+export const itemImage = pgTable('item_images', {
   id: serial('id').primaryKey(),
   itemId: integer('item_id')
     .references(() => item.id, { onDelete: 'cascade' })

@@ -6,7 +6,7 @@ import {
 } from 'drizzle/schema/enums/notifications'
 import { relations } from 'drizzle-orm'
 
-export const deliveryRecord = pgTable('delivery_record', {
+export const deliveryRecord = pgTable('delivery_records', {
   id: serial('id').primaryKey(),
   notificationId: integer('notification_id')
     .references(() => notification.id, { onDelete: 'cascade' })

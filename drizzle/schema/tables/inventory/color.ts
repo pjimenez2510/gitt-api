@@ -9,7 +9,7 @@ import {
 import { relations } from 'drizzle-orm'
 import { itemColor } from './item/itemColor'
 
-export const color = pgTable('color', {
+export const color = pgTable('colors', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 50 }).notNull(),
   hexCode: varchar('hex_code', { length: 7 }),

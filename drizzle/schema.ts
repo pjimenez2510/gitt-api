@@ -99,7 +99,6 @@ import {
   notificationPreference,
   notificationPreferenceRelations,
   notificationTemplate,
-  notificationTemplateRelations,
   deliveryRecord,
   deliveryRecordRelations,
 } from './schema/tables/notifications'
@@ -219,7 +218,6 @@ export {
   notificationPreference,
   notificationPreferenceRelations,
   notificationTemplate,
-  notificationTemplateRelations,
   deliveryRecord,
   deliveryRecordRelations,
 

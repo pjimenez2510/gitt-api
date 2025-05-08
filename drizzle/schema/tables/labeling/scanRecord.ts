@@ -10,7 +10,7 @@ import { label } from './label'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 
-export const scanRecord = pgTable('scan_record', {
+export const scanRecord = pgTable('scan_records', {
   id: serial('id').primaryKey(),
   labelId: integer('label_id')
     .references(() => label.id, { onDelete: 'cascade' })

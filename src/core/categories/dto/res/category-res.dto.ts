@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger'
 export class CategoryResDto {
   @ApiProperty({
     description: 'id of the category',
-    example: 'asdasd-asdasd-asdasd-asdasd',
+    example: 1,
   })
   id: number
 
@@ -27,7 +27,7 @@ export class CategoryResDto {
 
   @ApiProperty({
     description: 'parentCategoryId of the category',
-    example: 'asdasd-asdasd-asdasd-asdasd',
+    example: 1,
   })
   parentCategoryId: number
 
