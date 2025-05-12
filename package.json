@@ -39,6 +39,7 @@
     "csv-parse": "^5.6.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.43.1",
+    "gitt-api": "file:",
     "joi": "^17.13.3",
     "passport-jwt": "^4.0.1",
     "pg": "^8.15.6",
@@ -93,6 +94,11 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1",
+      "^drizzle/schema$": "<rootDir>/../drizzle/schema",
+      "^drizzle/schema/enums/(.*)$": "<rootDir>/../drizzle/schema/enums/$1"
+    }
   }
 }
