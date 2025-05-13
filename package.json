@@ -101,7 +101,8 @@
       "^drizzle/schema/enums/(.*)$": "<rootDir>/../drizzle/schema/enums/$1",
       "^src/global/database/database.service$": "<rootDir>/__mocks__/database.service.ts",
       "^src/core/users/types/user-status.enum$": "jest-mock-user-status-enum",
-      "^src/core/users/types/user-type.enum$": "jest-mock-user-type-enum"
+      "^src/core/users/types/user-type.enum$": "jest-mock-user-type-enum",
+      "^drizzle/schema/tables/inventory/(.*)$": "<rootDir>/../drizzle/schema/tables/inventory/$1"
     }
   }
 }
