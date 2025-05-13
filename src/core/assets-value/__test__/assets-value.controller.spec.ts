@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AssetsValueController } from './assets-value.controller';
+import { AssetsValueController } from '../assets-value.controller';
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto';
-import { CreateAssetValueDto } from './dto/req/create-asset-value.dto';
-import { UpdateAssetValueDto } from './dto/req/update-asset-value.dto';
-import { AssetsValueService } from './assets-value.service';
+import { CreateAssetValueDto } from '../dto/req/create-asset-value.dto';
+import { UpdateAssetValueDto } from '../dto/req/update-asset-value.dto';
+import { AssetsValueService } from '../assets-value.service';
 
 describe('AssetsValueController', () => {
   let controller: AssetsValueController;
