@@ -20,7 +20,7 @@ export class BaseParamsDto {
   @IsInt()
   @Min(1)
   @ApiPropertyOptional({
-    description: 'Number of records to return',
+    description: 'Number of records to return ',
     example: 10,
     required: false,
     default: 10,
