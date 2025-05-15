@@ -1,4 +1,4 @@
-name: CI - NestJS Backend.
+name: CI - NestJS Backend Tests
 
 on:
   push:
