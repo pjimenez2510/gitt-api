@@ -16,6 +16,10 @@ import { LocationsModule } from './core/locations/locations.module'
 import { ItemsModule } from './core/items/items.module'
 import { ItemColorsModule } from './core/item-colors/item-colors.module'
 import { ItemMaterialsModule } from './core/item-materials/item-materials.module'
+import { CertificatesModule } from './core/certificates/certificates.module'
+
+
+
 
 @Module({
   imports: [
@@ -33,8 +37,12 @@ import { ItemMaterialsModule } from './core/item-materials/item-materials.module
     AssetsValueModule,
     LocationsModule,
     ItemsModule,
+
+    CertificatesModule,
+
     ItemColorsModule,
     ItemMaterialsModule,
+
   ],
   providers: [ResponseInterceptor],
 })
