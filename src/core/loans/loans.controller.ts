@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Query } from '@nestjs/common'
+import { Controller, Get, HttpStatus, Param, Query } from '@nestjs/common'
 import { LoansService } from './loans.service'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ApiPaginatedResponse } from 'src/common/decorators/api-standard-response.decorator'
@@ -12,22 +12,21 @@ export class LoansController {
   @Get('active')
   @ApiOperation({
     summary: 'Obtener todos los préstamos activos',
-    description:
-      'Los préstamos activos son aquellos que no han sido cancelados, devueltos o han expirado.',
   })
   @ApiPaginatedResponse(LoanResDto, HttpStatus.OK)
   findActive(@Query() paginationDto: BaseParamsDto) {
     return this.service.findActive(paginationDto)
   }
 
-  // @Get('active')
-  // @ApiOperation({
-  //   summary: 'Obtener todos los préstamos activos',
-  //   description:
-  //     'Los préstamos activos son aquellos que no han sido cancelados, devueltos o han expirado.',
-  // })
-  // @ApiPaginatedResponse(LoanResDto, HttpStatus.OK)
-  // findByUserDni(@Query() paginationDto: BaseParamsDto) {
-  //   return this.service.findByUserDni(paginationDto,)
-  // }
+  @Get('historial/:dni')
+  @ApiOperation({
+    summary: 'Obtener historial de préstamos por DNI',
+  })
+  @ApiPaginatedResponse(LoanResDto, HttpStatus.OK)
+  findByUserDni(
+    @Param('dni') dni: string,
+    @Query() paginationDto: BaseParamsDto,
+  ) {
+    return this.service.findByUserDni(paginationDto, dni)
+  }
 }

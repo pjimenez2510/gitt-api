@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose } from 'class-transformer'
-import { loanStatus } from 'drizzle/schema'
 import { LoanDetailResDto } from '../../loan-details/dto/res/loan-detail-res.dto'
 
 export class LoanResDto {
@@ -57,7 +56,6 @@ export class LoanResDto {
     description: 'Estado del prestamo',
     example: 'APPROVED',
     enumName: 'LoanStatus',
-    enum: loanStatus,
   })
   @Expose()
   status: string
@@ -121,7 +119,6 @@ export class LoanResDto {
 
   @ApiProperty({
     description: 'Detalles del préstamo',
-    type: [LoanDetailResDto],
   })
   @Expose()
   loanDetails: LoanDetailResDto[]
