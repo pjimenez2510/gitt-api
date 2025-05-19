@@ -221,4 +221,27 @@ export class UsersService {
       .where(eq(user.id, id))
       .execute()
   }
+
+  async findByDni(dni: string) {
+    const [userFound] = await this.dbService.db
+      .select()
+      .from(user)
+      .leftJoin(person, eq(user.personId, person.id))
+      .where(eq(person.dni, dni))
+      .limit(1)
+      .execute()
+
+    if (!userFound) {
+      throw new NotFoundException(`Usuario con DNI: ${dni} no encontrado`)
+    }
+
+    const { users, people } = userFound
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash, personId, ...userData } = users
+
+    return {
+      ...userData,
+      person: people as PersonResDto,
+    }
+  }
 }
