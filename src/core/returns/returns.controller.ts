@@ -5,8 +5,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  UseGuards,
-  Req,
 } from '@nestjs/common'
 import {
   ApiTags,
@@ -16,11 +14,11 @@ import {
   ApiOkResponse,
 } from '@nestjs/swagger'
 import { CreateReturnLoanDto } from './dto/req/create-return.dto'
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { ReturnService } from './returns.service'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
-import { Request } from 'express'
+import { GetUser } from '../auth/decorators/get-user.decorator'
+import { SimpleUserResDto } from '../auth/dto/res/simple-user-res.dto'
 
 @ApiTags('returns')
 @ApiBearerAuth()
@@ -40,10 +38,8 @@ export class ReturnController {
   @Auth(USER_TYPE.ADMINISTRATOR)
   async processReturn(
     @Body() createReturnLoanDto: CreateReturnLoanDto,
-    @Req() req: Request,
+    @GetUser() user: SimpleUserResDto,
   ) {
-    const user = req.user
-
     if (!user) {
       throw new Error('User information is missing from request')
     }

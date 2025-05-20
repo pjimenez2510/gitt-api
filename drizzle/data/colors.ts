@@ -1,4 +1,4 @@
-import { color } from 'drizzle/schema'
+import { color } from 'drizzle/schema/tables/inventory/color'
 
 export const colorsSeed: (typeof color.$inferInsert)[] = [
   {

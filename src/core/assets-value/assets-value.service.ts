@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { count, desc, eq } from 'drizzle-orm'
-import { assetValue } from 'drizzle/schema'
+import { assetValue } from 'drizzle/schema/tables/inventory/assetValue'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'

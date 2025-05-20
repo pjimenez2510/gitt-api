@@ -6,14 +6,20 @@ import {
 import { eq, and, lt } from 'drizzle-orm'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateReturnLoanDto } from './dto/req/create-return.dto'
-import { loan, loanDetail, statusChange, user, status } from 'drizzle/schema'
+import { loan, loanDetail, statusChange, status, user } from 'drizzle/schema'
 import { USER_STATUS } from '../users/types/user-status.enum'
+import { NodePgClient, NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { SimpleUserResDto } from '../auth/dto/res/simple-user-res.dto'
+import { StatusLoan } from '../loans/enums/status-loan'
 
 @Injectable()
 export class ReturnService {
   constructor(private readonly dbService: DatabaseService) {}
 
-  async processReturn(createReturnLoanDto: CreateReturnLoanDto, user: any) {
+  async processReturn(
+    createReturnLoanDto: CreateReturnLoanDto,
+    userDto: SimpleUserResDto,
+  ) {
     const { loanId, actualReturnDate, returnedItems, notes } =
       createReturnLoanDto
 
@@ -30,7 +36,7 @@ export class ReturnService {
       throw new NotFoundException(`El préstamo con ID ${loanId} no existe`)
     }
 
-    if (existingLoan.status !== 'DELIVERED') {
+    if (existingLoan.status !== StatusLoan.DELIVERED) {
       throw new BadRequestException(
         `El préstamo debe estar en estado DELIVERED para procesarlo como devuelto. Estado actual: ${existingLoan.status}`,
       )
@@ -44,7 +50,7 @@ export class ReturnService {
     }
 
     const isLate = existingLoan.scheduledReturnDate < returnDate
-    const newStatus = isLate ? 'RETURNED_LATE' : 'RETURNED'
+    const newStatus = isLate ? StatusLoan.RETURNED_LATE : StatusLoan.RETURNED
 
     const loanDetails = await this.dbService.db
       .select()
@@ -98,7 +104,7 @@ export class ReturnService {
         previousStatusId,
         newStatusId,
         changeDate: new Date(),
-        userId: user.id,
+        userId: userDto.id,
         loanId,
         observations: `Préstamo devuelto ${isLate ? 'con retraso' : 'a tiempo'}. ${notes || ''}`,
         registrationDate: new Date(),
@@ -110,12 +116,15 @@ export class ReturnService {
       )
 
       if (isLate || hasDamagedItems) {
-        const defaulterStatusId = await this.getStatusIdByName('DEFAULTER', tx)
+        const defaulterStatusId = await this.getStatusIdByName(
+          USER_STATUS.DEFAULTER,
+          tx,
+        )
 
         await tx
           .update(user)
           .set({
-            status: 'DEFAULTER' as USER_STATUS,
+            status: USER_STATUS.DEFAULTER,
           })
           .where(eq(user.id, existingLoan.requestorId))
 
@@ -124,7 +133,7 @@ export class ReturnService {
           previousStatusId: null,
           newStatusId: defaulterStatusId,
           changeDate: new Date(),
-          userId: user.id,
+          userId: userDto.id,
           loanId,
           observations: `Usuario marcado como moroso por ${
             isLate ? 'retraso' : 'ítems dañados'
@@ -157,7 +166,7 @@ export class ReturnService {
       throw new NotFoundException(`El préstamo con ID ${loanId} no existe`)
     }
 
-    if (loanData.status !== 'DELIVERED') {
+    if (loanData.status !== StatusLoan.DELIVERED) {
       throw new BadRequestException(
         `El préstamo debe estar en estado DELIVERED para ser devuelto. Estado actual: ${loanData.status}`,
       )
@@ -168,8 +177,8 @@ export class ReturnService {
 
   async getActiveLoans(userId?: number) {
     const condition = userId
-      ? and(eq(loan.status, 'DELIVERED'), eq(loan.requestorId, userId))
-      : eq(loan.status, 'DELIVERED')
+      ? and(eq(loan.status, StatusLoan.DELIVERED), eq(loan.requestorId, userId))
+      : eq(loan.status, StatusLoan.DELIVERED)
 
     return await this.dbService.db
       .select()
@@ -186,13 +195,21 @@ export class ReturnService {
       .select()
       .from(loan)
       .where(
-        and(eq(loan.status, 'DELIVERED'), lt(loan.scheduledReturnDate, today)),
+        and(
+          eq(loan.status, StatusLoan.DELIVERED),
+          lt(loan.scheduledReturnDate, today),
+        ),
       )
       .orderBy(loan.scheduledReturnDate)
       .execute()
   }
 
-  async getStatusIdByName(statusName: string, tx: typeof this.dbService.db) {
+  async getStatusIdByName(
+    statusName: string,
+    tx: NodePgDatabase<Record<string, unknown>> & {
+      $client: NodePgClient
+    },
+  ) {
     const result = await tx
       .select()
       .from(status)
