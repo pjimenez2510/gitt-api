@@ -18,6 +18,8 @@ import { ItemColorsModule } from './core/item-colors/item-colors.module'
 import { ItemMaterialsModule } from './core/item-materials/item-materials.module'
 import { CertificatesModule } from './core/certificates/certificates.module'
 import { LoansModule } from './core/loans/loans.module'
+import { LogModule } from './global/log/log.module'
+import { LogInterceptor } from './common/interceptors/log.interceptor'
 
 @Module({
   imports: [
@@ -41,7 +43,8 @@ import { LoansModule } from './core/loans/loans.module'
     ItemColorsModule,
     ItemMaterialsModule,
     LoansModule,
+    LogModule,
   ],
-  providers: [ResponseInterceptor],
+  providers: [ResponseInterceptor, LogInterceptor],
 })
 export class AppModule {}

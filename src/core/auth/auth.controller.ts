@@ -18,7 +18,6 @@ import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Auth')
 @Controller('auth')
-@ApiBearerAuth()
 export class AuthController {
   constructor(private readonly service: AuthService) {}
 
@@ -28,7 +27,8 @@ export class AuthController {
     summary: 'Login',
   })
   @ApiStandardResponse(SignInResDto, HttpStatus.OK)
-  async login(@Body() dto: SignInDto) {
+  async login(@Req() req, @Body() dto: SignInDto) {
+    req.action = 'login'
     return this.service.login(dto)
   }
 
@@ -36,6 +36,7 @@ export class AuthController {
   @ApiOperation({
     summary: 'Get Me',
   })
+  @ApiBearerAuth()
   @Auth(USER_TYPE.ADMINISTRATOR)
   getMe(@Req() req: Request) {
     return req.user

@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { MaterialsService } from './materials.service'
 import { CreateMaterialDto } from './dto/req/create-material.dto'
 import {
@@ -20,8 +20,12 @@ import {
 import { MaterialResDto } from './dto/res/material-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateMaterialDto } from './dto/req/update-material.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Materials')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('materials')
 export class MaterialsController {
   constructor(private readonly service: MaterialsService) {}
