@@ -19,6 +19,7 @@ import { loan } from 'drizzle/schema/tables/loans'
 import { StatusLoan } from './enums/status-loan'
 import { ApproveLoanDto } from './dto/req/approve-loan.dto'
 import { DeliverLoanDto } from './dto/req/deliver-loan.dto'
+import { ItemsService } from '../items/items.service'
 
 @Injectable()
 export class LoansService {
@@ -26,6 +27,7 @@ export class LoansService {
     private readonly dbService: DatabaseService,
     private readonly loanDetailService: LoanDetailsService,
     private readonly userService: UsersService,
+    private readonly itemsService: ItemsService,
   ) {}
 
   private readonly loanWithoutDates = excludeColumns(
@@ -218,6 +220,11 @@ export class LoansService {
 
   async create(createLoanDto: CreateLoanDto) {
     return await this.dbService.db.transaction(async (tx) => {
+      if (Date.now() > new Date(createLoanDto.scheduledReturnDate).getTime()) {
+        throw new BadRequestException(
+          'La fecha programada de devolución no puede ser anterior a la fecha actual',
+        )
+      }
       const [newLoan] = await tx
         .insert(loan)
         .values({
@@ -233,6 +240,14 @@ export class LoansService {
       const loanDetails: LoanDetailResDto[] = []
 
       for (const detailDto of createLoanDto.loanDetails) {
+        const item = await this.itemsService.findOne(detailDto.itemId)
+
+        if (!item.availableForLoan) {
+          throw new BadRequestException(
+            `El item con ID: ${detailDto.itemId} no está disponible para préstamo`,
+          )
+        }
+
         const [record] = await tx
           .insert(loanDetail)
           .values({
