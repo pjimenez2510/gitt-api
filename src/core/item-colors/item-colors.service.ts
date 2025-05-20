@@ -1,7 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { and, count, desc, eq } from 'drizzle-orm'
-import { itemColor } from 'drizzle/schema'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
@@ -9,6 +8,7 @@ import { ItemColorResDto } from './dto/res/item-color-res.dto'
 import { CreateItemColorDto } from './dto/req/create-item-color.dto'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { UpdateItemColorDto } from './dto/req/update-item-color.dto'
+import { itemColor } from 'drizzle/schema/tables/inventory/item'
 
 @Injectable()
 export class ItemColorsService {

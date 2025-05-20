@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
-import { condition } from '../../../schema'
+import { condition } from 'drizzle/schema/tables/inventory/condition'
 import { ConditionRecord } from '../types'
 import { getDbConnection } from '../utils/db'
 

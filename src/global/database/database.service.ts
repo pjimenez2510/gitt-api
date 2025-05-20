@@ -8,11 +8,11 @@ import { Pool } from 'pg'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import * as schema from 'drizzle/schema'
 import { CustomConfigService } from '../config/config.service'
-
+import { PgDatabase, PgQueryResultHKT } from 'drizzle-orm/pg-core'
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private readonly pool: Pool
-  public readonly db: ReturnType<typeof drizzle>
+  public readonly db: PgDatabase<PgQueryResultHKT, typeof schema>
   private readonly logger = new Logger(DatabaseService.name)
 
   constructor(private readonly configService: CustomConfigService) {

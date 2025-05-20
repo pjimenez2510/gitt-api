@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
-import { location } from '../../../schema'
+import { location } from 'drizzle/schema/tables/locations/location'
 import { LocationRecord } from '../types'
 import { getDbConnection } from '../utils/db'
 

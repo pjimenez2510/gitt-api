@@ -2,22 +2,21 @@ import 'dotenv/config'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { peopleSeed, usersSeed } from './data/users'
 import { Logger } from '@nestjs/common'
-import {
-  category,
-  color,
-  condition,
-  material,
-  person,
-  status,
-  user,
-} from './schema'
 import { categoriesSeed } from './data/categories'
 import { colorsSeed } from './data/colors'
 import { conditionsSeed } from './data/conditions'
 import { itemTypesSeed } from './data/item-types'
 import { materialsSeed } from './data/materials'
 import { statesSeed } from './data/states'
-import { itemType } from './schema/tables/inventory'
+import {
+  category,
+  color,
+  condition,
+  itemType,
+  material,
+  status,
+} from './schema/tables/inventory'
+import { person, user } from './schema/tables/users'
 
 const db = drizzle(process.env.DATABASE_URL!)
 
