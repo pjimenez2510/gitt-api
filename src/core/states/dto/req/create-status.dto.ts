@@ -19,10 +19,10 @@ export class CreateStatusDto {
   description?: string
 
   @ApiProperty({
-    description: 'requiresMaintenance (is optional)',
-    example: 'false',
+    description: 'active (is optional)',
+    example: 'true',
   })
-  @IsBoolean({ message: 'requiresMaintenance must be a boolean' })
+  @IsBoolean({ message: 'active must be a boolean' })
   @IsOptional()
-  requiresMaintenance?: boolean
+  active?: boolean
 }

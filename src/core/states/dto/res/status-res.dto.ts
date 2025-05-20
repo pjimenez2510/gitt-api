@@ -23,5 +23,5 @@ export class StatusResDto {
     description: 'requiresMaintenance of the status',
     example: 5,
   })
-  requiresMaintenance: boolean
+  active: boolean
 }

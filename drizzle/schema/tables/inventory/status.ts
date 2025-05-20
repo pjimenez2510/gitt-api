@@ -15,7 +15,7 @@ export const status = pgTable('states', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 50 }).notNull().unique(),
   description: text('description'),
-  requiresMaintenance: boolean('requires_maintenance').default(false),
+  active: boolean('requires_maintenance').default(true),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
     mode: 'date',

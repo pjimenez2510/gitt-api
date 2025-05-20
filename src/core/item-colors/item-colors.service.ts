@@ -111,7 +111,8 @@ export class ItemColorsService {
     await this.findOne(id)
 
     const [deletedItemColor] = await this.dbService.db
-      .delete(itemColor)
+      .update(itemColor)
+      .set({ active: false })
       .where(eq(itemColor.id, id))
       .returning(this.itemColorsWithoutDates)
       .execute()
