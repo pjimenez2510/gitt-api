@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { LoanDetailsService } from './loan-details/loan-details.service'
@@ -12,6 +16,9 @@ import { FilterLoansDto } from './dto/req/filter-loans.dto'
 import { loanDetail } from 'drizzle/schema/tables/loans/loanDetail'
 import { LoanDetailResDto } from './loan-details/dto/res/loan-detail-res.dto'
 import { loan } from 'drizzle/schema/tables/loans'
+import { StatusLoan } from './enums/status-loan'
+import { ApproveLoanDto } from './dto/req/approve-loan.dto'
+import { DeliverLoanDto } from './dto/req/deliver-loan.dto'
 
 @Injectable()
 export class LoansService {
@@ -115,15 +122,30 @@ export class LoansService {
     const query = this.dbService.db
       .select(this.loanWithoutDates)
       .from(loan)
-      .where(not(inArray(loan.status, ['CANCELLED', 'RETURNED', 'EXPIRED'])))
+      .where(
+        not(
+          inArray(loan.status, [
+            StatusLoan.CANCELLED,
+            StatusLoan.RETURNED,
+            StatusLoan.EXPIRED,
+          ]),
+        ),
+      )
       .orderBy(desc(loan.requestorId), desc(loan.registrationDate))
       .limit(limit)
       .offset(offset)
-
     const totalQuery = this.dbService.db
       .select({ count: count() })
       .from(loan)
-      .where(not(inArray(loan.status, ['CANCELLED', 'RETURNED', 'EXPIRED'])))
+      .where(
+        not(
+          inArray(loan.status, [
+            StatusLoan.CANCELLED,
+            StatusLoan.RETURNED,
+            StatusLoan.EXPIRED,
+          ]),
+        ),
+      )
 
     const [records, totalResult] = await Promise.all([
       query.execute(),
@@ -155,7 +177,7 @@ export class LoansService {
       .from(loan)
       .where(
         and(
-          not(inArray(loan.status, ['CANCELLED'])),
+          not(inArray(loan.status, [StatusLoan.CANCELLED])),
           eq(loan.requestorId, user.id),
         ),
       )
@@ -168,7 +190,7 @@ export class LoansService {
       .from(loan)
       .where(
         and(
-          not(inArray(loan.status, ['CANCELLED'])),
+          not(inArray(loan.status, [StatusLoan.CANCELLED])),
           eq(loan.requestorId, user.id),
         ),
       )
@@ -199,7 +221,7 @@ export class LoansService {
       const [newLoan] = await tx
         .insert(loan)
         .values({
-          scheduledReturnDate: new Date(createLoanDto.scheduledReturnDate),
+          scheduledReturnDate: createLoanDto.scheduledReturnDate,
           requestorId: createLoanDto.requestorId,
           reason: createLoanDto.reason,
           associatedEvent: createLoanDto.associatedEvent,
@@ -228,6 +250,95 @@ export class LoansService {
         ...newLoan,
         loanDetails,
       })
+    })
+  }
+
+  async approveLoan(
+    id: number,
+    approveLoanDto: ApproveLoanDto,
+    approverId: number,
+  ) {
+    const { notes } = approveLoanDto
+
+    const [loanRecord] = await this.dbService.db
+      .select()
+      .from(loan)
+      .where(eq(loan.id, id))
+      .limit(1)
+      .execute()
+
+    if (!loanRecord) {
+      throw new NotFoundException(`Préstamo con ID: ${id} no encontrado`)
+    }
+
+    if (loanRecord.status !== StatusLoan.REQUESTED) {
+      throw new BadRequestException(
+        `El préstamo debe estar en estado REQUESTED para ser aprobado. Estado actual: ${loanRecord.status}`,
+      )
+    }
+
+    const [updatedLoan] = await this.dbService.db
+      .update(loan)
+      .set({
+        status: StatusLoan.APPROVED,
+        approverId,
+        approvalDate: new Date(),
+        notes: notes || loanRecord.notes,
+        updateDate: new Date(),
+      })
+      .where(eq(loan.id, id))
+      .returning()
+
+    const loanDetails = await this.loanDetailService.findDetailsByLoanID(id)
+
+    return plainToInstance(LoanResDto, {
+      ...updatedLoan,
+      loanDetails,
+    })
+  }
+
+  async deliverLoan(id: number, deliverLoanDto: DeliverLoanDto) {
+    const { deliveryDate, notes } = deliverLoanDto
+
+    const [loanRecord] = await this.dbService.db
+      .select()
+      .from(loan)
+      .where(eq(loan.id, id))
+      .limit(1)
+      .execute()
+
+    if (!loanRecord) {
+      throw new NotFoundException(`Préstamo con ID: ${id} no encontrado`)
+    }
+
+    if (loanRecord.status !== StatusLoan.APPROVED) {
+      throw new BadRequestException(
+        `El préstamo debe estar en estado APPROVED para ser entregado. Estado actual: ${loanRecord.status}`,
+      )
+    }
+
+    if (new Date(deliveryDate) > new Date(loanRecord.scheduledReturnDate)) {
+      throw new BadRequestException(
+        'La fecha de entrega no puede ser posterior a la fecha programada de devolución',
+      )
+    }
+
+    const [updatedLoan] = await this.dbService.db
+      .update(loan)
+      .set({
+        status: StatusLoan.DELIVERED,
+        deliveryDate: new Date(deliveryDate),
+        notes: notes || loanRecord.notes,
+        updateDate: new Date(),
+      })
+      .where(eq(loan.id, id))
+      .returning()
+
+    const loanDetails = await this.loanDetailService.findDetailsByLoanID(id)
+
+    return plainToInstance(LoanResDto, {
+      ...updatedLoan,
+      loanDetails,
     })
   }
 }

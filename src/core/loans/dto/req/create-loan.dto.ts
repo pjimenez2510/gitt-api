@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
   IsArray,
-  IsDateString,
+  IsDate,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -16,9 +16,12 @@ export class CreateLoanDto {
     description: 'Fecha programada de devolución',
     example: '2023-12-31T23:59:59Z',
   })
-  @IsDateString()
+  @IsDate({
+    message: 'La fecha de devolución programada debe ser una fecha válida',
+  })
+  @Type(() => Date)
   @IsNotEmpty()
-  scheduledReturnDate: string
+  scheduledReturnDate: Date
 
   @ApiProperty({
     description: 'ID del solicitante del préstamo',

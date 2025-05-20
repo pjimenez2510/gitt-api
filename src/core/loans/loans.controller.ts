@@ -6,9 +6,10 @@ import {
   Param,
   Post,
   Query,
+  Patch,
 } from '@nestjs/common'
 import { LoansService } from './loans.service'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import {
   ApiPaginatedResponse,
   ApiStandardResponse,
@@ -17,13 +18,20 @@ import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { LoanResDto } from './dto/res/loan-res.dto'
 import { CreateLoanDto } from './dto/req/create-loan.dto'
 import { FilterLoansDto } from './dto/req/filter-loans.dto'
-
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
+import { ApproveLoanDto } from './dto/req/approve-loan.dto'
+import { DeliverLoanDto } from './dto/req/deliver-loan.dto'
+import { SimpleUserResDto } from '../auth/dto/res/simple-user-res.dto'
+import { GetUser } from '../auth/decorators/get-user.decorator'
 @ApiTags('Loans')
 @Controller('loans')
+@ApiBearerAuth()
 export class LoansController {
   constructor(private readonly service: LoansService) {}
 
   @Get()
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
   @ApiOperation({
     summary: 'Obtener todos los préstamos con filtros',
   })
@@ -33,6 +41,7 @@ export class LoansController {
   }
 
   @Get('active')
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
   @ApiOperation({
     summary: 'Obtener todos los préstamos activos',
   })
@@ -42,6 +51,7 @@ export class LoansController {
   }
 
   @Get('historial/:dni')
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
   @ApiOperation({
     summary: 'Obtener historial de préstamos por DNI',
   })
@@ -54,6 +64,7 @@ export class LoansController {
   }
 
   @Get(':id')
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
   @ApiOperation({
     summary: 'Obtener un préstamo por su ID',
   })
@@ -63,6 +74,7 @@ export class LoansController {
   }
 
   @Post()
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
   @ApiOperation({
     summary: 'Crear un nuevo préstamo con sus detalles',
   })
@@ -70,5 +82,31 @@ export class LoansController {
   @ApiStandardResponse(LoanResDto, HttpStatus.CREATED)
   create(@Body() createLoanDto: CreateLoanDto) {
     return this.service.create(createLoanDto)
+  }
+
+  @Patch(':id/approve')
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
+  @ApiOperation({
+    summary: 'Aprobar un préstamo solicitado',
+  })
+  @ApiBody({ type: ApproveLoanDto })
+  @ApiStandardResponse(LoanResDto, HttpStatus.OK)
+  approveLoan(
+    @Param('id') id: string,
+    @Body() approveLoanDto: ApproveLoanDto,
+    @GetUser() user: SimpleUserResDto,
+  ) {
+    return this.service.approveLoan(+id, approveLoanDto, user.id)
+  }
+
+  @Patch(':id/deliver')
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
+  @ApiOperation({
+    summary: 'Registrar la entrega de un préstamo aprobado',
+  })
+  @ApiBody({ type: DeliverLoanDto })
+  @ApiStandardResponse(LoanResDto, HttpStatus.OK)
+  deliverLoan(@Param('id') id: string, @Body() deliverLoanDto: DeliverLoanDto) {
+    return this.service.deliverLoan(+id, deliverLoanDto)
   }
 }
