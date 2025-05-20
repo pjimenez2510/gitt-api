@@ -24,9 +24,10 @@ import { ApproveLoanDto } from './dto/req/approve-loan.dto'
 import { DeliverLoanDto } from './dto/req/deliver-loan.dto'
 import { SimpleUserResDto } from '../auth/dto/res/simple-user-res.dto'
 import { GetUser } from '../auth/decorators/get-user.decorator'
+
 @ApiTags('Loans')
-@Controller('loans')
 @ApiBearerAuth()
+@Controller('loans')
 export class LoansController {
   constructor(private readonly service: LoansService) {}
 

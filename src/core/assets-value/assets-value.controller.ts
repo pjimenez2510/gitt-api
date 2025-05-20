@@ -9,7 +9,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { AssetsValueService } from './assets-value.service'
 import {
   ApiPaginatedResponse,
@@ -19,8 +19,12 @@ import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { AssetValueResDto } from './dto/res/asset-value-res.dto'
 import { CreateAssetValueDto } from './dto/req/create-asset-value.dto'
 import { UpdateAssetValueDto } from './dto/req/update-asset-value.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Assets-Value')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('assets-value')
 export class AssetsValueController {
   constructor(private readonly service: AssetsValueService) {}

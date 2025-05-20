@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { StatesService } from './states.service'
 import {
   ApiPaginatedResponse,
@@ -20,8 +20,12 @@ import { StatusResDto } from './dto/res/status-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { CreateStatusDto } from './dto/req/create-status.dto'
 import { UpdateStatusDto } from './dto/req/update-status.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('States')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('states')
 export class StatesController {
   constructor(private readonly service: StatesService) {}
