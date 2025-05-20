@@ -18,6 +18,7 @@ export class LogInterceptor<T> implements NestInterceptor {
     const endpoint = req.url
     const method = req.method
     const ip = req.ip
+
     const userAgent = req.headers['user-agent']
 
     return next.handle().pipe(
