@@ -13,10 +13,7 @@ import { USER_STATUS } from '../users/types/user-status.enum'
 export class ReturnService {
   constructor(private readonly dbService: DatabaseService) {}
 
-  async processReturn(
-    createReturnLoanDto: CreateReturnLoanDto,
-    userId: number,
-  ) {
+  async processReturn(createReturnLoanDto: CreateReturnLoanDto, user: any) {
     const { loanId, actualReturnDate, returnedItems, notes } =
       createReturnLoanDto
 
@@ -101,7 +98,7 @@ export class ReturnService {
         previousStatusId,
         newStatusId,
         changeDate: new Date(),
-        userId,
+        userId: user.id,
         loanId,
         observations: `Préstamo devuelto ${isLate ? 'con retraso' : 'a tiempo'}. ${notes || ''}`,
         registrationDate: new Date(),
@@ -127,7 +124,7 @@ export class ReturnService {
           previousStatusId: null,
           newStatusId: defaulterStatusId,
           changeDate: new Date(),
-          userId,
+          userId: user.id,
           loanId,
           observations: `Usuario marcado como moroso por ${
             isLate ? 'retraso' : 'ítems dañados'

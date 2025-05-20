@@ -47,7 +47,7 @@ export class ReturnController {
     if (!user) {
       throw new Error('User information is missing from request')
     }
-    return await this.returnService.processReturn(createReturnLoanDto, user.id)
+    return await this.returnService.processReturn(createReturnLoanDto, user)
   }
 
   @Get('me')
