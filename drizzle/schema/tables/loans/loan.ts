@@ -34,7 +34,7 @@ export const loan = pgTable('loans', {
     withTimezone: true,
     mode: 'date',
   }),
-  status: loanStatus('status').notNull(),
+  status: loanStatus('status').notNull().default('REQUESTED'),
   requestorId: integer('requestor_id')
     .references(() => user.id)
     .notNull(),
