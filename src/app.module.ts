@@ -18,6 +18,7 @@ import { ItemColorsModule } from './core/item-colors/item-colors.module'
 import { ItemMaterialsModule } from './core/item-materials/item-materials.module'
 import { CertificatesModule } from './core/certificates/certificates.module'
 import { LoansModule } from './core/loans/loans.module'
+import { ReturnsModule } from './core/returns/returns.module'
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { LoansModule } from './core/loans/loans.module'
     ItemColorsModule,
     ItemMaterialsModule,
     LoansModule,
+    ReturnsModule,
   ],
   providers: [ResponseInterceptor],
 })
