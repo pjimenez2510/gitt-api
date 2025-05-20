@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { count, desc, eq } from 'drizzle-orm'
-import { loanDetail } from 'drizzle/schema'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { LoanDetailResDto } from './dto/res/loan-detail-res.dto'
+import { CreateLoanDetailDto } from './dto/req/create-loan-detail.dto'
+import { loanDetail } from 'drizzle/schema/tables/loans'
 
 @Injectable()
 export class LoanDetailsService {
@@ -58,5 +59,19 @@ export class LoanDetailsService {
       .execute()
 
     return plainToInstance(LoanDetailResDto, records)
+  }
+
+  async createDetail(loanId: number, detailDto: CreateLoanDetailDto) {
+    const [record] = await this.dbService.db
+      .insert(loanDetail)
+      .values({
+        loanId,
+        itemId: detailDto.itemId,
+        exitConditionId: detailDto.exitConditionId,
+        exitObservations: detailDto.exitObservations,
+      })
+      .returning()
+
+    return plainToInstance(LoanDetailResDto, record)
   }
 }

@@ -7,6 +7,7 @@ export const loanStatus = pgEnum('loan_status', [
   'RETURNED',
   'CANCELLED',
   'EXPIRED',
+  'RETURNED_LATE',
 ])
 
 export const documentType = pgEnum('document_type', ['LOAN', 'RETURN'])

@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { count, desc, eq, sql } from 'drizzle-orm'
-import { status } from 'drizzle/schema'
+import { status } from 'drizzle/schema/tables/inventory/status'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'

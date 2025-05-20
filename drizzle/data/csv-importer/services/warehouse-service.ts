@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
-import { warehouse } from '../../../schema'
 import { WarehouseRecord } from '../types'
 import { getDbConnection } from '../utils/db'
+import { warehouse } from 'drizzle/schema/tables/locations/warehouse'
 
 const db = getDbConnection()
 

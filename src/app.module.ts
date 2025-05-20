@@ -20,6 +20,8 @@ import { CertificatesModule } from './core/certificates/certificates.module'
 import { LoansModule } from './core/loans/loans.module'
 import { LogModule } from './global/log/log.module'
 import { LogInterceptor } from './common/interceptors/log.interceptor'
+import { ReturnsModule } from './core/returns/returns.module'
+
 
 @Module({
   imports: [
@@ -37,13 +39,12 @@ import { LogInterceptor } from './common/interceptors/log.interceptor'
     AssetsValueModule,
     LocationsModule,
     ItemsModule,
-
     CertificatesModule,
-
     ItemColorsModule,
     ItemMaterialsModule,
     LoansModule,
     LogModule,
+    ReturnsModule,
   ],
   providers: [ResponseInterceptor, LogInterceptor],
 })

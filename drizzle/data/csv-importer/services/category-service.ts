@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
-import { category } from '../../../schema'
+import { category } from 'drizzle/schema/tables/inventory/category'
 import { CategoryRecord } from '../types'
 import { getDbConnection } from '../utils/db'
 

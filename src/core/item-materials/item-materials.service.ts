@@ -1,7 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { and, count, desc, eq } from 'drizzle-orm'
-import { itemMaterial } from 'drizzle/schema'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
@@ -9,6 +8,7 @@ import { ItemMaterialResDto } from './dto/res/item-material-res.dto'
 import { CreateItemMaterialDto } from './dto/req/create-item-material.dto'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { UpdateItemMaterialDto } from './dto/req/update-item-material.dto'
+import { itemMaterial } from 'drizzle/schema/tables/inventory/item'
 
 @Injectable()
 export class ItemMaterialsService {

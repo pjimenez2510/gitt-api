@@ -16,8 +16,12 @@ import { findOrCreateMaterial } from '../services/material-service'
 import { mapCsvToItemFields } from '../mappers/csv-mapper'
 import { parseDate } from '../parsers/date-parser'
 import { parseBoolean, parseDecimal, parseInt } from '../parsers/value-parser'
-
-import { item, assetValue, itemColor, itemMaterial } from '../../../schema'
+import {
+  assetValue,
+  item,
+  itemColor,
+  itemMaterial,
+} from 'drizzle/schema/tables/inventory'
 
 // Conexión a la base de datos
 const db = getDbConnection()

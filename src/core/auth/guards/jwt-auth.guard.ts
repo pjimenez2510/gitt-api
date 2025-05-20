@@ -9,7 +9,7 @@ import {
 import { Observable } from 'rxjs'
 import { Reflector } from '@nestjs/core'
 import { META_ROLES } from '../decorators/role-protected.decorator'
-import { user } from 'drizzle/schema'
+import { user } from 'drizzle/schema/tables/users/user'
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
