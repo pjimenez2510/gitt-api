@@ -1,11 +1,4 @@
-import {
-  pgTable,
-  serial,
-  timestamp,
-  text,
-  varchar,
-  integer,
-} from 'drizzle-orm/pg-core'
+import { pgTable, serial, timestamp, text, integer } from 'drizzle-orm/pg-core'
 import { item } from './item/item'
 import { status } from './status'
 import { user } from '../users/user'
@@ -32,7 +25,6 @@ export const statusChange = pgTable('status_changes', {
     .references(() => loan.id)
     .notNull(),
   observations: text('observations'),
-  evidenceImage: varchar('evidence_image', { length: 255 }),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
     mode: 'date',

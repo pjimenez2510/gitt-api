@@ -84,8 +84,6 @@ import {
   loanRelations,
   loanDetail,
   loanDetailRelations,
-  loanHistory,
-  responsibilityDocument,
 } from './schema/tables/loans'
 import {
   warehouse,
@@ -192,8 +190,6 @@ export {
   loanRelations,
   loanDetail,
   loanDetailRelations,
-  loanHistory,
-  responsibilityDocument,
 
   // Etiquetas
   label,
