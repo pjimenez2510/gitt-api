@@ -59,11 +59,8 @@ export class ReturnService {
       .execute()
 
     const result = await this.dbService.transaction(async (tx) => {
-      const previousStatusId = await this.getStatusIdByName(
-        existingLoan.status,
-        tx,
-      )
-      const newStatusId = await this.getStatusIdByName(newStatus, tx)
+      const previousStatusId = 1
+      const newStatusId = 4
 
       // 1. Actualizar el préstamo
       await tx
@@ -116,10 +113,7 @@ export class ReturnService {
       )
 
       if (isLate || hasDamagedItems) {
-        const defaulterStatusId = await this.getStatusIdByName(
-          USER_STATUS.DEFAULTER,
-          tx,
-        )
+        const defaulterStatusId = 3
 
         await tx
           .update(user)
@@ -204,22 +198,6 @@ export class ReturnService {
       .execute()
   }
 
-  async getStatusIdByName(
-    statusName: string,
-    tx: NodePgDatabase<Record<string, unknown>> & {
-      $client: NodePgClient
-    },
-  ) {
-    const result = await tx
-      .select()
-      .from(status)
-      .where(eq(status.name, statusName))
-      .limit(1)
-
-    if (result.length === 0) {
-      throw new NotFoundException(`No se encontró el estado: ${statusName}`)
-    }
-
-    return result[0].id
-  }
+  // No longer needed: getStatusIdByName, since status table is not used.
+  // Use the status directly from the loan table's 'status' column (enum).
 }
