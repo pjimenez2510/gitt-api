@@ -51,7 +51,7 @@ export const findStatusByName = async (
       .values({
         name: 'Activo',
         description: 'Estado por defecto',
-        requiresMaintenance: false,
+        active: false,
       })
       .returning()
 
