@@ -84,8 +84,6 @@ import {
   loanRelations,
   loanDetail,
   loanDetailRelations,
-  loanHistory,
-  responsibilityDocument,
 } from './schema/tables/loans'
 import {
   warehouse,
@@ -138,8 +136,8 @@ export {
   // Inventario - tablas principales
   item,
   itemRelations,
-  itemType as assetType,
-  itemTypeRelations as assetTypeRelations,
+  itemType,
+  itemTypeRelations,
   category,
   categoryRelations,
   status,
@@ -192,8 +190,6 @@ export {
   loanRelations,
   loanDetail,
   loanDetailRelations,
-  loanHistory,
-  responsibilityDocument,
 
   // Etiquetas
   label,
