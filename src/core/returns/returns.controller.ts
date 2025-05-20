@@ -50,15 +50,6 @@ export class ReturnController {
     return await this.returnService.processReturn(createReturnLoanDto, user)
   }
 
-  @Get('me')
-  @ApiOperation({
-    summary: 'Get Me',
-  })
-  @Auth(USER_TYPE.ADMINISTRATOR)
-  getMe(@Req() req: any) {
-    return req.user
-  }
-
   @Get('loan/:id')
   @ApiOperation({
     summary: 'Obtener información de un préstamo para su devolución',
