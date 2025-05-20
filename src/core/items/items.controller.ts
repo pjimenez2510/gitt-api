@@ -17,13 +17,13 @@ import {
   ApiStandardResponse,
 } from 'src/common/decorators/api-standard-response.decorator'
 import { ItemResDto } from './dto/res/item-res.dto'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateItemDto } from './dto/req/update-item.dto'
 import { ItemsService } from './items.service'
 import { Auth } from 'src/core/auth/decorators/auth.decorator'
 import { GetUser } from 'src/core/auth/decorators/get-user.decorator'
 import { SimpleUserResDto } from '../auth/dto/res/simple-user-res.dto'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterItemDto } from './dto/req/filter-item.dto'
 
 @ApiTags('Items')
 @Controller('items')
@@ -42,8 +42,8 @@ export class ItemsController {
     summary: 'Obtener todos los items',
   })
   @ApiPaginatedResponse(ItemResDto, HttpStatus.OK)
-  findAll(@Query() paginationDto: BaseParamsDto) {
-    return this.service.findAll(paginationDto)
+  findAll(@Query() filterDto: FilterItemDto) {
+    return this.service.findAll(filterDto)
   }
 
   @Get(':id')

@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ItemColorsService } from './item-colors.service'
 import {
   ApiPaginatedResponse,
@@ -20,8 +20,12 @@ import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { ItemColorResDto } from './dto/res/item-color-res.dto'
 import { CreateItemColorDto } from './dto/req/create-item-color.dto'
 import { UpdateItemColorDto } from './dto/req/update-item-color.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Item Colors')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('item-colors')
 export class ItemColorsController {
   constructor(private readonly service: ItemColorsService) {}

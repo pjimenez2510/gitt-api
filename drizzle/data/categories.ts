@@ -1,4 +1,4 @@
-import { category } from 'drizzle/schema'
+import { category } from 'drizzle/schema/tables/inventory/category'
 
 export const categoriesSeed: (typeof category.$inferInsert)[] = [
   {

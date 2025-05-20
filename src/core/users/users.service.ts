@@ -2,7 +2,6 @@ import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { CreateUserDto } from './dto/req/create-user.dto'
 import { DatabaseService } from 'src/global/database/database.service'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
-import { person, user } from 'drizzle/schema'
 import { and, count, desc, eq, ne, or, sql } from 'drizzle-orm'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { hashPassword } from 'src/common/utils/encrypter'
@@ -12,6 +11,8 @@ import { UpdateUserDto } from './dto/req/update-user.dto'
 import { USER_STATUS } from './types/user-status.enum'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { ApiPaginatedRes } from 'src/common/types/api-response.interface'
+import { user } from 'drizzle/schema/tables/users/user'
+import { person } from 'drizzle/schema/tables/users/person'
 
 @Injectable()
 export class UsersService {
@@ -220,5 +221,28 @@ export class UsersService {
       .set({ status })
       .where(eq(user.id, id))
       .execute()
+  }
+
+  async findByDni(dni: string) {
+    const [userFound] = await this.dbService.db
+      .select()
+      .from(user)
+      .leftJoin(person, eq(user.personId, person.id))
+      .where(eq(person.dni, dni))
+      .limit(1)
+      .execute()
+
+    if (!userFound) {
+      throw new NotFoundException(`Usuario con DNI: ${dni} no encontrado`)
+    }
+
+    const { users, people } = userFound
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash, personId, ...userData } = users
+
+    return {
+      ...userData,
+      person: people as PersonResDto,
+    }
   }
 }

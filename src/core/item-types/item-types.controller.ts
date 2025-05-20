@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ItemTypesService } from './item-types.service'
 import { CreateItemTypeDto } from './dto/req/create-item-type.dto'
 import {
@@ -20,8 +20,12 @@ import {
 import { ItemTypeResDto } from './dto/res/item-type-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateItemTypeDto } from './dto/req/update-item-type.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Item Types')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('item-types')
 export class ItemTypesController {
   constructor(private readonly service: ItemTypesService) {}

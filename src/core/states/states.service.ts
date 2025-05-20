@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { count, desc, eq, sql } from 'drizzle-orm'
-import { status } from 'drizzle/schema'
+import { status } from 'drizzle/schema/tables/inventory/status'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
@@ -79,7 +79,7 @@ export class StatesService {
       .values({
         name: dto.name,
         description: dto.description,
-        requiresMaintenance: dto.requiresMaintenance,
+        active: dto.active,
       })
       .returning(this.statesWithoutDates)
       .execute()
@@ -108,7 +108,7 @@ export class StatesService {
 
     const [deletedStatus] = await this.dbService.db
       .update(status)
-      .set({ requiresMaintenance: false, updateDate: new Date() })
+      .set({ active: false, updateDate: new Date() })
       .where(eq(status.id, id))
       .returning(this.statesWithoutDates)
       .execute()

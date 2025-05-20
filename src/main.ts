@@ -8,6 +8,7 @@ import { CustomConfigService } from './global/config/config.service'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ApiPaginatedRes, ApiRes } from './common/types/api-response.interface'
 import { BaseParamsDto } from './common/dtos/base-params.dto'
+import { LogInterceptor } from './common/interceptors/log.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true })
@@ -23,6 +24,8 @@ async function bootstrap() {
     }),
   )
   app.useGlobalInterceptors(app.get(ResponseInterceptor))
+  app.useGlobalInterceptors(app.get(LogInterceptor)) // <-- Así lo usas correctamente
+
   app.useGlobalFilters(new GlobalExceptionFilter())
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
 
@@ -38,8 +41,8 @@ async function bootstrap() {
       'Complete API documentation for the GITT application. This API is designed to provide a comprehensive set of endpoints for managing and interacting with the GITT application.',
     )
     .setVersion('1.0')
-    //.addServer(`http://localhost:${port}`, 'Servidor local')
-    .addServer('https://gitt-api-3tw6.onrender.com', 'Servidor de producción')
+    .addServer(`http://localhost:${port}`, 'Servidor local')
+    // .addServer('https://gitt-api-3tw6.onrender.com', 'Servidor de producción')
     .addBearerAuth({
       type: 'http',
       scheme: 'bearer',

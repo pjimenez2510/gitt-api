@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { CategoriesService } from './categories.service'
 import { CreateCategoryDto } from './dto/req/create-category.dto'
 import {
@@ -20,8 +20,12 @@ import {
 import { CategoryResDto } from './dto/res/category-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateCategoryDto } from './dto/req/update-category.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Categories')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly service: CategoriesService) {}

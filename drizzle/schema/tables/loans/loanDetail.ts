@@ -3,15 +3,13 @@ import {
   serial,
   integer,
   text,
-  varchar,
-  boolean,
   timestamp,
   unique,
 } from 'drizzle-orm/pg-core'
 import { loan } from './loan'
 import { item } from '../inventory/item/item'
-import { status } from '../inventory/status'
 import { relations } from 'drizzle-orm'
+import { condition } from '../inventory'
 
 export const loanDetail = pgTable(
   'loan_details',
@@ -23,13 +21,14 @@ export const loanDetail = pgTable(
     itemId: integer('item_id')
       .references(() => item.id)
       .notNull(),
-    exitStatusId: integer('exit_status_id').references(() => status.id),
-    returnStatusId: integer('return_status_id').references(() => status.id),
+    exitConditionId: integer('exit_condition_id').references(
+      () => condition.id,
+    ),
+    returnConditionId: integer('return_condition_id').references(
+      () => condition.id,
+    ),
     exitObservations: text('exit_observations'),
     returnObservations: text('return_observations'),
-    exitImage: varchar('exit_image', { length: 255 }),
-    returnImage: varchar('return_image', { length: 255 }),
-    approved: boolean('approved').default(false),
     registrationDate: timestamp('registration_date', {
       withTimezone: true,
       mode: 'date',
@@ -51,14 +50,14 @@ export const loanDetailRelations = relations(loanDetail, ({ one }) => ({
     fields: [loanDetail.itemId],
     references: [item.id],
   }),
-  exitStatus: one(status, {
-    fields: [loanDetail.exitStatusId],
-    references: [status.id],
-    relationName: 'exitStatus',
+  exitCondition: one(condition, {
+    fields: [loanDetail.exitConditionId],
+    references: [condition.id],
+    relationName: 'exitCondition',
   }),
-  returnStatus: one(status, {
-    fields: [loanDetail.returnStatusId],
-    references: [status.id],
-    relationName: 'returnStatus',
+  returnCondition: one(condition, {
+    fields: [loanDetail.returnConditionId],
+    references: [condition.id],
+    relationName: 'returnCondition',
   }),
 }))
