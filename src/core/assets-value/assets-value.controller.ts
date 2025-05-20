@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpStatus,
   Param,
@@ -67,12 +66,12 @@ export class AssetsValueController {
     return this.service.update(id, dto)
   }
 
-  @Delete(':id')
-  @ApiOperation({
-    summary: 'Delete a category by itemId',
-  })
-  @ApiStandardResponse(AssetValueResDto, HttpStatus.OK)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id)
-  }
+  // @Delete(':id')
+  // @ApiOperation({
+  //   summary: 'Delete a category by itemId',
+  // })
+  // @ApiStandardResponse(AssetValueResDto, HttpStatus.OK)
+  // remove(@Param('id', ParseIntPipe) id: number) {
+  //   return this.service.remove(id)
+  // }
 }

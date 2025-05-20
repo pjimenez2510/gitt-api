@@ -25,6 +25,7 @@ export const itemColor = pgTable(
       withTimezone: true,
       mode: 'date',
     }).defaultNow(),
+    active: boolean('active').default(true),
     updateDate: timestamp('update_date', {
       withTimezone: true,
       mode: 'date',

@@ -111,7 +111,8 @@ export class ItemMaterialsService {
     await this.findOne(id)
 
     const [deleteditemMaterial] = await this.dbService.db
-      .delete(itemMaterial)
+      .update(itemMaterial)
+      .set({ active: false })
       .where(eq(itemMaterial.id, id))
       .returning(this.itemMaterialWithoutDates)
       .execute()

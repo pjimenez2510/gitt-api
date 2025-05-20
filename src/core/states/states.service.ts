@@ -79,7 +79,7 @@ export class StatesService {
       .values({
         name: dto.name,
         description: dto.description,
-        requiresMaintenance: dto.requiresMaintenance,
+        active: dto.active,
       })
       .returning(this.statesWithoutDates)
       .execute()
@@ -108,7 +108,7 @@ export class StatesService {
 
     const [deletedStatus] = await this.dbService.db
       .update(status)
-      .set({ requiresMaintenance: false, updateDate: new Date() })
+      .set({ active: false, updateDate: new Date() })
       .where(eq(status.id, id))
       .returning(this.statesWithoutDates)
       .execute()
