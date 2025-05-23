@@ -20,9 +20,12 @@ import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { CreateCertificateDto } from './dto/req/create-certificate.dto'
 import { UpdateCertificateDto } from './dto/req/update-certificate.dto'
 import { CertificateResDto } from './dto/res/certificate-res.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Certificates')
 @ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('certificates')
 export class CertificatesController {
   constructor(private readonly service: CertificatesService) {}

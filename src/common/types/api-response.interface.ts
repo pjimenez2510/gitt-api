@@ -75,7 +75,6 @@ export class ApiPaginatedRes<T> {
     description: 'Array of records',
     // Type se definirá dinámicamente
     type: 'array',
-    example: [],
   })
   records: T[]
 }

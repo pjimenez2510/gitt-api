@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { Exclude, Expose } from 'class-transformer'
 import { NormativeType } from '../../enums/normative-type.enum'
 import { Origin } from '../../enums/origin.enum'
+import { ItemTypeResDto } from 'src/core/item-types/dto/res/item-type-res.dto'
 
 export class ItemResDto {
   @ApiProperty({
@@ -17,6 +18,13 @@ export class ItemResDto {
   })
   @Expose()
   code: string
+
+  @ApiProperty({
+    description: 'cantidad en stock',
+    example: 10,
+  })
+  @Expose()
+  stock: number
 
   @ApiProperty({
     description: 'nombre del item',
@@ -243,6 +251,13 @@ export class ItemResDto {
   })
   @Expose()
   activeCustodian: boolean
+
+  @ApiProperty({
+    description: 'itemType',
+    example: 1,
+  })
+  @Expose()
+  itemType: ItemTypeResDto
 
   @ApiProperty({
     description: 'ID del usuario de registro',

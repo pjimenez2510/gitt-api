@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common'
 import { eq } from 'drizzle-orm'
-import { material } from '../../../schema'
+import { material } from 'drizzle/schema/tables/inventory/material'
 import { MaterialRecord } from '../types'
 import { getDbConnection } from '../utils/db'
 

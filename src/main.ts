@@ -8,6 +8,7 @@ import { CustomConfigService } from './global/config/config.service'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ApiPaginatedRes, ApiRes } from './common/types/api-response.interface'
 import { BaseParamsDto } from './common/dtos/base-params.dto'
+import { LogInterceptor } from './common/interceptors/log.interceptor'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true })
@@ -23,6 +24,8 @@ async function bootstrap() {
     }),
   )
   app.useGlobalInterceptors(app.get(ResponseInterceptor))
+  app.useGlobalInterceptors(app.get(LogInterceptor)) // <-- Así lo usas correctamente
+
   app.useGlobalFilters(new GlobalExceptionFilter())
   useContainer(app.select(AppModule), { fallbackOnErrors: true })
 

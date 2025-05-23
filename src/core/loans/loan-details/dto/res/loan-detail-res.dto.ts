@@ -10,7 +10,7 @@ export class LoanDetailResDto {
   id: number
 
   @ApiProperty({
-    description: 'codigo unico del prestamo',
+    description: 'código único del préstamo',
     example: 1,
   })
   @Expose()
@@ -21,56 +21,35 @@ export class LoanDetailResDto {
     example: 1,
   })
   @Expose()
-  itemId: Date
+  itemId: number
 
   @ApiProperty({
-    description: 'id del estado de salida',
+    description: 'id de la condición de salida',
     example: 1,
   })
   @Expose()
-  exitStatusId: number
+  exitConditionId: number
 
   @ApiProperty({
-    description: 'id del estado de devolucion',
+    description: 'id de la condición de devolución',
     example: 1,
   })
   @Expose()
-  returnStatusId: number
+  returnConditionId: number
 
   @ApiProperty({
     description: 'observaciones de salida',
-    example: 'observaciones de salida',
+    example: 'Item en buen estado',
   })
   @Expose()
   exitObservations: string
 
   @ApiProperty({
-    description: 'observaciones de devolucion',
-    example: 'observaciones de devolucion',
+    description: 'observaciones de devolución',
+    example: 'Item devuelto con rayones',
   })
   @Expose()
   returnObservations: string
-
-  @ApiProperty({
-    description: 'imagen de salida',
-    example: 'imagen de salida',
-  })
-  @Expose()
-  exitImage: string
-
-  @ApiProperty({
-    description: 'imagen de devolucion',
-    example: 'imagen de devolucion',
-  })
-  @Expose()
-  returnImage: string
-
-  @ApiProperty({
-    description: 'aprobado',
-    example: true,
-  })
-  @Expose()
-  approved: boolean
 
   @Exclude()
   registrationDate: Date

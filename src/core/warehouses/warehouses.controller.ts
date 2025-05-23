@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { WarehousesService } from './warehouses.service'
 import { CreateWarehouseDto } from './dto/req/create-warehouse.dto'
 import {
@@ -20,8 +20,12 @@ import {
 import { WarehouseResDto } from './dto/res/warehouse-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateWarehouseDto } from './dto/req/update-warehouse.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Warehouses')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('warehouses')
 export class WarehousesController {
   constructor(private readonly service: WarehousesService) {}

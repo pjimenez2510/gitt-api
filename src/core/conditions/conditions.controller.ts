@@ -10,7 +10,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ConditionsService } from './conditions.service'
 import { CreateConditionDto } from './dto/req/create-condition.dto'
 import {
@@ -20,8 +20,12 @@ import {
 import { ConditionResDto } from './dto/res/condition-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateConditionDto } from './dto/req/update-condition.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
 
 @ApiTags('Conditions')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('conditions')
 export class ConditionsController {
   constructor(private readonly service: ConditionsService) {}

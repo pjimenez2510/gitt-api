@@ -1,5 +1,6 @@
 import { Logger } from '@nestjs/common'
-import { user, person } from '../../../schema'
+import { user } from 'drizzle/schema/tables/users/user'
+import { person } from 'drizzle/schema/tables/users/person'
 import { UserRecord } from '../types'
 import { getDbConnection } from '../utils/db'
 import { hashPassword } from '../utils/security'

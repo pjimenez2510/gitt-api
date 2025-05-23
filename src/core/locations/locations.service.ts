@@ -9,7 +9,7 @@ import { DisplayableException } from 'src/common/exceptions/displayable.exceptio
 import { UpdateLocationDto } from './dto/req/update-location.dto'
 import { plainToInstance } from 'class-transformer'
 import { LocationResDto } from './dto/res/location-res.dto'
-import { locationType } from 'drizzle/schema'
+import { locationType } from 'drizzle/schema/enums/locations'
 
 @Injectable()
 export class LocationsService {

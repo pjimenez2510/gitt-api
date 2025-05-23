@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common'
 import { UsersService } from './users.service'
 
-import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { CreateUserDto } from './dto/req/create-user.dto'
 import {
   ApiPaginatedResponse,
@@ -21,9 +21,12 @@ import { UserResDto } from './dto/res/user-res.dto'
 import { UpdateUserDto } from './dto/req/update-user.dto'
 import { ChangeUserStatusDto } from './dto/req/change-user-status.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from './types/user-type.enum'
 
 @ApiTags('Users')
 @Controller('users')
+@ApiBearerAuth()
 export class UsersController {
   constructor(private readonly service: UsersService) {}
 
