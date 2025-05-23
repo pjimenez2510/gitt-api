@@ -20,6 +20,13 @@ export class ItemResDto {
   code: string
 
   @ApiProperty({
+    description: 'cantidad en stock',
+    example: 10,
+  })
+  @Expose()
+  stock: number
+
+  @ApiProperty({
     description: 'nombre del item',
     example: 'Laptop Dell XPS 13',
   })
