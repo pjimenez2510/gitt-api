@@ -14,16 +14,16 @@ import {
 import { Request } from 'express'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { StatesService } from './states.service'
+import { CreateStateDto } from './dto/req/create-state.dto'
 import {
   ApiPaginatedResponse,
   ApiStandardResponse,
 } from 'src/common/decorators/api-standard-response.decorator'
-import { StatusResDto } from './dto/res/status-res.dto'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
-import { CreateStatusDto } from './dto/req/create-status.dto'
-import { UpdateStatusDto } from './dto/req/update-status.dto'
+import { StateResDto } from './dto/res/state-res.dto'
+import { UpdateStateDto } from './dto/req/update-state.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterStateDto } from './dto/req/filter-state.dto'
 
 @ApiTags('States')
 @ApiBearerAuth()
@@ -36,13 +36,13 @@ export class StatesController {
   @ApiOperation({
     summary: 'Obtener todos los estados',
   })
-  @ApiPaginatedResponse(StatusResDto, HttpStatus.OK)
-  async findAll(@Req() req: Request, @Query() paginationDto: BaseParamsDto) {
+  @ApiPaginatedResponse(StateResDto, HttpStatus.OK)
+  async findAll(@Req() req: Request, @Query() filterDto: FilterStateDto) {
     req.action = 'states:find-all:attempt'
     req.logMessage = 'Obteniendo todos los estados'
 
     try {
-      const result = await this.service.findAll(paginationDto)
+      const result = await this.service.findAll(filterDto)
       req.action = 'states:find-all:success'
       req.logMessage = `Se obtuvieron ${result.records.length} estados correctamente`
       return result
@@ -55,9 +55,9 @@ export class StatesController {
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Obtener un estado por ID',
+    summary: 'Obtener un estado por id',
   })
-  @ApiStandardResponse(StatusResDto, HttpStatus.OK)
+  @ApiStandardResponse(StateResDto, HttpStatus.OK)
   async findOne(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
     req.action = 'states:find-one:attempt'
     req.logMessage = `Buscando estado con ID: ${id}`
@@ -78,9 +78,9 @@ export class StatesController {
   @ApiOperation({
     summary: 'Crear un nuevo estado',
   })
-  @ApiBody({ type: CreateStatusDto })
-  @ApiStandardResponse(StatusResDto, HttpStatus.CREATED)
-  async create(@Req() req: Request, @Body() dto: CreateStatusDto) {
+  @ApiBody({ type: CreateStateDto })
+  @ApiStandardResponse(StateResDto, HttpStatus.CREATED)
+  async create(@Req() req: Request, @Body() dto: CreateStateDto) {
     req.action = 'states:create:attempt'
     req.logMessage = 'Creando un nuevo estado'
 
@@ -98,14 +98,14 @@ export class StatesController {
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'Actualizar un estado por ID',
+    summary: 'Actualizar un estado por id',
   })
-  @ApiBody({ type: UpdateStatusDto })
-  @ApiStandardResponse(StatusResDto, HttpStatus.OK)
+  @ApiBody({ type: UpdateStateDto })
+  @ApiStandardResponse(StateResDto, HttpStatus.OK)
   async update(
     @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateStatusDto,
+    @Body() dto: UpdateStateDto,
   ) {
     req.action = 'states:update:attempt'
     req.logMessage = `Actualizando estado con ID: ${id}`
@@ -124,9 +124,9 @@ export class StatesController {
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Eliminar un estado por ID',
+    summary: 'Eliminar un estado por id',
   })
-  @ApiStandardResponse(StatusResDto, HttpStatus.OK)
+  @ApiStandardResponse(StateResDto, HttpStatus.OK)
   async remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
     req.action = 'states:remove:attempt'
     req.logMessage = `Eliminando estado con ID: ${id}`

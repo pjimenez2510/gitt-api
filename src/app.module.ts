@@ -22,7 +22,6 @@ import { LogModule } from './global/log/log.module'
 import { LogInterceptor } from './common/interceptors/log.interceptor'
 import { ReturnsModule } from './core/returns/returns.module'
 
-
 @Module({
   imports: [
     UsersModule,
@@ -39,6 +38,7 @@ import { ReturnsModule } from './core/returns/returns.module'
     AssetsValueModule,
     LocationsModule,
     ItemsModule,
+
     CertificatesModule,
     ItemColorsModule,
     ItemMaterialsModule,

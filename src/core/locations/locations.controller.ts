@@ -23,6 +23,7 @@ import {
 } from 'src/common/decorators/api-standard-response.decorator'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterLocationDto } from './dto/req/filter-location.dto'
 
 @ApiTags('Locations')
 @ApiBearerAuth()
@@ -36,17 +37,11 @@ export class LocationsController {
     summary: 'Obtener todas las ubicaciones',
   })
   @ApiPaginatedResponse(LocationResDto, HttpStatus.OK)
-  async findAll(
-    @Req() req: Request,
-    @Query('limit', ParseIntPipe) limit: number,
-    @Query('page', ParseIntPipe) page: number,
-  ) {
+  async findAll(@Req() req: Request, @Query() filterDto: FilterLocationDto) {
     req.action = 'locations:find-all:attempt'
     req.logMessage = 'Obteniendo todas las ubicaciones'
-
     try {
-      const params = { limit, page }
-      const result = await this.locationsService.findAll(params)
+      const result = await this.locationsService.findAll(filterDto)
       req.action = 'locations:find-all:success'
       req.logMessage = `Se obtuvieron ${result.records.length} ubicaciones correctamente`
       return result

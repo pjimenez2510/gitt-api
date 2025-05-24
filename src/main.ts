@@ -21,6 +21,7 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
+      transform: true,
     }),
   )
   app.useGlobalInterceptors(app.get(ResponseInterceptor))

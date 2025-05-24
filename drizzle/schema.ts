@@ -118,12 +118,14 @@ import {
   person,
   userRole,
   userRoleRelations,
+  userRelations,
 } from './schema/tables/users'
 
 export {
   person,
   user,
   role,
+  userRelations,
   roleRelations,
   userRole,
   userRoleRelations,

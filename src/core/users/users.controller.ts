@@ -22,7 +22,7 @@ import {
 import { UserResDto } from './dto/res/user-res.dto'
 import { UpdateUserDto } from './dto/req/update-user.dto'
 import { ChangeUserStatusDto } from './dto/req/change-user-status.dto'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
+import { UserFiltersDto } from './dto/req/user-filters.dto'
 
 @ApiTags('Users')
 @Controller('users')
@@ -56,12 +56,12 @@ export class UsersController {
     summary: 'Obtener todos los usuarios',
   })
   @ApiPaginatedResponse(UserResDto, HttpStatus.OK)
-  async findAll(@Req() req: Request, @Query() paginationDto: BaseParamsDto) {
+  async findAll(@Req() req: Request, @Query() filterDto: UserFiltersDto) {
     req.action = 'users:find-all:attempt'
     req.logMessage = 'Obteniendo todos los usuarios'
 
     try {
-      const result = await this.service.findAll(paginationDto)
+      const result = await this.service.findAll(filterDto)
       req.action = 'users:find-all:success'
       req.logMessage = `Se obtuvieron ${result.records.length} usuarios correctamente`
       return result

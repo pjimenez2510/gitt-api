@@ -12,7 +12,14 @@ export const person = pgTable('people', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   birthDate: date('birth_date'),
   phone: varchar('phone', { length: 15 }),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
+  registrationDate: timestamp('registration_date', {
+    withTimezone: true,
+    mode: 'date',
+  }).defaultNow(),
+  updateDate: timestamp('update_date', {
+    withTimezone: true,
+    mode: 'date',
+  }).defaultNow(),
 })
 
 export const personRelations = relations(person, ({ many }) => ({

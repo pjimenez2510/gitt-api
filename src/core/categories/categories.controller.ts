@@ -20,10 +20,10 @@ import {
   ApiStandardResponse,
 } from 'src/common/decorators/api-standard-response.decorator'
 import { CategoryResDto } from './dto/res/category-res.dto'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateCategoryDto } from './dto/req/update-category.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterCategoryDto } from './dto/req/filter-category.dto'
 
 @ApiTags('Categories')
 @ApiBearerAuth()
@@ -37,12 +37,12 @@ export class CategoriesController {
     summary: 'Obtener todas las categorías',
   })
   @ApiPaginatedResponse(CategoryResDto, HttpStatus.OK)
-  async findAll(@Req() req: Request, @Query() paginationDto: BaseParamsDto) {
+  async findAll(@Req() req: Request, @Query() filterDto: FilterCategoryDto) {
     req.action = 'categories:find-all:attempt'
     req.logMessage = 'Obteniendo lista de categorías'
 
     try {
-      const result = await this.service.findAll(paginationDto)
+      const result = await this.service.findAll(filterDto)
       req.action = 'categories:find-all:success'
       req.logMessage = `Se obtuvieron ${result.records.length} categorías`
       return result

@@ -3,6 +3,7 @@ import {
   IsDecimal,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator'
@@ -37,6 +38,7 @@ export class CreateCategoryDto {
     example: 1,
   })
   @IsOptional()
+  @IsNumber()
   parentCategoryId?: number
 
   @ApiProperty({
