@@ -1,44 +1,45 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { and, count, desc, eq, not, sql } from 'drizzle-orm'
 import { condition } from 'drizzle/schema/tables/inventory/condition'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
-import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateConditionDto } from './dto/req/create-condition.dto'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { UpdateConditionDto } from './dto/req/update-condition.dto'
 import { plainToInstance } from 'class-transformer'
 import { ConditionResDto } from './dto/res/condition-res.dto'
+import { FilterConditionDto } from './dto/req/condition-filter.dto'
+import { conditionColumnsAndWith } from './const/condition-columns-and-with'
+import {
+  buildConditionFilterConditions,
+  buildConditionWhereClause,
+} from './utils/condition-filter-builder'
 
 @Injectable()
 export class ConditionsService {
   constructor(private readonly dbService: DatabaseService) {}
 
-  private readonly conditionsWithoutDates = excludeColumns(
-    condition,
-    'registrationDate',
-    'updateDate',
-    'active',
-  )
+  async findAll(filterDto: FilterConditionDto) {
+    const conditions = buildConditionFilterConditions(filterDto)
+    const whereClause = buildConditionWhereClause(conditions)
 
-  async findAll({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
+    const offset = (filterDto.page - 1) * filterDto.limit
 
-    const query = this.dbService.db
-      .select(this.conditionsWithoutDates)
-      .from(condition)
-      .where(eq(condition.active, true))
-      .orderBy(desc(condition.name))
-      .limit(limit)
-      .offset(offset)
+    const query = this.dbService.db.query.condition.findMany({
+      where: whereClause,
+      with: conditionColumnsAndWith.with,
+      columns: conditionColumnsAndWith.columns,
+      orderBy: [desc(condition.name)],
+      limit: filterDto.allRecords ? undefined : filterDto.limit,
+      offset: filterDto.allRecords ? undefined : offset,
+    })
 
     const totalQuery = this.dbService.db
       .select({ count: count() })
       .from(condition)
-      .where(eq(condition.active, true))
+      .where(whereClause)
 
     const [records, totalResult] = await Promise.all([
-      query.execute(),
+      query,
       totalQuery.execute(),
     ])
 
@@ -47,19 +48,29 @@ export class ConditionsService {
     return {
       records: plainToInstance(ConditionResDto, records),
       total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
+      limit: filterDto.allRecords ? total : filterDto.limit,
+      page: filterDto.allRecords ? 1 : filterDto.page,
+      pages: filterDto.allRecords ? 1 : Math.ceil(total / filterDto.limit),
     }
   }
 
-  async findOne(id: number) {
+  async existById(id: number) {
     const [record] = await this.dbService.db
-      .select(this.conditionsWithoutDates)
+      .select({ id: condition.id })
       .from(condition)
       .where(and(eq(condition.id, id), eq(condition.active, true)))
       .limit(1)
       .execute()
+
+    return !!record
+  }
+
+  async findOne(id: number) {
+    const record = await this.dbService.db.query.condition.findFirst({
+      where: and(eq(condition.id, id), eq(condition.active, true)),
+      columns: conditionColumnsAndWith.columns,
+      with: conditionColumnsAndWith.with,
+    })
 
     if (!record) {
       throw new NotFoundException(`Condición con id ${id} no encontrada`)
@@ -69,9 +80,10 @@ export class ConditionsService {
   }
 
   async existByName(name?: string, excludeId?: number) {
-    if (!name) return true
+    if (!name) return false
+
     const [record] = await this.dbService.db
-      .select(this.conditionsWithoutDates)
+      .select({ id: condition.id })
       .from(condition)
       .where(
         and(
@@ -103,14 +115,18 @@ export class ConditionsService {
         description: dto.description,
         requiresMaintenance: dto.requiresMaintenance,
       })
-      .returning(this.conditionsWithoutDates)
+      .returning()
       .execute()
 
     return plainToInstance(ConditionResDto, newCondition)
   }
 
   async update(id: number, dto: UpdateConditionDto) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
+
+    if (!exists) {
+      throw new NotFoundException(`Condición con id ${id} no encontrada`)
+    }
 
     const alreadyExistCondition = await this.existByName(dto.name, id)
 
@@ -125,29 +141,25 @@ export class ConditionsService {
       .update(condition)
       .set(dto)
       .where(eq(condition.id, id))
-      .returning(this.conditionsWithoutDates)
+      .returning()
       .execute()
 
     return plainToInstance(ConditionResDto, updatedCondition)
   }
 
   async remove(id: number) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
 
-    const [deletedCondition] = await this.dbService.db
+    if (!exists) {
+      throw new NotFoundException(`Condición con id ${id} no encontrada`)
+    }
+
+    await this.dbService.db
       .update(condition)
       .set({ active: false, updateDate: new Date() })
       .where(eq(condition.id, id))
-      .returning(this.conditionsWithoutDates)
       .execute()
 
-    if (!deletedCondition) {
-      throw new DisplayableException(
-        `Error al eliminar la condición con id ${id}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      )
-    }
-
-    return plainToInstance(ConditionResDto, deletedCondition)
+    return true
   }
 }
