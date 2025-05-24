@@ -4,7 +4,7 @@ import { Exclude, Expose } from 'class-transformer'
 export class ColorResDto {
   @ApiProperty({
     description: 'id del color',
-    example: 'asdasd-asdasd-asdasd-asdasd',
+    example: 1,
   })
   @Expose()
   id: number

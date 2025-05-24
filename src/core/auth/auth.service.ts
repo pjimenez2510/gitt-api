@@ -5,8 +5,10 @@ import { JwtPayload } from './types/jwt-payload.interface'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { comparePassword } from 'src/common/utils/encrypter'
 import { DatabaseService } from 'src/global/database/database.service'
-import { person, user } from 'drizzle/schema'
+import { person } from 'drizzle/schema/tables/users/person'
+import { user } from 'drizzle/schema/tables/users/user'
 import { eq } from 'drizzle-orm'
+import { USER_STATUS } from '../users/types/user-status.enum'
 
 @Injectable()
 export class AuthService {
@@ -33,6 +35,21 @@ export class AuthService {
       .from(user)
       .where(eq(user.personId, personFound.id))
       .limit(1)
+
+    if (!userFound)
+      throw new DisplayableException(
+        'Usuario no encontrado',
+        HttpStatus.NOT_FOUND,
+      )
+
+    if (
+      userFound.status !== USER_STATUS.ACTIVE &&
+      userFound.status !== USER_STATUS.DEFAULTER
+    )
+      throw new DisplayableException(
+        `Usuario no activo, estado: ${userFound.status}`,
+        HttpStatus.BAD_REQUEST,
+      )
 
     this.verifyPassword(password, userFound.passwordHash)
 

@@ -4,21 +4,21 @@ export const statesSeed: (typeof status.$inferInsert)[] = [
   {
     name: 'Activo',
     description: 'Activo',
-    requiresMaintenance: false,
+    active: false,
   },
   {
     name: 'En reparación',
     description: 'En reparación',
-    requiresMaintenance: true,
+    active: true,
   },
   {
     name: 'En servicio',
     description: 'En servicio',
-    requiresMaintenance: true,
+    active: true,
   },
   {
     name: 'En préstamo',
     description: 'En préstamo',
-    requiresMaintenance: true,
+    active: true,
   },
 ]

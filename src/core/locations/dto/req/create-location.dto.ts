@@ -5,9 +5,10 @@ import {
   IsOptional,
   IsString,
   MaxLength,
-  IsBoolean,
+  IsEnum,
 } from 'class-validator'
-
+import { CapacityUnit } from '../../enum/capacity-unit.enum'
+import { LocationType } from '../../enum/location-type'
 export class CreateLocationDto {
   @ApiProperty({
     description: 'Nombre de la ubicación',
@@ -44,11 +45,16 @@ export class CreateLocationDto {
 
   @ApiProperty({
     description: 'Tipo de ubicación',
-    example: 'Almacén',
+    example: 'WAREHOUSE',
+    enum: LocationType,
   })
-  @IsString({ message: 'El tipo debe ser un string' })
+  @IsEnum(LocationType, {
+    message:
+      'El tipo debe ser uno de los siguientes valores: ' +
+      Object.values(LocationType).join(', '),
+  })
   @IsNotEmpty({ message: 'El tipo es requerido' })
-  type: string
+  type: LocationType
 
   @ApiProperty({
     description: 'Edificio de la ubicación (es opcional)',
@@ -91,11 +97,16 @@ export class CreateLocationDto {
 
   @ApiProperty({
     description: 'Unidad de capacidad (es opcional)',
-    example: 'Cajas',
+    example: 'UNITS',
+    enum: CapacityUnit,
   })
-  @IsString({ message: 'La unidad de capacidad debe ser un string' })
+  @IsEnum(CapacityUnit, {
+    message:
+      'La unidad de capacidad debe ser uno de los siguientes valores: ' +
+      Object.values(CapacityUnit).join(', '),
+  })
   @IsOptional()
-  capacityUnit?: string
+  capacityUnit?: CapacityUnit
 
   @ApiProperty({
     description: 'Ocupación actual de la ubicación (es opcional)',
@@ -131,12 +142,4 @@ export class CreateLocationDto {
   @IsString({ message: 'Las notas deben ser un string' })
   @IsOptional()
   notes?: string
-
-  @ApiProperty({
-    description: 'Estado activo de la ubicación',
-    example: true,
-  })
-  @IsBoolean({ message: 'El estado activo debe ser un booleano' })
-  @IsOptional()
-  active?: boolean
 }

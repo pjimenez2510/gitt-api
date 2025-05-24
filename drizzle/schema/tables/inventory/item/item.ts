@@ -37,6 +37,7 @@ export const item = pgTable('items', {
   code: varchar('code', { length: 50 }).notNull().unique(),
   previousCode: varchar('previous_code', { length: 50 }),
   identifier: varchar('identifier', { length: 50 }),
+  stock: integer('stock').notNull().default(0),
   certificateId: integer('certificate_id').references(() => certificate.id),
   itemTypeId: integer('item_type_id')
     .references(() => itemType.id)

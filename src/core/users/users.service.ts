@@ -1,89 +1,88 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { CreateUserDto } from './dto/req/create-user.dto'
 import { DatabaseService } from 'src/global/database/database.service'
-import { excludeColumns } from 'src/common/utils/drizzle-helpers'
-import { person, user } from 'drizzle/schema'
 import { and, count, desc, eq, ne, or, sql } from 'drizzle-orm'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { hashPassword } from 'src/common/utils/encrypter'
 import { UserResDto } from './dto/res/user-res.dto'
-import { PersonResDto } from '../people/dto/res/person-res.dto'
 import { UpdateUserDto } from './dto/req/update-user.dto'
 import { USER_STATUS } from './types/user-status.enum'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { ApiPaginatedRes } from 'src/common/types/api-response.interface'
+import { user } from 'drizzle/schema/tables/users/user'
+import { person } from 'drizzle/schema/tables/users/person'
+import { UserFiltersDto } from './dto/req/user-filters.dto'
+import { userColumnsAndWith } from './const/user-columns-and-with'
+import {
+  buildUserFilterConditions,
+  buildUserWhereClause,
+} from './utils/user-filter-builder'
+import { plainToInstance } from 'class-transformer'
 
 @Injectable()
 export class UsersService {
   constructor(private dbService: DatabaseService) {}
 
-  private usersWithoutPassword = excludeColumns(user, 'passwordHash')
+  async findAll(
+    filterDto: UserFiltersDto,
+  ): Promise<ApiPaginatedRes<UserResDto>> {
+    const conditions = buildUserFilterConditions(filterDto)
+    const whereClause = buildUserWhereClause(conditions)
 
-  async findAll({
-    limit,
-    page,
-  }: BaseParamsDto): Promise<ApiPaginatedRes<UserResDto>> {
-    const offset = (page - 1) * limit
+    const offset = (filterDto.page - 1) * filterDto.limit
 
-    const query = this.dbService.db
-      .select()
+    const query = this.dbService.db.query.user.findMany({
+      where: whereClause,
+      columns: userColumnsAndWith.columns,
+      with: userColumnsAndWith.with,
+      orderBy: [desc(user.id)],
+      limit: filterDto.allRecords ? undefined : filterDto.limit,
+      offset: filterDto.allRecords ? undefined : offset,
+    })
+
+    const totalQuery = this.dbService.db
+      .select({ count: count() })
       .from(user)
-      .leftJoin(person, eq(user.personId, person.id))
-      .orderBy(desc(user.id))
-      .limit(limit)
-      .offset(offset)
+      .where(whereClause)
 
-    const totalQuery = this.dbService.db.select({ count: count() }).from(user)
-
-    const [rawRecords, totalResult] = await Promise.all([
-      query.execute(),
+    const [records, totalResult] = await Promise.all([
+      query,
       totalQuery.execute(),
     ])
 
     const total = totalResult[0].count
 
-    // Transformamos la estructura de los registros
-    const records = rawRecords.map((record) => {
-      const { users, people } = record
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { passwordHash, personId, ...userData } = users
-
-      return {
-        ...userData,
-        person: people as PersonResDto,
-      }
-    })
-
     return {
-      records,
+      records: plainToInstance(UserResDto, records),
       total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
+      limit: filterDto.allRecords ? total : filterDto.limit,
+      page: filterDto.allRecords ? 1 : filterDto.page,
+      pages: filterDto.allRecords ? 1 : Math.ceil(total / filterDto.limit),
     }
   }
 
-  async findById(id: number): Promise<UserResDto> {
-    const [userFound] = await this.dbService.db
-      .select()
+  async existById(id: number): Promise<boolean> {
+    const [record] = await this.dbService.db
+      .select({ id: user.id })
       .from(user)
-      .leftJoin(person, eq(user.personId, person.id))
       .where(eq(user.id, id))
       .limit(1)
       .execute()
 
-    if (!userFound) {
-      throw new NotFoundException(`User with id ${id} not found`)
+    return !!record
+  }
+
+  async findById(id: number): Promise<UserResDto> {
+    const record = await this.dbService.db.query.user.findFirst({
+      where: eq(user.id, id),
+      columns: userColumnsAndWith.columns,
+      with: userColumnsAndWith.with,
+    })
+
+    if (!record) {
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`)
     }
 
-    const { users, people } = userFound
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { passwordHash, personId, ...userData } = users
-
-    return {
-      ...userData,
-      person: people as PersonResDto,
-    }
+    return plainToInstance(UserResDto, record)
   }
 
   async create(dto: CreateUserDto) {
@@ -93,7 +92,7 @@ export class UsersService {
       .leftJoin(user, eq(user.personId, person.id))
       .where(
         or(
-          eq(sql<string>`lower(${person.dni})`, dto.person.dni),
+          eq(sql<string>`lower(${person.dni})`, dto.person.dni.toLowerCase()),
           eq(
             sql<string>`lower(${person.email})`,
             dto.person.email.toLowerCase(),
@@ -106,14 +105,14 @@ export class UsersService {
 
     if (alreadyExistPersonAssociated) {
       throw new DisplayableException(
-        'Ya existe un usuario registrado',
+        'Ya existe un usuario registrado con estos datos',
         HttpStatus.CONFLICT,
       )
     }
 
     const passwordHash = hashPassword(dto.password)
 
-    await this.dbService.db.transaction(async (tx) => {
+    const newUser = await this.dbService.db.transaction(async (tx) => {
       const [newPerson] = await tx
         .insert(person)
         .values({
@@ -125,19 +124,28 @@ export class UsersService {
         .returning()
         .execute()
 
-      await tx
+      const [newUser] = await tx
         .insert(user)
         .values({
           ...dto,
           personId: newPerson.id,
           passwordHash,
         })
+        .returning()
         .execute()
+
+      return newUser
     })
+
+    return this.findById(newUser.id)
   }
 
   async update(id: number, dto: UpdateUserDto) {
-    const existingUser = await this.findById(id)
+    const exists = await this.existById(id)
+
+    if (!exists) {
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`)
+    }
 
     if (dto.person?.email || dto.person?.dni || dto.userName) {
       const [conflict] = await this.dbService.db
@@ -180,7 +188,18 @@ export class UsersService {
       }
     }
 
-    return this.dbService.db.transaction(async (tx) => {
+    await this.dbService.db.transaction(async (tx) => {
+      const userRecord = await tx.query.user.findFirst({
+        where: eq(user.id, id),
+        columns: {
+          personId: true,
+        },
+      })
+
+      if (!userRecord) {
+        throw new NotFoundException(`Usuario con id ${id} no encontrado`)
+      }
+
       if (dto.person) {
         await tx
           .update(person)
@@ -189,12 +208,11 @@ export class UsersService {
             birthDate: dto.person.birthDate
               ? new Date(dto.person.birthDate).toISOString()
               : undefined,
-            // Solo actualizar email si viene en el DTO
             email: dto.person.email
               ? dto.person.email.toLowerCase()
               : undefined,
           })
-          .where(eq(person.id, existingUser.person.id))
+          .where(eq(person.id, userRecord.personId))
           .execute()
       }
 
@@ -202,23 +220,45 @@ export class UsersService {
         .update(user)
         .set({
           userName: dto.userName ? dto.userName.toLowerCase() : undefined,
-          // Solo actualizar password si viene en el DTO
           passwordHash: dto.password ? hashPassword(dto.password) : undefined,
-          // Otros campos del usuario que puedan actualizarse
-          ...(dto as Partial<Omit<UpdateUserDto, 'password'>>),
+          career: dto.career,
+          userType: dto.userType,
+          status: dto.status,
         })
         .where(eq(user.id, id))
         .execute()
     })
+
+    return this.findById(id)
   }
 
   async changeStatus(id: number, status: USER_STATUS) {
-    await this.findById(id)
+    const exists = await this.existById(id)
+
+    if (!exists) {
+      throw new NotFoundException(`Usuario con id ${id} no encontrado`)
+    }
 
     await this.dbService.db
       .update(user)
       .set({ status })
       .where(eq(user.id, id))
       .execute()
+
+    return this.findById(id)
+  }
+
+  async findByDni(dni: string) {
+    const record = await this.dbService.db.query.user.findFirst({
+      where: eq(person.dni, dni),
+      columns: userColumnsAndWith.columns,
+      with: userColumnsAndWith.with,
+    })
+
+    if (!record) {
+      throw new NotFoundException(`Usuario con DNI: ${dni} no encontrado`)
+    }
+
+    return plainToInstance(UserResDto, record)
   }
 }

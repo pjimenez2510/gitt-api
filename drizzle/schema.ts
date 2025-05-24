@@ -84,8 +84,6 @@ import {
   loanRelations,
   loanDetail,
   loanDetailRelations,
-  loanHistory,
-  responsibilityDocument,
 } from './schema/tables/loans'
 import {
   warehouse,
@@ -111,6 +109,7 @@ import {
   generatedReportRelations,
   reportTemplate,
   inventoryStatistics,
+  log,
 } from './schema/tables/reports'
 import {
   user,
@@ -119,12 +118,14 @@ import {
   person,
   userRole,
   userRoleRelations,
+  userRelations,
 } from './schema/tables/users'
 
 export {
   person,
   user,
   role,
+  userRelations,
   roleRelations,
   userRole,
   userRoleRelations,
@@ -192,8 +193,6 @@ export {
   loanRelations,
   loanDetail,
   loanDetailRelations,
-  loanHistory,
-  responsibilityDocument,
 
   // Etiquetas
   label,
@@ -211,6 +210,7 @@ export {
   generatedReportRelations,
   reportTemplate,
   inventoryStatistics,
+  log,
 
   // Notificaciones
   notification,

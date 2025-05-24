@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { count, desc, eq } from 'drizzle-orm'
-import { assetValue } from 'drizzle/schema'
+import { assetValue } from 'drizzle/schema/tables/inventory/assetValue'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
@@ -131,20 +131,20 @@ export class AssetsValueService {
     return updateAssetValue
   }
 
-  async remove(id: number) {
-    await this.findByItemId(id)
+  // async remove(id: number) {
+  //   await this.findByItemId(id)
 
-    const [deletedAssetValue] = await this.dbService.db
-      .delete(assetValue)
-      .where(eq(assetValue.itemId, id))
-      .returning(this.assetValueWithoutDates)
-      .execute()
-    if (!deletedAssetValue) {
-      throw new DisplayableException(
-        `Error al eliminar el valor de activo para el item ${id}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      )
-    }
-    return deletedAssetValue
-  }
+  //   const [deletedAssetValue] = await this.dbService.db
+  //     .delete(assetValue)
+  //     .where(eq(assetValue.itemId, id))
+  //     .returning(this.assetValueWithoutDates)
+  //     .execute()
+  //   if (!deletedAssetValue) {
+  //     throw new DisplayableException(
+  //       `Error al eliminar el valor de activo para el item ${id}`,
+  //       HttpStatus.INTERNAL_SERVER_ERROR,
+  //     )
+  //   }
+  //   return deletedAssetValue
+  // }
 }

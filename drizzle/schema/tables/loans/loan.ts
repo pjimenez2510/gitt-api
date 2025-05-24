@@ -11,12 +11,9 @@ import { loanStatus } from 'drizzle/schema/enums/loans'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 import { loanDetail } from './loanDetail'
-import { loanHistory } from './loanHistory'
-import { responsibilityDocument } from './responsibilityDocument'
 
 export const loan = pgTable('loans', {
   id: serial('id').primaryKey(),
-  loanCode: varchar('loan_code', { length: 50 }).notNull().unique(),
   requestDate: timestamp('request_date', {
     withTimezone: true,
     mode: 'date',
@@ -37,7 +34,7 @@ export const loan = pgTable('loans', {
     withTimezone: true,
     mode: 'date',
   }),
-  status: loanStatus('status').notNull(),
+  status: loanStatus('status').notNull().default('REQUESTED'),
   requestorId: integer('requestor_id')
     .references(() => user.id)
     .notNull(),
@@ -46,7 +43,6 @@ export const loan = pgTable('loans', {
   associatedEvent: varchar('associated_event', { length: 255 }),
   externalLocation: varchar('external_location', { length: 255 }),
   notes: text('notes'),
-  responsibilityDocument: varchar('responsibility_document', { length: 255 }),
   reminderSent: boolean('reminder_sent').default(false),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
@@ -70,6 +66,4 @@ export const loanRelations = relations(loan, ({ one, many }) => ({
     relationName: 'approver',
   }),
   details: many(loanDetail),
-  history: many(loanHistory),
-  documents: many(responsibilityDocument),
 }))
