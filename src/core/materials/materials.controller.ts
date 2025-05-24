@@ -20,10 +20,10 @@ import {
   ApiStandardResponse,
 } from 'src/common/decorators/api-standard-response.decorator'
 import { MaterialResDto } from './dto/res/material-res.dto'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateMaterialDto } from './dto/req/update-material.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterMaterialDto } from './dto/req/filter-material.dto'
 
 @ApiTags('Materials')
 @ApiBearerAuth()
@@ -37,12 +37,12 @@ export class MaterialsController {
     summary: 'Obtener todos los materiales',
   })
   @ApiPaginatedResponse(MaterialResDto, HttpStatus.OK)
-  async findAll(@Req() req: Request, @Query() paginationDto: BaseParamsDto) {
+  async findAll(@Req() req: Request, @Query() filterDto: FilterMaterialDto) {
     req.action = 'materials:find-all:attempt'
     req.logMessage = 'Obteniendo todos los materiales'
 
     try {
-      const result = await this.service.findAll(paginationDto)
+      const result = await this.service.findAll(filterDto)
       req.action = 'materials:find-all:success'
       req.logMessage = `Se obtuvieron ${result.records.length} materiales correctamente`
       return result
