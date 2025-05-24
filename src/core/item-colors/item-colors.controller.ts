@@ -9,7 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from '@nestjs/common'
+import { Request } from 'express'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ItemColorsService } from './item-colors.service'
 import {
@@ -35,11 +37,24 @@ export class ItemColorsController {
     summary: 'Obtener todos los colores de un ítem',
   })
   @ApiPaginatedResponse(ItemColorResDto, HttpStatus.OK)
-  findAll(
+  async findAll(
+    @Req() req: Request,
     @Param('id', ParseIntPipe) itemId: number,
     @Query() paginationDto: BaseParamsDto,
   ) {
-    return this.service.findByItemId(paginationDto, itemId)
+    req.action = 'item-colors:find-all:attempt'
+    req.logMessage = `Obteniendo colores para el ítem ID: ${itemId}`
+
+    try {
+      const result = await this.service.findByItemId(paginationDto, itemId)
+      req.action = 'item-colors:find-all:success'
+      req.logMessage = `Se obtuvieron ${result.records.length} colores para el ítem ID: ${itemId}`
+      return result
+    } catch (error) {
+      req.action = 'item-colors:find-all:failed'
+      req.logMessage = `Error al obtener colores para el ítem ID ${itemId}: ${error.message}`
+      throw error
+    }
   }
 
   @Get(':id')
@@ -47,8 +62,20 @@ export class ItemColorsController {
     summary: 'Obtener un detalle color de ítem por id',
   })
   @ApiStandardResponse(ItemColorResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id)
+  async findOne(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'item-colors:find-one:attempt'
+    req.logMessage = `Buscando color de ítem con ID: ${id}`
+
+    try {
+      const result = await this.service.findOne(id)
+      req.action = 'item-colors:find-one:success'
+      req.logMessage = `Color de ítem encontrado ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'item-colors:find-one:failed'
+      req.logMessage = `Error al buscar color de ítem ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Post()
@@ -57,8 +84,20 @@ export class ItemColorsController {
   })
   @ApiBody({ type: CreateItemColorDto })
   @ApiStandardResponse(ItemColorResDto, HttpStatus.CREATED)
-  create(@Body() dto: CreateItemColorDto) {
-    return this.service.create(dto)
+  async create(@Req() req: Request, @Body() dto: CreateItemColorDto) {
+    req.action = 'item-colors:create:attempt'
+    req.logMessage = `Creando nuevo color para el ítem ID: ${dto.itemId}`
+
+    try {
+      const result = await this.service.create(dto)
+      req.action = 'item-colors:create:success'
+      req.logMessage = `Color de ítem creado con ID: ${result.id} para el ítem ID: ${dto.itemId}`
+      return result
+    } catch (error) {
+      req.action = 'item-colors:create:failed'
+      req.logMessage = `Error al crear color para el ítem ID ${dto.itemId}: ${error.message}`
+      throw error
+    }
   }
 
   @Patch(':id')
@@ -67,11 +106,24 @@ export class ItemColorsController {
   })
   @ApiBody({ type: UpdateItemColorDto })
   @ApiStandardResponse(ItemColorResDto, HttpStatus.OK)
-  update(
+  async update(
+    @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateItemColorDto,
   ) {
-    return this.service.update(id, dto)
+    req.action = 'item-colors:update:attempt'
+    req.logMessage = `Actualizando color de ítem con ID: ${id}`
+
+    try {
+      const result = await this.service.update(id, dto)
+      req.action = 'item-colors:update:success'
+      req.logMessage = `Color de ítem actualizado ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'item-colors:update:failed'
+      req.logMessage = `Error al actualizar color de ítem ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Delete(':id')
@@ -79,7 +131,19 @@ export class ItemColorsController {
     summary: 'Eliminar un color de ítem por id',
   })
   @ApiStandardResponse(ItemColorResDto, HttpStatus.OK)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id)
+  async remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'item-colors:remove:attempt'
+    req.logMessage = `Eliminando color de ítem con ID: ${id}`
+
+    try {
+      const result = await this.service.remove(id)
+      req.action = 'item-colors:remove:success'
+      req.logMessage = `Color de ítem eliminado ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'item-colors:remove:failed'
+      req.logMessage = `Error al eliminar color de ítem ID ${id}: ${error.message}`
+      throw error
+    }
   }
 }

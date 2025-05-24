@@ -9,7 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from '@nestjs/common'
+import { Request } from 'express'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import {
   ApiPaginatedResponse,
@@ -32,51 +34,112 @@ export class CertificatesController {
 
   @Get()
   @ApiOperation({
-    summary: 'Get all certificates',
+    summary: 'Obtener todos los certificados',
   })
   @ApiPaginatedResponse(CertificateResDto, HttpStatus.OK)
-  findAll(@Query() paginationDto: BaseParamsDto) {
-    return this.service.findAll(paginationDto)
+  async findAll(@Req() req: Request, @Query() paginationDto: BaseParamsDto) {
+    req.action = 'certificates:find-all:attempt'
+    req.logMessage = 'Obteniendo lista de certificados'
+
+    try {
+      const result = await this.service.findAll(paginationDto)
+      req.action = 'certificates:find-all:success'
+      req.logMessage = `Se obtuvieron ${result.records.length} certificados`
+      return result
+    } catch (error) {
+      req.action = 'certificates:find-all:failed'
+      req.logMessage = `Error al obtener certificados: ${error.message}`
+      throw error
+    }
   }
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Get a certificate by id',
+    summary: 'Obtener un certificado por ID',
   })
   @ApiStandardResponse(CertificateResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id)
+  async findOne(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'certificates:find-one:attempt'
+    req.logMessage = `Buscando certificado con ID: ${id}`
+
+    try {
+      const result = await this.service.findOne(id)
+      req.action = 'certificates:find-one:success'
+      req.logMessage = `Certificado encontrado ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'certificates:find-one:failed'
+      req.logMessage = `Error al buscar certificado ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Post()
   @ApiOperation({
-    summary: 'Create a new certificate',
+    summary: 'Crear un nuevo certificado',
   })
   @ApiBody({ type: CreateCertificateDto })
   @ApiStandardResponse(CertificateResDto, HttpStatus.CREATED)
-  create(@Body() dto: CreateCertificateDto) {
-    return this.service.create(dto)
+  async create(@Req() req: Request, @Body() dto: CreateCertificateDto) {
+    req.action = 'certificates:create:attempt'
+    req.logMessage = 'Creando nuevo certificado'
+
+    try {
+      const result = await this.service.create(dto)
+      req.action = 'certificates:create:success'
+      req.logMessage = `Certificado creado con ID: ${result.id}`
+      return result
+    } catch (error) {
+      req.action = 'certificates:create:failed'
+      req.logMessage = `Error al crear certificado: ${error.message}`
+      throw error
+    }
   }
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'Update a certificate by id',
+    summary: 'Actualizar un certificado por ID',
   })
   @ApiBody({ type: UpdateCertificateDto })
   @ApiStandardResponse(CertificateResDto, HttpStatus.OK)
-  update(
+  async update(
+    @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateCertificateDto,
   ) {
-    return this.service.update(id, dto)
+    req.action = 'certificates:update:attempt'
+    req.logMessage = `Actualizando certificado con ID: ${id}`
+
+    try {
+      const result = await this.service.update(id, dto)
+      req.action = 'certificates:update:success'
+      req.logMessage = `Certificado actualizado ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'certificates:update:failed'
+      req.logMessage = `Error al actualizar certificado ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Delete a certificate by id',
+    summary: 'Eliminar un certificado por ID',
   })
   @ApiStandardResponse(CertificateResDto, HttpStatus.OK)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id)
+  async remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'certificates:remove:attempt'
+    req.logMessage = `Eliminando certificado con ID: ${id}`
+
+    try {
+      const result = await this.service.remove(id)
+      req.action = 'certificates:remove:success'
+      req.logMessage = `Certificado eliminado ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'certificates:remove:failed'
+      req.logMessage = `Error al eliminar certificado ID ${id}: ${error.message}`
+      throw error
+    }
   }
 }
