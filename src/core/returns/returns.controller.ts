@@ -5,7 +5,9 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Req,
 } from '@nestjs/common'
+import { Request } from 'express'
 import {
   ApiTags,
   ApiOperation,
@@ -37,13 +39,32 @@ export class ReturnController {
   @ApiBearerAuth()
   @Auth(USER_TYPE.ADMINISTRATOR)
   async processReturn(
+    @Req() req: Request,
     @Body() createReturnLoanDto: CreateReturnLoanDto,
     @GetUser() user: SimpleUserResDto,
   ) {
-    if (!user) {
-      throw new Error('User information is missing from request')
+    req.action = 'returns:process:attempt'
+    req.logMessage = `Procesando devolución para el préstamo: ${createReturnLoanDto.loanId}`
+
+    try {
+      if (!user) {
+        throw new Error(
+          'No se encontró información del usuario en la solicitud',
+        )
+      }
+
+      const result = await this.returnService.processReturn(
+        createReturnLoanDto,
+        user,
+      )
+      req.action = 'returns:process:success'
+      req.logMessage = `Devolución registrada exitosamente para el préstamo: ${createReturnLoanDto.loanId} por el usuario: ${user.id}`
+      return result
+    } catch (error) {
+      req.action = 'returns:process:failed'
+      req.logMessage = `Error al procesar la devolución para el préstamo ${createReturnLoanDto.loanId}: ${error.message}`
+      throw error
     }
-    return await this.returnService.processReturn(createReturnLoanDto, user)
   }
 
   @Get('loan/:id')
@@ -54,8 +75,23 @@ export class ReturnController {
     description: 'Información del préstamo obtenida exitosamente',
   })
   @ApiResponse({ status: 404, description: 'Préstamo no encontrado' })
-  async getLoanForReturn(@Param('id', ParseIntPipe) id: number) {
-    return await this.returnService.getLoanForReturn(id)
+  async getLoanForReturn(
+    @Req() req: Request,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    req.action = 'returns:get-loan:attempt'
+    req.logMessage = `Obteniendo información para devolución del préstamo: ${id}`
+
+    try {
+      const result = await this.returnService.getLoanForReturn(id)
+      req.action = 'returns:get-loan:success'
+      req.logMessage = `Información del préstamo ${id} obtenida correctamente`
+      return result
+    } catch (error) {
+      req.action = 'returns:get-loan:failed'
+      req.logMessage = `Error al obtener información del préstamo ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Get('active')
@@ -65,8 +101,20 @@ export class ReturnController {
   @ApiOkResponse({
     description: 'Lista de préstamos entregados recuperada exitosamente',
   })
-  async getActiveLoans() {
-    return await this.returnService.getActiveLoans()
+  async getActiveLoans(@Req() req: Request) {
+    req.action = 'returns:active-loans:attempt'
+    req.logMessage = 'Obteniendo lista de préstamos activos'
+
+    try {
+      const result = await this.returnService.getActiveLoans()
+      req.action = 'returns:active-loans:success'
+      req.logMessage = `Se obtuvieron ${result.length} préstamos activos`
+      return result
+    } catch (error) {
+      req.action = 'returns:active-loans:failed'
+      req.logMessage = `Error al obtener préstamos activos: ${error.message}`
+      throw error
+    }
   }
 
   @Get('active/user/:userId')
@@ -76,8 +124,23 @@ export class ReturnController {
   @ApiOkResponse({
     description: 'Lista de préstamos del usuario recuperada exitosamente',
   })
-  async getActiveUserLoans(@Param('userId', ParseIntPipe) userId: number) {
-    return await this.returnService.getActiveLoans(userId)
+  async getActiveUserLoans(
+    @Req() req: Request,
+    @Param('userId', ParseIntPipe) userId: number,
+  ) {
+    req.action = 'returns:user-active-loans:attempt'
+    req.logMessage = `Obteniendo préstamos activos para el usuario: ${userId}`
+
+    try {
+      const result = await this.returnService.getActiveLoans(userId)
+      req.action = 'returns:user-active-loans:success'
+      req.logMessage = `Se obtuvieron ${result.length} préstamos activos para el usuario: ${userId}`
+      return result
+    } catch (error) {
+      req.action = 'returns:user-active-loans:failed'
+      req.logMessage = `Error al obtener préstamos activos del usuario ${userId}: ${error.message}`
+      throw error
+    }
   }
 
   @Get('overdue')
@@ -87,7 +150,19 @@ export class ReturnController {
   @ApiOkResponse({
     description: 'Lista de préstamos vencidos obtenida exitosamente',
   })
-  async getOverdueLoans() {
-    return await this.returnService.getOverdueLoans()
+  async getOverdueLoans(@Req() req: Request) {
+    req.action = 'returns:overdue-loans:attempt'
+    req.logMessage = 'Obteniendo lista de préstamos vencidos'
+
+    try {
+      const result = await this.returnService.getOverdueLoans()
+      req.action = 'returns:overdue-loans:success'
+      req.logMessage = `Se obtuvieron ${result.length} préstamos vencidos`
+      return result
+    } catch (error) {
+      req.action = 'returns:overdue-loans:failed'
+      req.logMessage = `Error al obtener préstamos vencidos: ${error.message}`
+      throw error
+    }
   }
 }

@@ -6,9 +6,8 @@ import {
 import { eq, and, lt } from 'drizzle-orm'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateReturnLoanDto } from './dto/req/create-return.dto'
-import { loan, loanDetail, statusChange, status, user } from 'drizzle/schema'
+import { loan, loanDetail, user } from 'drizzle/schema'
 import { USER_STATUS } from '../users/types/user-status.enum'
-import { NodePgClient, NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { SimpleUserResDto } from '../auth/dto/res/simple-user-res.dto'
 import { StatusLoan } from '../loans/enums/status-loan'
 
@@ -59,12 +58,6 @@ export class ReturnService {
       .execute()
 
     const result = await this.dbService.transaction(async (tx) => {
-      const previousStatusId = await this.getStatusIdByName(
-        existingLoan.status,
-        tx,
-      )
-      const newStatusId = await this.getStatusIdByName(newStatus, tx)
-
       // 1. Actualizar el préstamo
       await tx
         .update(loan)
@@ -98,48 +91,18 @@ export class ReturnService {
           .where(eq(loanDetail.id, item.loanDetailId))
       }
 
-      // 3. Registrar cambio de estado del préstamo
-      await tx.insert(statusChange).values({
-        itemId: loanId,
-        previousStatusId,
-        newStatusId,
-        changeDate: new Date(),
-        userId: userDto.id,
-        loanId,
-        observations: `Préstamo devuelto ${isLate ? 'con retraso' : 'a tiempo'}. ${notes || ''}`,
-        registrationDate: new Date(),
-      })
-
-      // 4. Marcar usuario como moroso si aplica
+      // 3. Marcar usuario como moroso si aplica
       const hasDamagedItems = returnedItems.some(
         (item) => item.returnConditionId === 3,
       )
 
       if (isLate || hasDamagedItems) {
-        const defaulterStatusId = await this.getStatusIdByName(
-          USER_STATUS.DEFAULTER,
-          tx,
-        )
-
         await tx
           .update(user)
           .set({
             status: USER_STATUS.DEFAULTER,
           })
           .where(eq(user.id, existingLoan.requestorId))
-
-        await tx.insert(statusChange).values({
-          itemId: loanId,
-          previousStatusId: null,
-          newStatusId: defaulterStatusId,
-          changeDate: new Date(),
-          userId: userDto.id,
-          loanId,
-          observations: `Usuario marcado como moroso por ${
-            isLate ? 'retraso' : 'ítems dañados'
-          }.`,
-          registrationDate: new Date(),
-        })
       }
 
       return {
@@ -202,24 +165,5 @@ export class ReturnService {
       )
       .orderBy(loan.scheduledReturnDate)
       .execute()
-  }
-
-  async getStatusIdByName(
-    statusName: string,
-    tx: NodePgDatabase<Record<string, unknown>> & {
-      $client: NodePgClient
-    },
-  ) {
-    const result = await tx
-      .select()
-      .from(status)
-      .where(eq(status.name, statusName))
-      .limit(1)
-
-    if (result.length === 0) {
-      throw new NotFoundException(`No se encontró el estado: ${statusName}`)
-    }
-
-    return result[0].id
   }
 }

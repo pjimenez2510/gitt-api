@@ -9,7 +9,9 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from '@nestjs/common'
+import { Request } from 'express'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { LocationsService } from './locations.service'
 import { CreateLocationDto } from './dto/req/create-location.dto'
@@ -31,55 +33,120 @@ export class LocationsController {
 
   @Get()
   @ApiOperation({
-    summary: 'Obtain all locations',
+    summary: 'Obtener todas las ubicaciones',
   })
   @ApiPaginatedResponse(LocationResDto, HttpStatus.OK)
-  findAll(
+  async findAll(
+    @Req() req: Request,
     @Query('limit', ParseIntPipe) limit: number,
     @Query('page', ParseIntPipe) page: number,
   ) {
-    const params = { limit, page }
-    return this.locationsService.findAll(params)
+    req.action = 'locations:find-all:attempt'
+    req.logMessage = 'Obteniendo todas las ubicaciones'
+
+    try {
+      const params = { limit, page }
+      const result = await this.locationsService.findAll(params)
+      req.action = 'locations:find-all:success'
+      req.logMessage = `Se obtuvieron ${result.records.length} ubicaciones correctamente`
+      return result
+    } catch (error) {
+      req.action = 'locations:find-all:failed'
+      req.logMessage = `Error al obtener las ubicaciones: ${error.message}`
+      throw error
+    }
   }
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Obtain a location by id',
+    summary: 'Obtener una ubicación por ID',
   })
   @ApiStandardResponse(LocationResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.locationsService.findOne(id)
+  async findOne(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'locations:find-one:attempt'
+    req.logMessage = `Buscando ubicación con ID: ${id}`
+
+    try {
+      const result = await this.locationsService.findOne(id)
+      req.action = 'locations:find-one:success'
+      req.logMessage = `Ubicación con ID: ${id} obtenida correctamente`
+      return result
+    } catch (error) {
+      req.action = 'locations:find-one:failed'
+      req.logMessage = `Error al obtener la ubicación con ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Post()
   @ApiOperation({
-    summary: 'Create a new location',
+    summary: 'Crear una nueva ubicación',
   })
   @ApiBody({ type: CreateLocationDto })
   @ApiStandardResponse(LocationResDto, HttpStatus.CREATED)
-  create(@Body() createLocationDto: CreateLocationDto) {
-    return this.locationsService.create(createLocationDto)
+  async create(
+    @Req() req: Request,
+    @Body() createLocationDto: CreateLocationDto,
+  ) {
+    req.action = 'locations:create:attempt'
+    req.logMessage = 'Creando una nueva ubicación'
+
+    try {
+      const result = await this.locationsService.create(createLocationDto)
+      req.action = 'locations:create:success'
+      req.logMessage = `Ubicación creada correctamente con ID: ${result.id}`
+      return result
+    } catch (error) {
+      req.action = 'locations:create:failed'
+      req.logMessage = `Error al crear la ubicación: ${error.message}`
+      throw error
+    }
   }
 
   @Patch(':id')
   @ApiOperation({
-    summary: 'Update a location by id',
+    summary: 'Actualizar una ubicación por ID',
   })
   @ApiBody({ type: UpdateLocationDto })
   @ApiStandardResponse(LocationResDto, HttpStatus.OK)
-  update(
+  async update(
+    @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateLocationDto: UpdateLocationDto,
   ) {
-    return this.locationsService.update(id, updateLocationDto)
+    req.action = 'locations:update:attempt'
+    req.logMessage = `Actualizando ubicación con ID: ${id}`
+
+    try {
+      const result = await this.locationsService.update(id, updateLocationDto)
+      req.action = 'locations:update:success'
+      req.logMessage = `Ubicación con ID: ${id} actualizada correctamente`
+      return result
+    } catch (error) {
+      req.action = 'locations:update:failed'
+      req.logMessage = `Error al actualizar la ubicación con ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Delete(':id')
   @ApiOperation({
-    summary: 'Delete a location by id',
+    summary: 'Eliminar una ubicación por ID',
   })
   @ApiStandardResponse(LocationResDto, HttpStatus.OK)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.locationsService.remove(id)
+  async remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'locations:remove:attempt'
+    req.logMessage = `Eliminando ubicación con ID: ${id}`
+
+    try {
+      const result = await this.locationsService.remove(id)
+      req.action = 'locations:remove:success'
+      req.logMessage = `Ubicación con ID: ${id} eliminada correctamente`
+      return result
+    } catch (error) {
+      req.action = 'locations:remove:failed'
+      req.logMessage = `Error al eliminar la ubicación con ID ${id}: ${error.message}`
+      throw error
+    }
   }
 }
