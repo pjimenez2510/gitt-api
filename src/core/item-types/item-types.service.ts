@@ -110,12 +110,7 @@ export class ItemTypesService {
 
     const [newItemType] = await this.dbService.db
       .insert(itemType)
-      .values({
-        code: dto.code,
-        name: dto.name,
-        description: dto.description,
-        active: dto.active,
-      })
+      .values(dto)
       .returning()
       .execute()
 
