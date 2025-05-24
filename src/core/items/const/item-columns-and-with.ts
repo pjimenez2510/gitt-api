@@ -1,4 +1,4 @@
-export const itemRelations = {
+export const itemColumnsAndWith = {
   columns: {
     registrationDate: false,
     updateDate: false,

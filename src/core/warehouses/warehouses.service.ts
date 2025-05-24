@@ -1,118 +1,129 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { and, count, desc, eq } from 'drizzle-orm'
 import { warehouse } from 'drizzle/schema/tables/locations/warehouse'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
-import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateWarehouseDto } from './dto/req/create-warehouse.dto'
-import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { UpdateWarehouseDto } from './dto/req/update-warehouse.dto'
 import { plainToInstance } from 'class-transformer'
 import { WarehouseResDto } from './dto/res/warehouse-res.dto'
+import { FilterWarehouseDto } from './dto/req/filter-warehouse.dto'
+import { warehouseColumnsAndWith } from './const/warehouse-columns-and-with'
+import {
+  buildWarehouseFilterConditions,
+  buildWarehouseWhereClause,
+} from './utils/warehouse-filter-builder'
 
 @Injectable()
 export class WarehousesService {
   constructor(private readonly dbService: DatabaseService) {}
 
-  private readonly warehousesWithoutDates = excludeColumns(
-    warehouse,
-    'registrationDate',
-    'updateDate',
-    'active',
-  )
+  async findAll(filterDto: FilterWarehouseDto) {
+    const conditions = buildWarehouseFilterConditions(filterDto)
+    const whereClause = buildWarehouseWhereClause(conditions)
 
-  async findAll({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
+    const offset = (filterDto.page - 1) * filterDto.limit
 
-    const query = this.dbService.db
-      .select(this.warehousesWithoutDates)
-      .from(warehouse)
-      .where(eq(warehouse.active, true))
-      .orderBy(desc(warehouse.name))
-      .limit(limit)
-      .offset(offset)
+    const warehousesResult = await this.dbService.db.query.warehouse.findMany({
+      where: whereClause,
+      with: warehouseColumnsAndWith.with,
+      columns: warehouseColumnsAndWith.columns,
+      orderBy: [desc(warehouse.name)],
+      limit: filterDto.allRecords ? undefined : filterDto.limit,
+      offset: filterDto.allRecords ? undefined : offset,
+    })
 
-    const totalQuery = this.dbService.db
+    const totalResult = await this.dbService.db
       .select({ count: count() })
       .from(warehouse)
-      .where(eq(warehouse.active, true))
-
-    const [records, totalResult] = await Promise.all([
-      query.execute(),
-      totalQuery.execute(),
-    ])
+      .where(whereClause)
+      .execute()
 
     const total = totalResult[0].count
 
     return {
-      records: plainToInstance(WarehouseResDto, records),
+      records: warehousesResult,
       total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
+      limit: filterDto.allRecords ? total : filterDto.limit,
+      page: filterDto.allRecords ? 1 : filterDto.page,
+      pages: filterDto.allRecords ? 1 : Math.ceil(total / filterDto.limit),
     }
   }
 
-  async findOne(id: number) {
-    const [record] = await this.dbService.db
-      .select(this.warehousesWithoutDates)
-      .from(warehouse)
-      .where(and(eq(warehouse.id, id), eq(warehouse.active, true)))
-      .limit(1)
-      .execute()
+  async existById(id: number) {
+    const warehouseResult = await this.dbService.db.query.warehouse.findFirst({
+      where: and(eq(warehouse.id, id), eq(warehouse.active, true)),
+      columns: {
+        id: true,
+      },
+    })
 
-    if (!record) {
+    return warehouseResult?.id !== undefined
+  }
+
+  async findOne(id: number) {
+    const warehouseResult = await this.dbService.db.query.warehouse.findFirst({
+      where: and(eq(warehouse.id, id), eq(warehouse.active, true)),
+      columns: warehouseColumnsAndWith.columns,
+      with: warehouseColumnsAndWith.with,
+    })
+
+    if (!warehouseResult) {
       throw new NotFoundException(`Almacén con id ${id} no encontrado`)
     }
 
-    return plainToInstance(WarehouseResDto, record)
+    return plainToInstance(WarehouseResDto, warehouseResult)
   }
 
   async create(dto: CreateWarehouseDto) {
     const [newWarehouse] = await this.dbService.db
       .insert(warehouse)
       .values({
-        name: dto.name,
-        location: dto.location,
-        responsibleId: dto.responsibleId,
-        description: dto.description,
+        ...dto,
       })
-      .returning(this.warehousesWithoutDates)
+      .returning({ id: warehouse.id })
       .execute()
 
-    return plainToInstance(WarehouseResDto, newWarehouse)
+    return this.findOne(newWarehouse.id)
   }
 
   async update(id: number, dto: UpdateWarehouseDto) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
 
-    const [updatedWarehouse] = await this.dbService.db
+    if (!exists) {
+      throw new NotFoundException(`Almacén con id ${id} no encontrado`)
+    }
+
+    const updateData = {
+      ...dto,
+      updateDate: new Date(),
+    }
+
+    await this.dbService.db
       .update(warehouse)
-      .set(dto)
+      .set(updateData)
       .where(eq(warehouse.id, id))
-      .returning(this.warehousesWithoutDates)
       .execute()
 
-    return plainToInstance(WarehouseResDto, updatedWarehouse)
+    return this.findOne(id)
   }
 
   async remove(id: number) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
 
-    const [deletedWarehouse] = await this.dbService.db
-      .update(warehouse)
-      .set({ active: false, updateDate: new Date() })
-      .where(eq(warehouse.id, id))
-      .returning(this.warehousesWithoutDates)
-      .execute()
-
-    if (!deletedWarehouse) {
-      throw new DisplayableException(
-        `Error al eliminar el almacén con id ${id}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      )
+    if (!exists) {
+      throw new NotFoundException(`Almacén con id ${id} no encontrado`)
     }
 
-    return plainToInstance(WarehouseResDto, deletedWarehouse)
+    const [warehouseToRemove] = await this.dbService.db
+      .update(warehouse)
+      .set({
+        active: false,
+        updateDate: new Date(),
+      })
+      .where(eq(warehouse.id, id))
+      .returning({ active: warehouse.active })
+      .execute()
+
+    return warehouseToRemove.active === false
   }
 }

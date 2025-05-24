@@ -6,7 +6,7 @@ import { CreateItemDto } from './dto/req/create-item.dto'
 import { UpdateItemDto } from './dto/req/update-item.dto'
 import { FilterItemDto } from './dto/req/filter-item.dto'
 import { and, count, desc, eq } from 'drizzle-orm/sql'
-import { itemRelations } from './const/item-with'
+import { itemColumnsAndWith } from './const/item-columns-and-with'
 import {
   buildItemFilterConditions,
   buildItemWhereClause,
@@ -33,8 +33,8 @@ export class ItemsService {
 
     const itemsResult = await this.dbService.db.query.item.findMany({
       where: whereClause,
-      with: itemRelations.with,
-      columns: itemRelations.columns,
+      with: itemColumnsAndWith.with,
+      columns: itemColumnsAndWith.columns,
       orderBy: [desc(item.name)],
       limit: filterDto.allRecords ? undefined : filterDto.limit,
       offset: filterDto.allRecords ? undefined : offset,
@@ -71,9 +71,9 @@ export class ItemsService {
   async findOne(id: number) {
     const itemResult = await this.dbService.db.query.item.findFirst({
       where: and(eq(item.id, id), eq(item.active, true)),
-      columns: itemRelations.columns,
+      columns: itemColumnsAndWith.columns,
       with: {
-        ...itemRelations.with,
+        ...itemColumnsAndWith.with,
       },
     })
 
