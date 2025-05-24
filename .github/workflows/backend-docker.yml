@@ -1,18 +1,15 @@
 name: CD - Docker Build and Push
 
 on:
-  workflow_run:
-    workflows: ["CI - NestJS Backend"]
-    types:
-      - completed
+  push:
+    branches: [main, dev]  
 
 jobs:
   build-and-push:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🧾 Checkout repository
+      - name: 📥 Checkout repository
         uses: actions/checkout@v3
 
       - name: 🐳 Set up Docker Buildx
