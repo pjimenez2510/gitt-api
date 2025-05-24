@@ -1,4 +1,4 @@
-name: CD - Docker Build and Push (Backend)
+name: CD - Docker Build and Push 
 
 on:
   workflow_run:
