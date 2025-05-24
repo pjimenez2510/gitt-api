@@ -1,3 +1,13 @@
+import { categoryColumnsAndWith } from 'src/core/categories/const/category-columns-and-with'
+import { certificateColumnsAndWith } from 'src/core/certificates/const/certificate-columns-and-with'
+import { conditionColumnsAndWith } from 'src/core/conditions/const/condition-columns-and-with'
+import { itemColorColumnsAndWith } from 'src/core/item-colors/const/item-color-columns-and-with'
+import { itemMaterialColumnsAndWith } from 'src/core/item-materials/const/item-material-columns-and-with'
+import { itemTypeColumnsAndWith } from 'src/core/item-types/const/item-type-columns-and-with'
+import { locationColumnsAndWith } from 'src/core/locations/const/location-columns-and-with'
+import { statusColumnsAndWith } from 'src/core/states/const/state-columns-and-with'
+import { warehouseColumnsAndWith } from 'src/core/warehouses/const/warehouse-columns-and-with'
+
 export const itemColumnsAndWith = {
   columns: {
     registrationDate: false,
@@ -10,90 +20,13 @@ export const itemColumnsAndWith = {
     categoryId: false,
   },
   with: {
-    certificate: {
-      columns: {
-        id: true,
-        number: true,
-        date: true,
-        type: true,
-        status: true,
-        accounted: true,
-      },
-    },
-    colors: {
-      columns: {
-        id: true,
-        isMainColor: true,
-      },
-      with: {
-        color: {
-          columns: {
-            id: true,
-            name: true,
-            hexCode: true,
-          },
-        },
-      },
-    },
-    itemType: {
-      columns: {
-        id: true,
-        code: true,
-        name: true,
-        description: true,
-      },
-    },
-    materials: {
-      columns: {
-        id: true,
-        isMainMaterial: true,
-      },
-      with: {
-        material: {
-          columns: {
-            id: true,
-            name: true,
-            description: true,
-          },
-        },
-      },
-    },
-    status: {
-      columns: {
-        id: true,
-        name: true,
-        description: true,
-      },
-    },
-    condition: {
-      columns: {
-        id: true,
-        name: true,
-        description: true,
-      },
-    },
-    location: {
-      columns: {
-        id: true,
-        name: true,
-        description: true,
-      },
-      with: {
-        warehouse: {
-          columns: {
-            id: true,
-            name: true,
-            description: true,
-          },
-        },
-      },
-    },
-    category: {
-      columns: {
-        id: true,
-        name: true,
-        description: true,
-      },
-    },
+    certificate: certificateColumnsAndWith,
+    colors: itemColorColumnsAndWith,
+    itemType: itemTypeColumnsAndWith,
+    materials: itemMaterialColumnsAndWith,
+    status: statusColumnsAndWith,
+    condition: conditionColumnsAndWith,
+    location: locationColumnsAndWith,
+    category: categoryColumnsAndWith,
   },
 }
