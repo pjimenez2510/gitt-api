@@ -2,11 +2,14 @@ import { ApiProperty } from '@nestjs/swagger'
 import {
   IsBoolean,
   IsDateString,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator'
+import { CertificateType } from '../../enums/certificate-type.enum'
+import { CertificateStatus } from '../../enums/certificate-status.enum'
 
 export class CreateCertificateDto {
   @ApiProperty({
@@ -27,19 +30,19 @@ export class CreateCertificateDto {
 
   @ApiProperty({
     description: 'Type of the certificate',
-    example: 'TRANSFER',
+    example: CertificateType.TRANSFER,
   })
-  @IsString({ message: 'type must be a string' })
+  @IsEnum(CertificateType)
   @IsNotEmpty({ message: 'type is required' })
-  type: string
+  type: CertificateType
 
   @ApiProperty({
     description: 'Status of the certificate',
-    example: 'DRAFT',
+    example: CertificateStatus.DRAFT,
   })
-  @IsString({ message: 'status must be a string' })
+  @IsEnum(CertificateStatus)
   @IsNotEmpty({ message: 'status is required' })
-  status: string
+  status: CertificateStatus
 
   @ApiProperty({
     description: 'ID of the delivery responsible user',
