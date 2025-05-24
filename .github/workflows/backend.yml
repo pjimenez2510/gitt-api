@@ -1,8 +1,10 @@
-name: CI - NestJS Backend
+name: CI - NestJS Backend tests
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main, dev, feature-tests]
+  pull_request:
+    branches: [main, dev, feature-tests]
 
 jobs:
   build-and-test:

@@ -21,8 +21,7 @@
     "db:reset": "tsx drizzle/reset-db.ts && drizzle-kit push",
     "db:seed": "tsx drizzle/reset-db.ts && drizzle-kit push && tsx drizzle/seed.ts",
     "db:import-csv": "tsx drizzle/data/csv-importer-runner.ts",
-    "db:load-franklin-csv": "npm run db:import-csv -- drizzle/data/BIENES_FRANKLIN_SALAZAR_FINAL.csv",
-    "prepare": "husky"
+    "db:load-franklin-csv": "npm run db:import-csv -- drizzle/data/BIENES_FRANKLIN_SALAZAR_FINAL.csv"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -39,6 +38,7 @@
     "csv-parse": "^5.6.0",
     "dotenv": "^16.5.0",
     "drizzle-orm": "^0.43.1",
+    "gitt-api": "file:",
     "joi": "^17.13.3",
     "passport-jwt": "^4.0.1",
     "pg": "^8.15.6",

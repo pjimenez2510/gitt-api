@@ -1,0 +1,44 @@
+# Etapa 1: Build con bun y Node 22.15
+FROM node:22.15-alpine AS builder
+
+WORKDIR /app
+
+# Instalar bash, curl, python3 y compiladores necesarios (bcrypt, etc)
+RUN apk add --no-cache bash curl python3 g++ make
+
+# Instalar bun
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:$PATH"
+
+# Copiar package.json (sin scripts prepare que causaban problemas)
+COPY package.json ./
+
+# Instalar dependencias con bun
+RUN bun install
+
+# Copiar el código fuente
+COPY . .
+
+# Construir el proyecto
+RUN bun run build
+
+# Etapa 2: Imagen ligera para producción
+FROM node:22.15-alpine
+
+WORKDIR /app
+
+# Instalar bash, curl, python3 y compiladores para módulos nativos
+RUN apk add --no-cache bash curl python3 g++ make
+
+# Copiar package.json y carpeta dist desde builder
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/dist ./dist
+
+# Instalar dependencias de producción sin scripts (ya no hay prepare)
+RUN npm install --production
+
+# Exponer puerto 3000
+EXPOSE 3000
+
+# Comando para iniciar la app
+CMD ["node", "dist/main"]
