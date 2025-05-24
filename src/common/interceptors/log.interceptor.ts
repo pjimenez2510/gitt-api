@@ -18,6 +18,7 @@ export class LogInterceptor<T> implements NestInterceptor {
     const endpoint = req.url
     const method = req.method
     const ip = req.ip
+
     const userAgent = req.headers['user-agent']
 
     return next.handle().pipe(
@@ -27,6 +28,7 @@ export class LogInterceptor<T> implements NestInterceptor {
           endpoint,
           method,
           action: req.action || null,
+          message: req.logMessage || null,
           statusCode: res.statusCode, // <-- Aquí obtienes el status code real
           ip,
           userAgent,

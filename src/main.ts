@@ -16,7 +16,7 @@ async function bootstrap() {
   const port = configService.env.PORT
 
   app.enableCors('*')
-
+  app.getHttpAdapter().getInstance().set('trust proxy', true)
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

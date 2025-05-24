@@ -20,6 +20,7 @@ import { StatusLoan } from './enums/status-loan'
 import { ApproveLoanDto } from './dto/req/approve-loan.dto'
 import { DeliverLoanDto } from './dto/req/deliver-loan.dto'
 import { ItemsService } from '../items/items.service'
+import { USER_STATUS } from '../users/types/user-status.enum'
 
 @Injectable()
 export class LoansService {
@@ -225,11 +226,29 @@ export class LoansService {
           'La fecha programada de devolución no puede ser anterior a la fecha actual',
         )
       }
+
+      const statusMessages = {
+        [USER_STATUS.DEFAULTER]: 'está en la lista de morosos',
+        [USER_STATUS.INACTIVE]: 'tiene la cuenta inactiva',
+        [USER_STATUS.SUSPENDED]: 'tiene la cuenta suspendida',
+      }
+
+      const user = await this.userService.findByDni(createLoanDto.requestorId)
+      if (
+        user.status === USER_STATUS.DEFAULTER ||
+        user.status === USER_STATUS.INACTIVE ||
+        user.status === USER_STATUS.SUSPENDED
+      ) {
+        if (createLoanDto.blockBlackListed)
+          throw new BadRequestException(
+            `El usuario con DNI: ${user.person.dni} no puede realizar préstamos, ${statusMessages[user.status]}`,
+          )
+      }
       const [newLoan] = await tx
         .insert(loan)
         .values({
           scheduledReturnDate: createLoanDto.scheduledReturnDate,
-          requestorId: createLoanDto.requestorId,
+          requestorId: user.id,
           reason: createLoanDto.reason,
           associatedEvent: createLoanDto.associatedEvent,
           externalLocation: createLoanDto.externalLocation,
