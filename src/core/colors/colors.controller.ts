@@ -20,10 +20,10 @@ import {
   ApiStandardResponse,
 } from 'src/common/decorators/api-standard-response.decorator'
 import { ColorResDto } from './dto/res/color-res.dto'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateColorDto } from './dto/req/update-color.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterColorDto } from './dto/req/color-filter.dto'
 
 @ApiTags('Colors')
 @ApiBearerAuth()
@@ -37,12 +37,12 @@ export class ColorsController {
     summary: 'Obtener todos los colores',
   })
   @ApiPaginatedResponse(ColorResDto, HttpStatus.OK)
-  async findAll(@Req() req: Request, @Query() paginationDto: BaseParamsDto) {
+  async findAll(@Req() req: Request, @Query() filterDto: FilterColorDto) {
     req.action = 'colors:find-all:attempt'
     req.logMessage = 'Obteniendo lista de colores'
 
     try {
-      const result = await this.service.findAll(paginationDto)
+      const result = await this.service.findAll(filterDto)
       req.action = 'colors:find-all:success'
       req.logMessage = `Se obtuvieron ${result.records.length} colores`
       return result

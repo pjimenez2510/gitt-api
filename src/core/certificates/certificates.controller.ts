@@ -18,12 +18,12 @@ import {
   ApiStandardResponse,
 } from 'src/common/decorators/api-standard-response.decorator'
 import { CertificatesService } from './certificates.service'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { CreateCertificateDto } from './dto/req/create-certificate.dto'
 import { UpdateCertificateDto } from './dto/req/update-certificate.dto'
 import { CertificateResDto } from './dto/res/certificate-res.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterCertificateDto } from './dto/req/certificate-filter.dto'
 
 @ApiTags('Certificates')
 @ApiBearerAuth()
@@ -37,12 +37,12 @@ export class CertificatesController {
     summary: 'Obtener todos los certificados',
   })
   @ApiPaginatedResponse(CertificateResDto, HttpStatus.OK)
-  async findAll(@Req() req: Request, @Query() paginationDto: BaseParamsDto) {
+  async findAll(@Req() req: Request, @Query() filterDto: FilterCertificateDto) {
     req.action = 'certificates:find-all:attempt'
     req.logMessage = 'Obteniendo lista de certificados'
 
     try {
-      const result = await this.service.findAll(paginationDto)
+      const result = await this.service.findAll(filterDto)
       req.action = 'certificates:find-all:success'
       req.logMessage = `Se obtuvieron ${result.records.length} certificados`
       return result

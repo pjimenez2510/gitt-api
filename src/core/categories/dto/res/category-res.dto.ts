@@ -26,10 +26,9 @@ export class CategoryResDto {
   description: string
 
   @ApiProperty({
-    description: 'parentCategoryId of the category',
-    example: 1,
+    description: 'parentCategory of the category',
   })
-  parentCategoryId: number
+  parentCategory?: CategoryResDto
 
   @ApiProperty({
     description: 'standardUsefulLife of the category',

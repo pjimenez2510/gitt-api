@@ -13,7 +13,6 @@ import {
 } from '@nestjs/common'
 import { Request } from 'express'
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { ItemMaterialsService } from './item-materials.service'
 import {
   ApiPaginatedResponse,
@@ -24,6 +23,7 @@ import { CreateItemMaterialDto } from './dto/req/create-item-material.dto'
 import { UpdateItemMaterialDto } from './dto/req/update-item-material.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterItemMaterialDto } from './dto/req/item-material-filter.dto'
 
 @ApiTags('Item Materials')
 @ApiBearerAuth()
@@ -32,27 +32,26 @@ import { USER_TYPE } from '../users/types/user-type.enum'
 export class ItemMaterialsController {
   constructor(private readonly service: ItemMaterialsService) {}
 
-  @Get('item/:id')
+  @Get()
   @ApiOperation({
-    summary: 'Obtener todos los detalles de materiales de un ítem',
+    summary: 'Obtener todos los materiales de ítems con filtros',
   })
   @ApiPaginatedResponse(ItemMaterialResDto, HttpStatus.OK)
-  async findAll(
+  async findAllWithFilters(
     @Req() req: Request,
-    @Param('id', ParseIntPipe) itemId: number,
-    @Query() paginationDto: BaseParamsDto,
+    @Query() filterDto: FilterItemMaterialDto,
   ) {
-    req.action = 'item-materials:find-all:attempt'
-    req.logMessage = `Obteniendo materiales para el ítem ID: ${itemId}`
+    req.action = 'item-materials:find-all-filters:attempt'
+    req.logMessage = 'Obteniendo materiales de ítems con filtros'
 
     try {
-      const result = await this.service.findByItemId(paginationDto, itemId)
-      req.action = 'item-materials:find-all:success'
-      req.logMessage = `Se obtuvieron ${result.records.length} materiales para el ítem ID: ${itemId}`
+      const result = await this.service.findAll(filterDto)
+      req.action = 'item-materials:find-all-filters:success'
+      req.logMessage = `Se obtuvieron ${result.records.length} materiales de ítems`
       return result
     } catch (error) {
-      req.action = 'item-materials:find-all:failed'
-      req.logMessage = `Error al obtener materiales para el ítem ID ${itemId}: ${error.message}`
+      req.action = 'item-materials:find-all-filters:failed'
+      req.logMessage = `Error al obtener materiales de ítems: ${error.message}`
       throw error
     }
   }

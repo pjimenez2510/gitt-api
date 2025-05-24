@@ -18,12 +18,12 @@ import {
   ApiPaginatedResponse,
   ApiStandardResponse,
 } from 'src/common/decorators/api-standard-response.decorator'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { ItemColorResDto } from './dto/res/item-color-res.dto'
 import { CreateItemColorDto } from './dto/req/create-item-color.dto'
 import { UpdateItemColorDto } from './dto/req/update-item-color.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterItemColorDto } from './dto/req/item-color-filter.dto'
 
 @ApiTags('Item Colors')
 @ApiBearerAuth()
@@ -32,27 +32,23 @@ import { USER_TYPE } from '../users/types/user-type.enum'
 export class ItemColorsController {
   constructor(private readonly service: ItemColorsService) {}
 
-  @Get('item/:id')
+  @Get()
   @ApiOperation({
-    summary: 'Obtener todos los colores de un ítem',
+    summary: 'Obtener todos los colores de ítems con filtros',
   })
   @ApiPaginatedResponse(ItemColorResDto, HttpStatus.OK)
-  async findAll(
-    @Req() req: Request,
-    @Param('id', ParseIntPipe) itemId: number,
-    @Query() paginationDto: BaseParamsDto,
-  ) {
-    req.action = 'item-colors:find-all:attempt'
-    req.logMessage = `Obteniendo colores para el ítem ID: ${itemId}`
+  async findAll(@Req() req: Request, @Query() filterDto: FilterItemColorDto) {
+    req.action = 'item-colors:find-all-filters:attempt'
+    req.logMessage = 'Obteniendo colores de ítems con filtros'
 
     try {
-      const result = await this.service.findByItemId(paginationDto, itemId)
-      req.action = 'item-colors:find-all:success'
-      req.logMessage = `Se obtuvieron ${result.records.length} colores para el ítem ID: ${itemId}`
+      const result = await this.service.findAll(filterDto)
+      req.action = 'item-colors:find-all-filters:success'
+      req.logMessage = `Se obtuvieron ${result.records.length} colores de ítems`
       return result
     } catch (error) {
-      req.action = 'item-colors:find-all:failed'
-      req.logMessage = `Error al obtener colores para el ítem ID ${itemId}: ${error.message}`
+      req.action = 'item-colors:find-all-filters:failed'
+      req.logMessage = `Error al obtener colores de ítems: ${error.message}`
       throw error
     }
   }

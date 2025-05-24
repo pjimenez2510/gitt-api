@@ -13,9 +13,9 @@ import { loanDetail } from '../loans/loanDetail'
 
 export const status = pgTable('states', {
   id: serial('id').primaryKey(),
-  name: varchar('name', { length: 50 }).notNull().unique(),
+  name: varchar('name', { length: 50 }).notNull(),
   description: text('description'),
-  active: boolean('requires_maintenance').default(true),
+  active: boolean('active').default(true),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
     mode: 'date',

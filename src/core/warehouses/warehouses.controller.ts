@@ -20,10 +20,10 @@ import {
   ApiStandardResponse,
 } from 'src/common/decorators/api-standard-response.decorator'
 import { WarehouseResDto } from './dto/res/warehouse-res.dto'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateWarehouseDto } from './dto/req/update-warehouse.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterWarehouseDto } from './dto/req/filter-warehouse.dto'
 
 @ApiTags('Warehouses')
 @ApiBearerAuth()
@@ -37,12 +37,12 @@ export class WarehousesController {
     summary: 'Obtener todos los almacenes',
   })
   @ApiPaginatedResponse(WarehouseResDto, HttpStatus.OK)
-  async findAll(@Req() req: Request, @Query() paginationDto: BaseParamsDto) {
+  async findAll(@Req() req: Request, @Query() filterDto: FilterWarehouseDto) {
     req.action = 'warehouses:find-all:attempt'
     req.logMessage = 'Obteniendo todos los almacenes'
 
     try {
-      const result = await this.service.findAll(paginationDto)
+      const result = await this.service.findAll(filterDto)
       req.action = 'warehouses:find-all:success'
       req.logMessage = `Se obtuvieron ${result.records.length} almacenes correctamente`
       return result
