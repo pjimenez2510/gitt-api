@@ -29,7 +29,7 @@ export class JwtAuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest()
     const userReq: typeof user.$inferSelect | null = req.user
 
-    if (!userReq) throw new BadRequestException('User not found')
+    if (!userReq) throw new BadRequestException('User not found ')
 
     // for (const role of userReq.userType) {
     //   if (validRoles.includes(role as string)) {
