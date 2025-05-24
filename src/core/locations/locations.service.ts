@@ -1,7 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { and, count, desc, eq } from 'drizzle-orm'
 import { location } from 'drizzle/schema/tables/locations/location'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateLocationDto } from './dto/req/create-location.dto'
@@ -10,6 +9,11 @@ import { UpdateLocationDto } from './dto/req/update-location.dto'
 import { plainToInstance } from 'class-transformer'
 import { LocationResDto } from './dto/res/location-res.dto'
 import { locationType } from 'drizzle/schema/enums/locations'
+import {
+  buildLocationFilterConditions,
+  buildLocationWhereClause,
+} from './utils/location-filter-builder'
+import { FilterLocationDto } from './dto/req/filter-location.dto'
 
 @Injectable()
 export class LocationsService {
@@ -22,16 +26,18 @@ export class LocationsService {
     'active',
   )
 
-  async findAll({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
+  async findAll(filterDto: FilterLocationDto) {
+    const conditions = buildLocationFilterConditions(filterDto)
+    const whereClause = buildLocationWhereClause(conditions)
 
-    const query = this.dbService.db
-      .select(this.locationsWithoutDates)
-      .from(location)
-      .where(eq(location.active, true))
-      .orderBy(desc(location.name))
-      .limit(limit)
-      .offset(offset)
+    const offset = (filterDto.page - 1) * filterDto.limit
+
+    const query = this.dbService.db.query.location.findMany({
+      where: whereClause,
+      orderBy: [desc(location.name)],
+      limit: filterDto.limit,
+      offset,
+    })
 
     const totalQuery = this.dbService.db
       .select({ count: count() })
@@ -48,9 +54,9 @@ export class LocationsService {
     return {
       records: plainToInstance(LocationResDto, records),
       total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
+      limit: filterDto.limit,
+      page: filterDto.page,
+      pages: Math.ceil(total / filterDto.limit),
     }
   }
 
