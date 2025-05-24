@@ -27,9 +27,20 @@ export class AuthController {
     summary: 'Login',
   })
   @ApiStandardResponse(SignInResDto, HttpStatus.OK)
-  async login(@Req() req, @Body() dto: SignInDto) {
-    req.action = 'login'
-    return this.service.login(dto)
+  async login(@Req() req: Request, @Body() dto: SignInDto) {
+    req.action = 'auth:login:attempt'
+    req.logMessage = `Intento de inicio de sesión para el email: ${dto.email}`
+
+    try {
+      const result = await this.service.login(dto)
+      req.action = 'auth:login:success'
+      req.logMessage = `Inicio de sesión exitoso para el email: ${dto.email}`
+      return result
+    } catch (error) {
+      req.action = 'auth:login:failed'
+      req.logMessage = `Error en inicio de sesión para el email: ${dto.email} - ${error.message}`
+      throw error
+    }
   }
 
   @Get('me')
@@ -39,6 +50,10 @@ export class AuthController {
   @ApiBearerAuth()
   @Auth(USER_TYPE.ADMINISTRATOR)
   getMe(@Req() req: Request) {
+    const user = req.user as { id?: number } | undefined
+    const userId = user?.id ?? 'desconocido'
+    req.action = 'auth:me:retrieved'
+    req.logMessage = `Usuario consultó su información: ID ${userId}`
     return req.user
   }
 }

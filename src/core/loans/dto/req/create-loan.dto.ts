@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger'
 import {
   IsArray,
+  IsBoolean,
   IsDate,
-  IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
   ValidateNested,
 } from 'class-validator'
 import { Type } from 'class-transformer'
@@ -24,12 +25,16 @@ export class CreateLoanDto {
   scheduledReturnDate: Date
 
   @ApiProperty({
-    description: 'ID del solicitante del préstamo',
-    example: 1,
+    description:
+      'DNI del solicitante del préstamo (debe tener 10 o 13 caracteres)',
+    example: '1804822748',
   })
-  @IsInt()
+  @IsString()
   @IsNotEmpty()
-  requestorId: number
+  @Matches(/^[0-9]{10}([0-9]{3})?$/, {
+    message: 'El DNI debe tener 10 o 13 dígitos numéricos',
+  })
+  requestorId: string
 
   @ApiProperty({
     description: 'Motivo del préstamo',
@@ -75,4 +80,15 @@ export class CreateLoanDto {
   @Type(() => CreateLoanDetailDto)
   @IsNotEmpty()
   loanDetails: CreateLoanDetailDto[]
+
+  //campo opcional, boleano por deafult negativo, isBlackListed
+  @ApiProperty({
+    description:
+      'Indica si el préstamo está bloqueado (opcional), falso si se quiere permitir préstamos a usuarios con estado DEFAULTER, INACTIVE o SUSPENDED',
+    example: true,
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  blockBlackListed?: boolean = true
 }

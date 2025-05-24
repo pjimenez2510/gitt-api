@@ -28,6 +28,7 @@ export class LogInterceptor<T> implements NestInterceptor {
           endpoint,
           method,
           action: req.action || null,
+          message: req.logMessage || null,
           statusCode: res.statusCode, // <-- Aquí obtienes el status code real
           ip,
           userAgent,
