@@ -1,75 +1,111 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { count, desc, eq, sql } from 'drizzle-orm'
-import { status } from 'drizzle/schema'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
+import { and, count, desc, eq, not, sql } from 'drizzle-orm'
+import { status } from 'drizzle/schema/tables/inventory/status'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
-import { CreateStatusDto } from './dto/req/create-status.dto'
+import { CreateStateDto } from './dto/req/create-state.dto'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
-import { UpdateStatusDto } from './dto/req/update-status.dto'
+import { UpdateStateDto } from './dto/req/update-state.dto'
+import { plainToInstance } from 'class-transformer'
+import { StateResDto } from './dto/res/state-res.dto'
+import { FilterStateDto } from './dto/req/filter-state.dto'
+import { statusColumnsAndWith } from './const/state-columns-and-with'
+import {
+  buildStateFilterConditions,
+  buildStateWhereClause,
+} from './utils/state-filter-builder'
 
 @Injectable()
 export class StatesService {
   constructor(private readonly dbService: DatabaseService) {}
 
-  private readonly statesWithoutDates = excludeColumns(
+  private statusesWithoutDates = excludeColumns(
     status,
     'registrationDate',
     'updateDate',
+    'active',
   )
 
-  async findAll({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
+  async findAll(filterDto: FilterStateDto) {
+    const conditions = buildStateFilterConditions(filterDto)
+    const whereClause = buildStateWhereClause(conditions)
 
-    const query = this.dbService.db
-      .select(this.statesWithoutDates)
+    const offset = (filterDto.page - 1) * filterDto.limit
+
+    const statusesResult = await this.dbService.db.query.status.findMany({
+      where: whereClause,
+      with: statusColumnsAndWith.with,
+      columns: statusColumnsAndWith.columns,
+      orderBy: [desc(status.name)],
+      limit: filterDto.allRecords ? undefined : filterDto.limit,
+      offset: filterDto.allRecords ? undefined : offset,
+    })
+
+    const totalResult = await this.dbService.db
+      .select({ count: count() })
       .from(status)
-      .orderBy(desc(status.name))
-      .limit(limit)
-      .offset(offset)
-
-    const totalQuery = this.dbService.db.select({ count: count() }).from(status)
-
-    const [records, totalResult] = await Promise.all([
-      query.execute(),
-      totalQuery.execute(),
-    ])
+      .where(whereClause)
+      .execute()
 
     const total = totalResult[0].count
 
     return {
-      records,
+      records: statusesResult,
       total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
+      limit: filterDto.allRecords ? total : filterDto.limit,
+      page: filterDto.allRecords ? 1 : filterDto.page,
+      pages: filterDto.allRecords ? 1 : Math.ceil(total / filterDto.limit),
     }
+  }
+
+  async existById(id: number) {
+    const statusResult = await this.dbService.db.query.status.findFirst({
+      where: and(eq(status.id, id), eq(status.active, true)),
+      columns: {
+        id: true,
+      },
+    })
+
+    return statusResult?.id !== undefined
   }
 
   async findOne(id: number) {
-    const [record] = await this.dbService.db
-      .select(this.statesWithoutDates)
-      .from(status)
-      .where(eq(status.id, id))
-      .limit(1)
-      .execute()
-    if (!record) {
-      throw new NotFoundException(`status with id ${id} not found`)
+    const statusResult = await this.dbService.db.query.status.findFirst({
+      where: and(eq(status.id, id), eq(status.active, true)),
+      columns: statusColumnsAndWith.columns,
+      with: statusColumnsAndWith.with,
+    })
+
+    if (!statusResult) {
+      throw new NotFoundException(`Estado con id ${id} no encontrado`)
     }
-    return record
+
+    return plainToInstance(StateResDto, statusResult)
   }
 
-  async create(dto: CreateStatusDto) {
-    const [alreadyExistStatus] = await this.dbService.db
-      .select(this.statesWithoutDates)
-      .from(status)
-      .where(eq(sql<string>`lower(${status.name})`, dto.name.toLowerCase()))
-      .limit(1)
-      .execute()
+  async existByName(name?: string, excludeId?: number) {
+    if (!name) return false
 
-    if (alreadyExistStatus) {
+    const statusResult = await this.dbService.db.query.status.findFirst({
+      where: and(
+        eq(sql<string>`lower(${status.name})`, name.toLowerCase()),
+        eq(status.active, true),
+        excludeId ? not(eq(status.id, excludeId)) : undefined,
+      ),
+      columns: {
+        id: true,
+      },
+    })
+
+    return statusResult?.id !== undefined
+  }
+
+  async create(dto: CreateStateDto) {
+    const alreadyExistStatusName = await this.existByName(dto.name)
+
+    if (alreadyExistStatusName) {
       throw new DisplayableException(
-        'Ya existe una categoria con este codigo',
+        'Ya existe un estado con este nombre',
         HttpStatus.CONFLICT,
       )
     }
@@ -77,48 +113,63 @@ export class StatesService {
     const [newStatus] = await this.dbService.db
       .insert(status)
       .values({
-        name: dto.name,
-        description: dto.description,
-        requiresMaintenance: dto.requiresMaintenance,
+        ...dto,
       })
-      .returning(this.statesWithoutDates)
+      .returning({ id: status.id })
       .execute()
-    return newStatus
+
+    return this.findOne(newStatus.id)
   }
 
-  async update(id: number, dto: UpdateStatusDto) {
-    await this.findOne(id)
+  async update(id: number, dto: UpdateStateDto) {
+    const exists = await this.existById(id)
 
-    const updateData: Partial<UpdateStatusDto> = {
-      ...dto,
+    if (!exists) {
+      throw new NotFoundException(`Estado con id ${id} no encontrado`)
     }
 
-    const [updateStatus] = await this.dbService.db
+    if (dto.name) {
+      const alreadyExistStatusName = await this.existByName(dto.name, id)
+
+      if (alreadyExistStatusName) {
+        throw new DisplayableException(
+          'Ya existe un estado con este nombre',
+          HttpStatus.CONFLICT,
+        )
+      }
+    }
+
+    const updateData = {
+      ...dto,
+      updateDate: new Date(),
+    }
+
+    await this.dbService.db
       .update(status)
       .set(updateData)
       .where(eq(status.id, id))
-      .returning(this.statesWithoutDates)
       .execute()
 
-    return updateStatus
+    return this.findOne(id)
   }
 
   async remove(id: number) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
 
-    const [deletedStatus] = await this.dbService.db
+    if (!exists) {
+      throw new NotFoundException(`Estado con id ${id} no encontrado`)
+    }
+
+    const [statusToRemove] = await this.dbService.db
       .update(status)
-      .set({ requiresMaintenance: false, updateDate: new Date() })
+      .set({
+        active: false,
+        updateDate: new Date(),
+      })
       .where(eq(status.id, id))
-      .returning(this.statesWithoutDates)
+      .returning({ active: status.active })
       .execute()
 
-    if (!deletedStatus) {
-      throw new DisplayableException(
-        `Error deleting status with id ${id}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      )
-    }
-    return deletedStatus
+    return statusToRemove.active === false
   }
 }

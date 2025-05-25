@@ -1,4 +1,5 @@
-import { person, user } from 'drizzle/schema'
+import { person } from 'drizzle/schema/tables/users/person'
+import { user } from 'drizzle/schema/tables/users/user'
 import { hashPassword } from 'src/common/utils/encrypter'
 import { USER_STATUS } from 'src/core/users/types/user-status.enum'
 import { USER_TYPE } from 'src/core/users/types/user-type.enum'

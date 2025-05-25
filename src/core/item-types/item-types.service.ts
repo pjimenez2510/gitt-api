@@ -1,44 +1,45 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { and, count, desc, eq, not, sql } from 'drizzle-orm'
 import { itemType } from 'drizzle/schema/tables/inventory/itemType'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
-import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateItemTypeDto } from './dto/req/create-item-type.dto'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { UpdateItemTypeDto } from './dto/req/update-item-type.dto'
 import { plainToInstance } from 'class-transformer'
 import { ItemTypeResDto } from './dto/res/item-type-res.dto'
+import { FilterItemTypeDto } from './dto/req/item-type-filter.dto'
+import { itemTypeColumnsAndWith } from './const/item-type-columns-and-with'
+import {
+  buildItemTypeFilterConditions,
+  buildItemTypeWhereClause,
+} from './utils/item-type-filter-builder'
 
 @Injectable()
 export class ItemTypesService {
   constructor(private readonly dbService: DatabaseService) {}
 
-  private readonly itemTypesWithoutDates = excludeColumns(
-    itemType,
-    'registrationDate',
-    'updateDate',
-    'active',
-  )
+  async findAll(filterDto: FilterItemTypeDto) {
+    const conditions = buildItemTypeFilterConditions(filterDto)
+    const whereClause = buildItemTypeWhereClause(conditions)
 
-  async findAll({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
+    const offset = (filterDto.page - 1) * filterDto.limit
 
-    const query = this.dbService.db
-      .select(this.itemTypesWithoutDates)
-      .from(itemType)
-      .where(eq(itemType.active, true))
-      .orderBy(desc(itemType.name))
-      .limit(limit)
-      .offset(offset)
+    const query = this.dbService.db.query.itemType.findMany({
+      where: whereClause,
+      with: itemTypeColumnsAndWith.with,
+      columns: itemTypeColumnsAndWith.columns,
+      orderBy: [desc(itemType.name)],
+      limit: filterDto.allRecords ? undefined : filterDto.limit,
+      offset: filterDto.allRecords ? undefined : offset,
+    })
 
     const totalQuery = this.dbService.db
       .select({ count: count() })
       .from(itemType)
-      .where(eq(itemType.active, true))
+      .where(whereClause)
 
     const [records, totalResult] = await Promise.all([
-      query.execute(),
+      query,
       totalQuery.execute(),
     ])
 
@@ -47,30 +48,42 @@ export class ItemTypesService {
     return {
       records: plainToInstance(ItemTypeResDto, records),
       total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
+      limit: filterDto.allRecords ? total : filterDto.limit,
+      page: filterDto.allRecords ? 1 : filterDto.page,
+      pages: filterDto.allRecords ? 1 : Math.ceil(total / filterDto.limit),
     }
   }
 
-  async findOne(id: number) {
+  async existById(id: number) {
     const [record] = await this.dbService.db
-      .select(this.itemTypesWithoutDates)
+      .select({ id: itemType.id })
       .from(itemType)
       .where(and(eq(itemType.id, id), eq(itemType.active, true)))
       .limit(1)
       .execute()
+
+    return !!record
+  }
+
+  async findOne(id: number) {
+    const record = await this.dbService.db.query.itemType.findFirst({
+      where: and(eq(itemType.id, id), eq(itemType.active, true)),
+      columns: itemTypeColumnsAndWith.columns,
+      with: itemTypeColumnsAndWith.with,
+    })
+
     if (!record) {
       throw new NotFoundException(`Tipo de ítem con id ${id} no encontrado`)
     }
+
     return plainToInstance(ItemTypeResDto, record)
   }
 
   async existByCode(code?: string, excludeId?: number) {
-    if (!code) return true
+    if (!code) return false
 
-    const [alreadyExistItemType] = await this.dbService.db
-      .select(this.itemTypesWithoutDates)
+    const [record] = await this.dbService.db
+      .select({ id: itemType.id })
       .from(itemType)
       .where(
         and(
@@ -82,7 +95,7 @@ export class ItemTypesService {
       .limit(1)
       .execute()
 
-    return !!alreadyExistItemType
+    return !!record
   }
 
   async create(dto: CreateItemTypeDto) {
@@ -97,19 +110,19 @@ export class ItemTypesService {
 
     const [newItemType] = await this.dbService.db
       .insert(itemType)
-      .values({
-        code: dto.code,
-        name: dto.name,
-        description: dto.description,
-        active: dto.active,
-      })
-      .returning(this.itemTypesWithoutDates)
+      .values(dto)
+      .returning()
       .execute()
-    return plainToInstance(ItemTypeResDto, newItemType)
+
+    return this.findOne(newItemType.id)
   }
 
   async update(id: number, dto: UpdateItemTypeDto) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
+
+    if (!exists) {
+      throw new NotFoundException(`Tipo de ítem con id ${id} no encontrado`)
+    }
 
     const alreadyExistItemType = await this.existByCode(dto.code, id)
 
@@ -120,32 +133,29 @@ export class ItemTypesService {
       )
     }
 
-    const [updatedItemType] = await this.dbService.db
+    await this.dbService.db
       .update(itemType)
       .set(dto)
       .where(eq(itemType.id, id))
-      .returning(this.itemTypesWithoutDates)
       .execute()
 
-    return plainToInstance(ItemTypeResDto, updatedItemType)
+    return this.findOne(id)
   }
 
   async remove(id: number) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
 
-    const [deletedItemType] = await this.dbService.db
+    if (!exists) {
+      throw new NotFoundException(`Tipo de ítem con id ${id} no encontrado`)
+    }
+
+    const [updatedItemType] = await this.dbService.db
       .update(itemType)
       .set({ active: false, updateDate: new Date() })
       .where(eq(itemType.id, id))
-      .returning(this.itemTypesWithoutDates)
+      .returning({ active: itemType.active })
       .execute()
 
-    if (!deletedItemType) {
-      throw new DisplayableException(
-        `Error al eliminar el tipo de ítem con id ${id}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      )
-    }
-    return plainToInstance(ItemTypeResDto, deletedItemType)
+    return updatedItemType.active === false
   }
 }

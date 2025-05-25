@@ -1,12 +1,16 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { and, count, desc, eq } from 'drizzle-orm'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { item } from 'drizzle/schema/tables/inventory/item/item'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateItemDto } from './dto/req/create-item.dto'
-import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { UpdateItemDto } from './dto/req/update-item.dto'
+import { FilterItemDto } from './dto/req/filter-item.dto'
+import { and, count, desc, eq } from 'drizzle-orm/sql'
+import { itemColumnsAndWith } from './const/item-columns-and-with'
+import {
+  buildItemFilterConditions,
+  buildItemWhereClause,
+} from './utils/item-filter-builder'
 import { plainToInstance } from 'class-transformer'
 import { ItemResDto } from './dto/res/item-res.dto'
 
@@ -21,51 +25,63 @@ export class ItemsService {
     'active',
   )
 
-  async findAll({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
+  async findAll(filterDto: FilterItemDto) {
+    const conditions = buildItemFilterConditions(filterDto)
+    const whereClause = buildItemWhereClause(conditions)
 
-    const query = this.dbService.db
-      .select(this.itemsWithoutDates)
-      .from(item)
-      .where(eq(item.active, true))
-      .orderBy(desc(item.name))
-      .limit(limit)
-      .offset(offset)
+    const offset = (filterDto.page - 1) * filterDto.limit
 
-    const totalQuery = this.dbService.db
+    const itemsResult = await this.dbService.db.query.item.findMany({
+      where: whereClause,
+      with: itemColumnsAndWith.with,
+      columns: itemColumnsAndWith.columns,
+      orderBy: [desc(item.name)],
+      limit: filterDto.allRecords ? undefined : filterDto.limit,
+      offset: filterDto.allRecords ? undefined : offset,
+    })
+
+    const totalResult = await this.dbService.db
       .select({ count: count() })
       .from(item)
-      .where(eq(item.active, true))
-
-    const [records, totalResult] = await Promise.all([
-      query.execute(),
-      totalQuery.execute(),
-    ])
+      .where(whereClause)
+      .execute()
 
     const total = totalResult[0].count
 
     return {
-      records: plainToInstance(ItemResDto, records),
+      records: itemsResult,
       total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
+      limit: filterDto.allRecords ? total : filterDto.limit,
+      page: filterDto.allRecords ? 1 : filterDto.page,
+      pages: filterDto.allRecords ? 1 : Math.ceil(total / filterDto.limit),
     }
   }
 
-  async findOne(id: number) {
-    const [record] = await this.dbService.db
-      .select(this.itemsWithoutDates)
-      .from(item)
-      .where(and(eq(item.id, id), eq(item.active, true)))
-      .limit(1)
-      .execute()
+  async existById(id: number) {
+    const itemResult = await this.dbService.db.query.item.findFirst({
+      where: and(eq(item.id, id), eq(item.active, true)),
+      columns: {
+        id: true,
+      },
+    })
 
-    if (!record) {
+    return itemResult?.id !== undefined
+  }
+
+  async findOne(id: number) {
+    const itemResult = await this.dbService.db.query.item.findFirst({
+      where: and(eq(item.id, id), eq(item.active, true)),
+      columns: itemColumnsAndWith.columns,
+      with: {
+        ...itemColumnsAndWith.with,
+      },
+    })
+
+    if (!itemResult) {
       throw new NotFoundException(`Item con id ${id} no encontrado`)
     }
 
-    return plainToInstance(ItemResDto, record)
+    return plainToInstance(ItemResDto, itemResult)
   }
 
   async create(dto: CreateItemDto, registrationUserId: number) {
@@ -75,50 +91,50 @@ export class ItemsService {
         ...dto,
         registrationUserId,
       })
-      .returning(this.itemsWithoutDates)
+      .returning({ id: item.id })
       .execute()
 
-    return plainToInstance(ItemResDto, newItem)
+    return this.findOne(newItem.id)
   }
 
   async update(id: number, dto: UpdateItemDto) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
+
+    if (!exists) {
+      throw new NotFoundException(`Item con id ${id} no encontrado`)
+    }
 
     const updateData = {
       ...dto,
       updateDate: new Date(),
     }
 
-    const [updatedItem] = await this.dbService.db
+    await this.dbService.db
       .update(item)
       .set(updateData)
       .where(eq(item.id, id))
-      .returning(this.itemsWithoutDates)
       .execute()
 
-    return plainToInstance(ItemResDto, updatedItem)
+    return this.findOne(id)
   }
 
   async remove(id: number) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
 
-    const [deletedItem] = await this.dbService.db
+    if (!exists) {
+      throw new NotFoundException(`Item con id ${id} no encontrado`)
+    }
+
+    const [itemToRemove] = await this.dbService.db
       .update(item)
       .set({
         active: false,
         updateDate: new Date(),
       })
       .where(eq(item.id, id))
-      .returning(this.itemsWithoutDates)
+      .returning({ active: item.active })
       .execute()
 
-    if (!deletedItem) {
-      throw new DisplayableException(
-        `Error al eliminar el item con id ${id}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      )
-    }
-
-    return plainToInstance(ItemResDto, deletedItem)
+    return itemToRemove.active === false
   }
 }

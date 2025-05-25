@@ -54,10 +54,4 @@ export class PersonResDto {
     example: '0987654321',
   })
   phone: string | null
-
-  @ApiProperty({
-    description: 'Fecha de creación de la persona',
-    example: '2023-01-01T00:00:00.000Z',
-  })
-  createdAt: Date
 }

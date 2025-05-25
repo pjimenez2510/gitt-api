@@ -9,9 +9,10 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
+import { Request } from 'express'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ItemMaterialsService } from './item-materials.service'
 import {
   ApiPaginatedResponse,
@@ -20,22 +21,39 @@ import {
 import { ItemMaterialResDto } from './dto/res/item-material-res.dto'
 import { CreateItemMaterialDto } from './dto/req/create-item-material.dto'
 import { UpdateItemMaterialDto } from './dto/req/update-item-material.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterItemMaterialDto } from './dto/req/item-material-filter.dto'
 
 @ApiTags('Item Materials')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('item-materials')
 export class ItemMaterialsController {
   constructor(private readonly service: ItemMaterialsService) {}
 
-  @Get('item/:id')
+  @Get()
   @ApiOperation({
-    summary: 'Obtener todos los detalles de materiales de un ítem',
+    summary: 'Obtener todos los materiales de ítems con filtros',
   })
   @ApiPaginatedResponse(ItemMaterialResDto, HttpStatus.OK)
-  findAll(
-    @Param('id', ParseIntPipe) itemId: number,
-    @Query() paginationDto: BaseParamsDto,
+  async findAllWithFilters(
+    @Req() req: Request,
+    @Query() filterDto: FilterItemMaterialDto,
   ) {
-    return this.service.findByItemId(paginationDto, itemId)
+    req.action = 'item-materials:find-all-filters:attempt'
+    req.logMessage = 'Obteniendo materiales de ítems con filtros'
+
+    try {
+      const result = await this.service.findAll(filterDto)
+      req.action = 'item-materials:find-all-filters:success'
+      req.logMessage = `Se obtuvieron ${result.records.length} materiales de ítems`
+      return result
+    } catch (error) {
+      req.action = 'item-materials:find-all-filters:failed'
+      req.logMessage = `Error al obtener materiales de ítems: ${error.message}`
+      throw error
+    }
   }
 
   @Get(':id')
@@ -43,8 +61,20 @@ export class ItemMaterialsController {
     summary: 'Obtener un detalle material de ítem por id',
   })
   @ApiStandardResponse(ItemMaterialResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id)
+  async findOne(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'item-materials:find-one:attempt'
+    req.logMessage = `Buscando material de ítem con ID: ${id}`
+
+    try {
+      const result = await this.service.findOne(id)
+      req.action = 'item-materials:find-one:success'
+      req.logMessage = `Material de ítem encontrado ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'item-materials:find-one:failed'
+      req.logMessage = `Error al buscar material de ítem ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Post()
@@ -53,8 +83,20 @@ export class ItemMaterialsController {
   })
   @ApiBody({ type: CreateItemMaterialDto })
   @ApiStandardResponse(ItemMaterialResDto, HttpStatus.CREATED)
-  create(@Body() dto: CreateItemMaterialDto) {
-    return this.service.create(dto)
+  async create(@Req() req: Request, @Body() dto: CreateItemMaterialDto) {
+    req.action = 'item-materials:create:attempt'
+    req.logMessage = `Creando nuevo material para el ítem ID: ${dto.itemId}`
+
+    try {
+      const result = await this.service.create(dto)
+      req.action = 'item-materials:create:success'
+      req.logMessage = `Material de ítem creado con ID: ${result.id} para el ítem ID: ${dto.itemId}`
+      return result
+    } catch (error) {
+      req.action = 'item-materials:create:failed'
+      req.logMessage = `Error al crear material para el ítem ID ${dto.itemId}: ${error.message}`
+      throw error
+    }
   }
 
   @Patch(':id')
@@ -63,11 +105,24 @@ export class ItemMaterialsController {
   })
   @ApiBody({ type: UpdateItemMaterialDto })
   @ApiStandardResponse(ItemMaterialResDto, HttpStatus.OK)
-  update(
+  async update(
+    @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateItemMaterialDto,
   ) {
-    return this.service.update(id, dto)
+    req.action = 'item-materials:update:attempt'
+    req.logMessage = `Actualizando material de ítem con ID: ${id}`
+
+    try {
+      const result = await this.service.update(id, dto)
+      req.action = 'item-materials:update:success'
+      req.logMessage = `Material de ítem actualizado ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'item-materials:update:failed'
+      req.logMessage = `Error al actualizar material de ítem ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Delete(':id')
@@ -75,7 +130,19 @@ export class ItemMaterialsController {
     summary: 'Eliminar un material de ítem por id',
   })
   @ApiStandardResponse(ItemMaterialResDto, HttpStatus.OK)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id)
+  async remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'item-materials:remove:attempt'
+    req.logMessage = `Eliminando material de ítem con ID: ${id}`
+
+    try {
+      const result = await this.service.remove(id)
+      req.action = 'item-materials:remove:success'
+      req.logMessage = `Material de ítem eliminado ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'item-materials:remove:failed'
+      req.logMessage = `Error al eliminar material de ítem ID ${id}: ${error.message}`
+      throw error
+    }
   }
 }

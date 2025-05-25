@@ -9,8 +9,10 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Request } from 'express'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 import { ConditionsService } from './conditions.service'
 import { CreateConditionDto } from './dto/req/create-condition.dto'
 import {
@@ -18,10 +20,14 @@ import {
   ApiStandardResponse,
 } from 'src/common/decorators/api-standard-response.decorator'
 import { ConditionResDto } from './dto/res/condition-res.dto'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 import { UpdateConditionDto } from './dto/req/update-condition.dto'
+import { Auth } from '../auth/decorators/auth.decorator'
+import { USER_TYPE } from '../users/types/user-type.enum'
+import { FilterConditionDto } from './dto/req/condition-filter.dto'
 
 @ApiTags('Conditions')
+@ApiBearerAuth()
+@Auth(USER_TYPE.ADMINISTRATOR)
 @Controller('conditions')
 export class ConditionsController {
   constructor(private readonly service: ConditionsService) {}
@@ -31,8 +37,20 @@ export class ConditionsController {
     summary: 'Obtener todas las condiciones',
   })
   @ApiPaginatedResponse(ConditionResDto, HttpStatus.OK)
-  findAll(@Query() paginationDto: BaseParamsDto) {
-    return this.service.findAll(paginationDto)
+  async findAll(@Req() req: Request, @Query() filterDto: FilterConditionDto) {
+    req.action = 'conditions:find-all:attempt'
+    req.logMessage = 'Obteniendo lista de condiciones'
+
+    try {
+      const result = await this.service.findAll(filterDto)
+      req.action = 'conditions:find-all:success'
+      req.logMessage = `Se obtuvieron ${result.records.length} condiciones`
+      return result
+    } catch (error) {
+      req.action = 'conditions:find-all:failed'
+      req.logMessage = `Error al obtener condiciones: ${error.message}`
+      throw error
+    }
   }
 
   @Get(':id')
@@ -40,8 +58,20 @@ export class ConditionsController {
     summary: 'Obtener una condición por id',
   })
   @ApiStandardResponse(ConditionResDto, HttpStatus.OK)
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.service.findOne(id)
+  async findOne(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'conditions:find-one:attempt'
+    req.logMessage = `Buscando condición con ID: ${id}`
+
+    try {
+      const result = await this.service.findOne(id)
+      req.action = 'conditions:find-one:success'
+      req.logMessage = `Condición encontrada ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'conditions:find-one:failed'
+      req.logMessage = `Error al buscar condición ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Post()
@@ -50,8 +80,20 @@ export class ConditionsController {
   })
   @ApiBody({ type: CreateConditionDto })
   @ApiStandardResponse(ConditionResDto, HttpStatus.CREATED)
-  create(@Body() dto: CreateConditionDto) {
-    return this.service.create(dto)
+  async create(@Req() req: Request, @Body() dto: CreateConditionDto) {
+    req.action = 'conditions:create:attempt'
+    req.logMessage = 'Creando nueva condición'
+
+    try {
+      const result = await this.service.create(dto)
+      req.action = 'conditions:create:success'
+      req.logMessage = `Condición creada con ID: ${result.id}`
+      return result
+    } catch (error) {
+      req.action = 'conditions:create:failed'
+      req.logMessage = `Error al crear condición: ${error.message}`
+      throw error
+    }
   }
 
   @Patch(':id')
@@ -60,11 +102,24 @@ export class ConditionsController {
   })
   @ApiBody({ type: UpdateConditionDto })
   @ApiStandardResponse(ConditionResDto, HttpStatus.OK)
-  update(
+  async update(
+    @Req() req: Request,
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: UpdateConditionDto,
   ) {
-    return this.service.update(id, dto)
+    req.action = 'conditions:update:attempt'
+    req.logMessage = `Actualizando condición con ID: ${id}`
+
+    try {
+      const result = await this.service.update(id, dto)
+      req.action = 'conditions:update:success'
+      req.logMessage = `Condición actualizada ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'conditions:update:failed'
+      req.logMessage = `Error al actualizar condición ID ${id}: ${error.message}`
+      throw error
+    }
   }
 
   @Delete(':id')
@@ -72,7 +127,19 @@ export class ConditionsController {
     summary: 'Eliminar una condición por id',
   })
   @ApiStandardResponse(ConditionResDto, HttpStatus.OK)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.service.remove(id)
+  async remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'conditions:remove:attempt'
+    req.logMessage = `Eliminando condición con ID: ${id}`
+
+    try {
+      const result = await this.service.remove(id)
+      req.action = 'conditions:remove:success'
+      req.logMessage = `Condición eliminada ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'conditions:remove:failed'
+      req.logMessage = `Error al eliminar condición ID ${id}: ${error.message}`
+      throw error
+    }
   }
 }

@@ -8,6 +8,7 @@ import {
   IsOptional,
   IsString,
   MaxLength,
+  Min,
 } from 'class-validator'
 import { NormativeType } from '../../enums/normative-type.enum'
 import { Origin } from '../../enums/origin.enum'
@@ -21,6 +22,16 @@ export class CreateItemDto {
   @IsNotEmpty({ message: 'El código es requerido' })
   @MaxLength(50, { message: 'El código no puede tener más de 50 caracteres' })
   code: string
+
+  @ApiProperty({
+    description: 'cantidad en stock',
+    example: 10,
+    default: 0,
+  })
+  @IsInt({ message: 'El stock debe ser un número entero' })
+  @Min(0, { message: 'El stock no puede ser negativo' })
+  @IsOptional()
+  stock?: number = 0
 
   @ApiProperty({
     description: 'nombre del item',
