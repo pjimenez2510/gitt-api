@@ -71,6 +71,7 @@ export class LoanDetailsService {
         exitObservations: detailDto.exitObservations,
       })
       .returning()
+      .execute()
 
     return plainToInstance(LoanDetailResDto, record)
   }

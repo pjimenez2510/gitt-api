@@ -97,12 +97,12 @@
     "testEnvironment": "node",
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1",
-      "^drizzle/schema$": "<rootDir>/../drizzle/schema",
-      "^drizzle/schema/enums/(.*)$": "<rootDir>/../drizzle/schema/enums/$1",
+      "^drizzle/(.*)$": "<rootDir>/../drizzle/$1",
+      "^drizzle/schema/tables/loans/(.*)$": "<rootDir>/../drizzle/schema/tables/loans/$1",
+      "^drizzle/schema/tables/inventory/(.*)$": "<rootDir>/../drizzle/schema/tables/inventory/$1",
       "^src/global/database/database.service$": "<rootDir>/global/database/database.service.ts",
       "^src/core/users/types/user-status.enum$": "jest-mock-user-status-enum",
-      "^src/core/users/types/user-type.enum$": "jest-mock-user-type-enum",
-      "^drizzle/schema/tables/inventory/(.*)$": "<rootDir>/../drizzle/schema/tables/inventory/$1"
+      "^src/core/users/types/user-type.enum$": "jest-mock-user-type-enum"
     }
   }
 }
