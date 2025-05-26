@@ -43,6 +43,7 @@ async function bootstrap() {
     )
     .setVersion('1.0')
        //.addServer(`http://localhost:${port}`, 'Servidor local')
+    .addServer('https://gitt-api-afvb.onrender.com', 'Servidor de producción KK')
     .addServer('https://gitt-api-3tw6.onrender.com', 'Servidor de producción')
     .addBearerAuth({
       type: 'http',
