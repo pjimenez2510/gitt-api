@@ -21,6 +21,7 @@ import { LoansModule } from './core/loans/loans.module'
 import { LogModule } from './global/log/log.module'
 import { LogInterceptor } from './common/interceptors/log.interceptor'
 import { ReturnsModule } from './core/returns/returns.module'
+import { ItemImagesModule } from './core/item-images/item-images.module'
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ReturnsModule } from './core/returns/returns.module'
     LoansModule,
     LogModule,
     ReturnsModule,
+    ItemImagesModule,
   ],
   providers: [ResponseInterceptor, LogInterceptor],
 })
