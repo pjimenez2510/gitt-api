@@ -59,6 +59,16 @@ export interface MappedRecord {
   materialName: string | null
   itemLine: string | null
   accountingAccount: string | null
+  quantity: string | null
+  custodyCurrent: string | null
+  warehouseId: string | null
+  locationId: string | null
+  documentId: string | null
+  currentCustodian: string | null
+  activeCustodian: string | null
+  actStatus: string | null
+  actAccounted: string | null
+  itemAccounted: string | null
 }
 
 export interface ProcessCSVResult {
