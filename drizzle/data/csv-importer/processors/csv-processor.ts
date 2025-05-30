@@ -4,7 +4,7 @@ import { parse } from 'csv-parse/sync'
 
 import { CSVOptions, ProcessCSVResult } from '../types'
 import { getDbConnection } from '../utils/db'
-import { findAdminUser } from '../services/user-service'
+import { findAdminUser, findOrCreateUser } from '../services/user-service'
 import { findOrCreateWarehouse } from '../services/warehouse-service'
 import { findOrCreateLocation } from '../services/location-service'
 import { findStatusByName } from '../services/status-service'
@@ -143,6 +143,9 @@ export const processCSV = async (
         }
       }
 
+      // Obtener custodio actual
+      const custodianUser = await findOrCreateUser(mappedRecord.documentId, mappedRecord.currentCustodian)
+
       // Crear el bien
       const itemRecord = await db
         .insert(item)
@@ -167,11 +170,19 @@ export const processCSV = async (
           identificationSeries: mappedRecord.identificationSeries || '',
           dimensions: mappedRecord.dimensions || '',
           critical: parseBoolean(mappedRecord.critical),
-          observations: mappedRecord.description || '',
+          observations: [
+            mappedRecord.description,
+            mappedRecord.actStatus && `Estado del Acta: ${mappedRecord.actStatus}`,
+            mappedRecord.actAccounted && `Contabilizado Acta: ${mappedRecord.actAccounted}`,
+            mappedRecord.itemAccounted && `Contabilizado Bien: ${mappedRecord.itemAccounted}`,
+          ].filter(Boolean).join(' | '),
           locationId: locationRecord.id,
           itemLine: parseInt(mappedRecord.itemLine),
           accountingAccount: mappedRecord.accountingAccount || '',
           registrationUserId: adminUser.id,
+          stock: parseInt(mappedRecord.quantity, 0) || 0,
+          custodianId: custodianUser?.id ?? null,
+          activeCustodian: parseBoolean(mappedRecord.activeCustodian),
         })
         .returning()
 
