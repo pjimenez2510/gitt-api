@@ -21,6 +21,7 @@ export const itemImage = pgTable('item_images', {
   isPrimary: boolean('is_primary').default(false),
   description: text('description'),
   photoDate: date('photo_date'),
+  active: boolean('active').default(true),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
     mode: 'date',

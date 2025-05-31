@@ -65,6 +65,16 @@ export const mapCsvToItemFields = (
     materialName: ['Material'],
     itemLine: ['Item/ Renglón', 'Item Line', 'Línea'],
     accountingAccount: ['Cuenta Contable', 'Accounting Account', 'Cuenta'],
+    quantity: ['Cantidad'],
+    custodyCurrent: ['Custodia Actual'],
+    warehouseId: ['Id Bodega'],
+    locationId: ['Id Ubicación'],
+    documentId: ['Nro de Cédula/ RUC'],
+    currentCustodian: ['Custodio Actual'],
+    activeCustodian: ['Custodio Activo'],
+    actStatus: ['Estado del Acta'],
+    actAccounted: ['Contabilizado del Acta'],
+    itemAccounted: ['Contabilizado del Bien'],
   }
 
   // Buscar valores para cada campo mapeado
@@ -115,5 +125,15 @@ export const mapCsvToItemFields = (
     materialName: getValue(possibleMappings.materialName),
     itemLine: getValue(possibleMappings.itemLine),
     accountingAccount: getValue(possibleMappings.accountingAccount),
+    quantity: getValue(possibleMappings.quantity),
+    custodyCurrent: getValue(possibleMappings.custodyCurrent),
+    warehouseId: getValue(possibleMappings.warehouseId),
+    locationId: getValue(possibleMappings.locationId),
+    documentId: getValue(possibleMappings.documentId),
+    currentCustodian: getValue(possibleMappings.currentCustodian),
+    activeCustodian: getValue(possibleMappings.activeCustodian),
+    actStatus: getValue(possibleMappings.actStatus),
+    actAccounted: getValue(possibleMappings.actAccounted),
+    itemAccounted: getValue(possibleMappings.itemAccounted),
   }
 }

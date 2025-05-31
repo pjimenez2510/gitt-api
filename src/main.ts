@@ -9,14 +9,28 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ApiPaginatedRes, ApiRes } from './common/types/api-response.interface'
 import { BaseParamsDto } from './common/dtos/base-params.dto'
 import { LogInterceptor } from './common/interceptors/log.interceptor'
+import { join } from 'path'
+import { json, urlencoded } from 'express'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true })
+  const app = await NestFactory.create(AppModule, {
+    bodyParser: true,
+    rawBody: true,
+    cors: true,
+  })
+
+  app.use(json({ limit: '10mb' }))
+  app.use(urlencoded({ extended: true, limit: '10mb' }))
+
   const configService = app.get(CustomConfigService)
   const port = configService.env.PORT
 
   app.enableCors('*')
   app.getHttpAdapter().getInstance().set('trust proxy', true)
+  // Servir archivos estáticos
+  app.getHttpAdapter().useStaticAssets!(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/',
+  })
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

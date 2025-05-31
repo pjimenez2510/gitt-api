@@ -16,10 +16,6 @@ export function buildLocationFilterConditions(
     conditions.push(ilike(location.description, `%${filterDto.description}%`))
   }
 
-  if (filterDto.warehouseId) {
-    conditions.push(eq(location.warehouseId, filterDto.warehouseId))
-  }
-
   if (filterDto.parentLocationId) {
     conditions.push(eq(location.parentLocationId, filterDto.parentLocationId))
   }
@@ -28,10 +24,6 @@ export function buildLocationFilterConditions(
     if (Object.values(LocationType).includes(filterDto.type)) {
       conditions.push(eq(location.type, filterDto.type))
     }
-  }
-
-  if (filterDto.building) {
-    conditions.push(ilike(location.building, `%${filterDto.building}%`))
   }
 
   if (filterDto.floor) {
