@@ -19,6 +19,7 @@ import { CertificatesModule } from './core/certificates/certificates.module'
 import { LoansModule } from './core/loans/loans.module'
 import { LogModule } from './global/log/log.module'
 import { LogInterceptor } from './common/interceptors/log.interceptor'
+import { ItemImagesModule } from './core/item-images/item-images.module'
 
 @Module({
   imports: [
@@ -41,6 +42,8 @@ import { LogInterceptor } from './common/interceptors/log.interceptor'
     ItemMaterialsModule,
     LoansModule,
     LogModule,
+    ItemImagesModule,
+
   ],
   providers: [ResponseInterceptor, LogInterceptor],
 })
