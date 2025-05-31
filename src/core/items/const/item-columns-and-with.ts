@@ -7,7 +7,6 @@ import { itemMaterialColumnsAndWith } from 'src/core/item-materials/const/item-m
 import { itemTypeColumnsAndWith } from 'src/core/item-types/const/item-type-columns-and-with'
 import { locationColumnsAndWith } from 'src/core/locations/const/location-columns-and-with'
 import { statusColumnsAndWith } from 'src/core/states/const/state-columns-and-with'
-import { warehouseColumnsAndWith } from 'src/core/warehouses/const/warehouse-columns-and-with'
 
 export const itemColumnsAndWith = {
   columns: {

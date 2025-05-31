@@ -8,18 +8,6 @@ import {
   IsString,
 } from 'class-validator'
 
-export interface MulterFile {
-  fieldname: string
-  originalname: string
-  encoding: string
-  mimetype: string
-  size: number
-  buffer: Buffer
-  destination?: string
-  filename?: string
-  path?: string
-}
-
 export class CreateItemImageDto {
   @ApiProperty({
     description: 'ID del ítem al que pertenece la imagen',
@@ -29,14 +17,17 @@ export class CreateItemImageDto {
   @IsNotEmpty({ message: 'itemId es requerido' })
   itemId: number
 
-  @ApiPropertyOptional({ type: 'string', format: 'binary' })
-  @IsOptional()
-  file?: MulterFile
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    description: 'Archivo de imagen a subir (PNG, JPEG, JPG, GIF, máximo 10MB)',
+  })
+  file: Express.Multer.File
 
   @IsOptional()
   filePath?: string
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Tipo de imagen (PRIMARY, SECONDARY, DETAIL)',
     required: false,
     example: 'PRIMARY',
@@ -46,7 +37,7 @@ export class CreateItemImageDto {
   @IsOptional()
   type?: string
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Indica si es la imagen principal del ítem',
     required: false,
     default: false,
@@ -56,7 +47,7 @@ export class CreateItemImageDto {
   @IsOptional()
   isPrimary?: boolean
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Descripción de la imagen',
     required: false,
     example: 'Descripción de la imagen',
@@ -65,7 +56,7 @@ export class CreateItemImageDto {
   @IsOptional()
   description?: string
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Fecha en que se tomó la foto',
     required: false,
     example: '2023-01-01',

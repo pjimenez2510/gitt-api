@@ -8,9 +8,9 @@ import { DatabaseModule } from 'src/global/database/database.module'
 import * as fs from 'fs'
 
 // Asegurar que el directorio de uploads exista
-const uploadsDir = join(process.cwd(), 'uploads', 'items')
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true })
+const tempDir = join(process.cwd(), 'temp')
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true })
 }
 
 @Module({
@@ -21,7 +21,7 @@ if (!fs.existsSync(uploadsDir)) {
       storage: diskStorage({
         // Especificar directorio de destino
         destination: (req, file, cb) => {
-          cb(null, uploadsDir)
+          cb(null, tempDir)
         },
         // Generar nombre de archivo único
         filename: (req, file, cb) => {

@@ -2,8 +2,8 @@ import {
   Injectable,
   NotFoundException,
   Logger,
-  BadRequestException,
   InternalServerErrorException,
+  MethodNotAllowedException,
 } from '@nestjs/common'
 import * as fs from 'fs'
 import { join, extname } from 'path'
@@ -20,29 +20,21 @@ import { plainToInstance } from 'class-transformer'
 import { ItemImageResDto } from './dto/res/item-image-res.dto'
 import { eq } from 'drizzle-orm'
 import { itemImage, item } from 'drizzle/schema'
+import { itemImageColumnsAndWith } from './const/item-image-columns-and-with'
 
 @Injectable()
 export class ItemImagesService {
-  private readonly logger = new Logger(ItemImagesService.name)
-
   constructor(private readonly dbService: DatabaseService) {}
 
   private async ensureUploadsDirectory(itemId: number): Promise<string> {
     const basePath = join(process.cwd(), 'uploads', 'items', itemId.toString())
 
-    // Asegurarse de que el directorio de uploads existe
-    const uploadsDir = join(process.cwd(), 'uploads')
-    if (!fs.existsSync(uploadsDir)) {
-      await mkdirAsync(uploadsDir, { recursive: true })
-    }
-
     // Crear el directorio del ítem si no existe
     try {
       await mkdirAsync(basePath, { recursive: true })
       return basePath
-    } catch (error) {
-      this.logger.error(`Error al crear el directorio ${basePath}:`, error)
-      throw new InternalServerErrorException(
+    } catch {
+      throw new MethodNotAllowedException(
         'Error al preparar el directorio de destino',
       )
     }
@@ -54,11 +46,29 @@ export class ItemImagesService {
     return `${uniqueSuffix}${ext}`
   }
 
+  async findOne(id: number): Promise<ItemImageResDto> {
+    const itemImageResult = await this.dbService.db.query.itemImage.findFirst({
+      where: eq(itemImage.id, id),
+      columns: itemImageColumnsAndWith.columns,
+      with: {
+        ...itemImageColumnsAndWith.with,
+      },
+    })
+
+    if (!itemImageResult) {
+      throw new NotFoundException(`ItemImage con id ${id} no encontrado`)
+    }
+
+    return plainToInstance(ItemImageResDto, itemImageResult)
+  }
+
   async create(
-    createItemImageDto: CreateItemImageDto & { file: Express.Multer.File },
+    createItemImageDto: CreateItemImageDto,
   ): Promise<ItemImageResDto> {
-    const { itemId, file } = createItemImageDto
-    let tempFilePath = file.path
+    //Logger.log(createItemImageDto)
+
+    const { itemId } = createItemImageDto
+    let tempFilePath = createItemImageDto.file.path
 
     try {
       // Verificar que el ítem existe
@@ -80,22 +90,22 @@ export class ItemImagesService {
 
       // Crear directorio de destino si no existe
       await this.ensureUploadsDirectory(itemId)
-      const uniqueFilename = this.generateUniqueFilename(file.originalname)
+      const uniqueFilename = this.generateUniqueFilename(
+        createItemImageDto.file.originalname,
+      )
       const relativePath = `uploads/items/${itemId}/${uniqueFilename}`
       const fullPath = join(process.cwd(), relativePath)
 
       // Verificar que el archivo temporal existe
-      if (!file.path || !fs.existsSync(file.path)) {
+      if (!tempFilePath || !fs.existsSync(tempFilePath)) {
         throw new InternalServerErrorException('El archivo temporal no existe')
       }
 
       // Mover el archivo a la ubicación final
       try {
-        await renameAsync(file.path, fullPath)
-        this.logger.log(`Archivo movido a: ${fullPath}`)
+        await renameAsync(tempFilePath, fullPath)
         tempFilePath = fullPath // Actualizar la ruta temporal a la ruta final
-      } catch (moveError) {
-        this.logger.error('Error al mover el archivo:', moveError)
+      } catch {
         throw new InternalServerErrorException('Error al guardar el archivo')
       }
 
@@ -110,13 +120,12 @@ export class ItemImagesService {
           description: createItemImageDto.description,
           photoDate: createItemImageDto.photoDate,
         })
-        .returning()
+        .returning({ id: itemImage.id })
+        .execute()
 
-      return plainToInstance(ItemImageResDto, newImage, {
-        excludeExtraneousValues: true,
-      })
+      return this.findOne(newImage.id)
     } catch (error) {
-      this.logger.error(
+      Logger.error(
         `Error al crear la imagen para el ítem ${itemId}:`,
         error.stack,
       )
@@ -126,22 +135,14 @@ export class ItemImagesService {
         try {
           if (fs.existsSync(tempFilePath)) {
             await unlinkAsync(tempFilePath)
-            this.logger.log(`Archivo temporal eliminado: ${tempFilePath}`)
+            Logger.log(`Archivo temporal eliminado: ${tempFilePath}`)
           }
         } catch (fsError) {
-          this.logger.error(
+          Logger.error(
             `Error al eliminar el archivo ${tempFilePath} después de un error:`,
             fsError,
           )
         }
-      }
-
-      if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException ||
-        error instanceof InternalServerErrorException
-      ) {
-        throw error
       }
 
       throw new InternalServerErrorException(
