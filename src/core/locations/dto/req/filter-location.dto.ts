@@ -23,14 +23,6 @@ export class FilterLocationDto extends BaseParamsDto {
   @IsNumber()
   @Transform(({ value }) => (value ? parseInt(value) : undefined))
   @ApiPropertyOptional({
-    description: 'ID del almacén asociado',
-  })
-  warehouseId?: number
-
-  @IsOptional()
-  @IsNumber()
-  @Transform(({ value }) => (value ? parseInt(value) : undefined))
-  @ApiPropertyOptional({
     description: 'ID de la ubicación padre',
   })
   parentLocationId?: number
@@ -46,13 +38,6 @@ export class FilterLocationDto extends BaseParamsDto {
     enum: LocationType,
   })
   type?: LocationType
-
-  @IsOptional()
-  @IsString()
-  @ApiPropertyOptional({
-    description: 'Edificio (búsqueda parcial)',
-  })
-  building?: string
 
   @IsOptional()
   @IsString()
