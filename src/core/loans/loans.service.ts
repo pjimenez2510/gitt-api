@@ -17,10 +17,11 @@ import { loanDetail } from 'drizzle/schema/tables/loans/loanDetail'
 import { LoanDetailResDto } from './loan-details/dto/res/loan-detail-res.dto'
 import { loan } from 'drizzle/schema/tables/loans'
 import { StatusLoan } from './enums/status-loan'
-import { ApproveLoanDto } from './dto/req/approve-loan.dto'
-import { DeliverLoanDto } from './dto/req/deliver-loan.dto'
 import { ItemsService } from '../items/items.service'
 import { USER_STATUS } from '../users/types/user-status.enum'
+import { CreateReturnLoanDto } from './dto/req/create-return.dto'
+import { person } from 'drizzle/schema'
+import { PERSON_STATUS } from '../people/types/person-status.enum'
 
 @Injectable()
 export class LoansService {
@@ -58,21 +59,13 @@ export class LoansService {
   }
 
   async findAll(filterDto: FilterLoansDto) {
-    const { limit, page, status, requestorDni, fromDate, toDate } = filterDto
+    const { limit, page, status, requestorDni } = filterDto
     const offset = (page - 1) * limit
 
     const conditions: SQL[] = []
 
     if (status) {
       conditions.push(eq(loan.status, status))
-    }
-
-    if (fromDate) {
-      conditions.push(gt(loan.requestDate, new Date(fromDate)))
-    }
-
-    if (toDate) {
-      conditions.push(lt(loan.requestDate, new Date(toDate)))
     }
 
     if (requestorDni) {
@@ -88,7 +81,7 @@ export class LoansService {
       query.where(whereClause)
     }
 
-    query.orderBy(desc(loan.requestDate)).limit(limit).offset(offset)
+    query.orderBy(desc(loan.registrationDate)).limit(limit).offset(offset)
 
     const totalQuery = this.dbService.db.select({ count: count() }).from(loan)
 
@@ -108,58 +101,6 @@ export class LoansService {
       record.loanDetails = loanDetails
     }
 
-    const total = totalResult[0].count
-
-    return {
-      records: plainToInstance(LoanResDto, records),
-      total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
-    }
-  }
-
-  async findActive({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
-
-    const query = this.dbService.db
-      .select(this.loanWithoutDates)
-      .from(loan)
-      .where(
-        not(
-          inArray(loan.status, [
-            StatusLoan.CANCELLED,
-            StatusLoan.RETURNED,
-            StatusLoan.EXPIRED,
-          ]),
-        ),
-      )
-      .orderBy(desc(loan.requestorId), desc(loan.registrationDate))
-      .limit(limit)
-      .offset(offset)
-    const totalQuery = this.dbService.db
-      .select({ count: count() })
-      .from(loan)
-      .where(
-        not(
-          inArray(loan.status, [
-            StatusLoan.CANCELLED,
-            StatusLoan.RETURNED,
-            StatusLoan.EXPIRED,
-          ]),
-        ),
-      )
-
-    const [records, totalResult] = await Promise.all([
-      query.execute(),
-      totalQuery.execute(),
-    ])
-    for (const record of records) {
-      const loanDetails = await this.loanDetailService.findDetailsByLoanID(
-        record.id as number,
-      )
-      record.loanDetails = loanDetails
-    }
     const total = totalResult[0].count
 
     return {
@@ -219,7 +160,21 @@ export class LoansService {
     }
   }
 
-  async create(createLoanDto: CreateLoanDto) {
+  async findPersonByDni(dni: string) {
+    const personResult = await this.dbService.db.query.person
+      .findFirst({
+        where: eq(person.dni, dni),
+      })
+      .execute()
+
+    if (!personResult) {
+      throw new NotFoundException(`La persona con DNI ${dni} no existe`)
+    }
+
+    return personResult
+  }
+
+  async create(createLoanDto: CreateLoanDto, userId: number) {
     return await this.dbService.db.transaction(async (tx) => {
       if (Date.now() > new Date(createLoanDto.scheduledReturnDate).getTime()) {
         throw new BadRequestException(
@@ -233,26 +188,29 @@ export class LoansService {
         [USER_STATUS.SUSPENDED]: 'tiene la cuenta suspendida',
       }
 
-      const user = await this.userService.findByDni(createLoanDto.requestorId)
+      const person = await this.findPersonByDni(createLoanDto.requestorId)
       if (
-        user.status === USER_STATUS.DEFAULTER ||
-        user.status === USER_STATUS.INACTIVE ||
-        user.status === USER_STATUS.SUSPENDED
+        person.status === PERSON_STATUS.DEFAULTER ||
+        person.status === PERSON_STATUS.INACTIVE ||
+        person.status === PERSON_STATUS.SUSPENDED
       ) {
         if (createLoanDto.blockBlackListed)
           throw new BadRequestException(
-            `El usuario con DNI: ${user.person.dni} no puede realizar préstamos, ${statusMessages[user.status]}`,
+            `El usuario con DNI: ${person.dni} no puede realizar préstamos, ${statusMessages[person.status]}`,
           )
       }
       const [newLoan] = await tx
         .insert(loan)
         .values({
           scheduledReturnDate: createLoanDto.scheduledReturnDate,
-          requestorId: user.id,
+          requestorId: person.id,
+          approverId: userId,
           reason: createLoanDto.reason,
           associatedEvent: createLoanDto.associatedEvent,
           externalLocation: createLoanDto.externalLocation,
           notes: createLoanDto.notes,
+          status: StatusLoan.DELIVERED,
+          deliveryDate: new Date(),
         })
         .returning()
 
@@ -287,92 +245,102 @@ export class LoansService {
     })
   }
 
-  async approveLoan(
-    id: number,
-    approveLoanDto: ApproveLoanDto,
-    approverId: number,
-  ) {
-    const { notes } = approveLoanDto
+  async processReturn(createReturnLoanDto: CreateReturnLoanDto) {
+    const { loanId, actualReturnDate, returnedItems, notes } =
+      createReturnLoanDto
 
-    const [loanRecord] = await this.dbService.db
+    const existingLoanArr = await this.dbService.db
       .select()
       .from(loan)
-      .where(eq(loan.id, id))
+      .where(eq(loan.id, loanId))
       .limit(1)
       .execute()
 
-    if (!loanRecord) {
-      throw new NotFoundException(`Préstamo con ID: ${id} no encontrado`)
+    const existingLoan = existingLoanArr[0]
+
+    if (!existingLoan) {
+      throw new NotFoundException(`El préstamo con ID ${loanId} no existe`)
     }
 
-    if (loanRecord.status !== StatusLoan.REQUESTED) {
+    if (existingLoan.status !== StatusLoan.DELIVERED) {
       throw new BadRequestException(
-        `El préstamo debe estar en estado REQUESTED para ser aprobado. Estado actual: ${loanRecord.status}`,
+        `El préstamo debe estar en estado DELIVERED para procesarlo como devuelto. Estado actual: ${existingLoan.status}`,
       )
     }
 
-    const [updatedLoan] = await this.dbService.db
-      .update(loan)
-      .set({
-        status: StatusLoan.APPROVED,
-        approverId,
-        approvalDate: new Date(),
-        notes: notes || loanRecord.notes,
-        updateDate: new Date(),
-      })
-      .where(eq(loan.id, id))
-      .returning()
+    const returnDate = new Date(actualReturnDate)
+    if (existingLoan.deliveryDate && returnDate < existingLoan.deliveryDate) {
+      throw new BadRequestException(
+        'La fecha de devolución no puede ser anterior a la fecha de entrega',
+      )
+    }
 
-    const loanDetails = await this.loanDetailService.findDetailsByLoanID(id)
+    const isLate = existingLoan.scheduledReturnDate < returnDate
+    const newStatus = isLate ? StatusLoan.RETURNED_LATE : StatusLoan.RETURNED
 
-    return plainToInstance(LoanResDto, {
-      ...updatedLoan,
-      loanDetails,
-    })
-  }
-
-  async deliverLoan(id: number, deliverLoanDto: DeliverLoanDto) {
-    const { deliveryDate, notes } = deliverLoanDto
-
-    const [loanRecord] = await this.dbService.db
+    const loanDetails = await this.dbService.db
       .select()
-      .from(loan)
-      .where(eq(loan.id, id))
-      .limit(1)
+      .from(loanDetail)
+      .where(eq(loanDetail.loanId, loanId))
       .execute()
 
-    if (!loanRecord) {
-      throw new NotFoundException(`Préstamo con ID: ${id} no encontrado`)
-    }
+    const result = await this.dbService.transaction(async (tx) => {
+      // 1. Actualizar el préstamo
+      await tx
+        .update(loan)
+        .set({
+          status: newStatus,
+          actualReturnDate: returnDate,
+          notes: notes || existingLoan.notes,
+          updateDate: new Date(),
+        })
+        .where(eq(loan.id, loanId))
 
-    if (loanRecord.status !== StatusLoan.APPROVED) {
-      throw new BadRequestException(
-        `El préstamo debe estar en estado APPROVED para ser entregado. Estado actual: ${loanRecord.status}`,
+      // 2. Verificar y actualizar detalles de ítems devueltos
+      for (const item of returnedItems) {
+        const belongsToLoan = loanDetails.some(
+          (detail) => detail.id === item.loanDetailId,
+        )
+
+        if (!belongsToLoan) {
+          throw new BadRequestException(
+            `El detalle con ID ${item.loanDetailId} no pertenece a este préstamo`,
+          )
+        }
+
+        await tx
+          .update(loanDetail)
+          .set({
+            returnConditionId: item.returnConditionId,
+            returnObservations: item.returnObservations,
+            updateDate: new Date(),
+          })
+          .where(eq(loanDetail.id, item.loanDetailId))
+      }
+
+      // 3. Marcar usuario como moroso si aplica
+      const hasDamagedItems = returnedItems.some(
+        (item) => item.returnConditionId === 3,
       )
-    }
 
-    if (new Date(deliveryDate) > new Date(loanRecord.scheduledReturnDate)) {
-      throw new BadRequestException(
-        'La fecha de entrega no puede ser posterior a la fecha programada de devolución',
-      )
-    }
+      if (isLate || hasDamagedItems) {
+        await tx
+          .update(person)
+          .set({
+            status: PERSON_STATUS.DEFAULTER,
+          })
+          .where(eq(person.id, existingLoan.requestorId))
+      }
 
-    const [updatedLoan] = await this.dbService.db
-      .update(loan)
-      .set({
-        status: StatusLoan.DELIVERED,
-        deliveryDate: new Date(deliveryDate),
-        notes: notes || loanRecord.notes,
-        updateDate: new Date(),
-      })
-      .where(eq(loan.id, id))
-      .returning()
-
-    const loanDetails = await this.loanDetailService.findDetailsByLoanID(id)
-
-    return plainToInstance(LoanResDto, {
-      ...updatedLoan,
-      loanDetails,
+      return {
+        loanId,
+        status: newStatus,
+        message: `Préstamo devuelto ${isLate ? 'con retraso' : 'a tiempo'}`,
+        isLate,
+        returnDate,
+      }
     })
+
+    return result
   }
 }

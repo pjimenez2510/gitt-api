@@ -6,12 +6,10 @@ import {
   itemType,
   status,
 } from 'drizzle/schema/tables/inventory'
-import { warehouse } from 'drizzle/schema/tables/locations/warehouse'
 import { location } from 'drizzle/schema/tables/locations/location'
 import { user } from 'drizzle/schema/tables/users'
 
 // Tipos para el resultado de las consultas de tablas
-export type WarehouseRecord = typeof warehouse.$inferSelect
 export type LocationRecord = typeof location.$inferSelect
 export type ColorRecord = typeof color.$inferSelect
 export type MaterialRecord = typeof material.$inferSelect

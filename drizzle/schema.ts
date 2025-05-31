@@ -29,6 +29,7 @@ import {
   reportFrequency,
   userType,
   userStatus,
+  personStatus,
 } from './schema/enums'
 import {
   item,
@@ -85,12 +86,7 @@ import {
   loanDetail,
   loanDetailRelations,
 } from './schema/tables/loans'
-import {
-  warehouse,
-  warehouseRelations,
-  locationRelations,
-  location,
-} from './schema/tables/locations'
+import { locationRelations, location } from './schema/tables/locations'
 import {
   notification,
   notificationRelations,
@@ -119,6 +115,7 @@ import {
   userRole,
   userRoleRelations,
   userRelations,
+  personRelations,
 } from './schema/tables/users'
 
 export {
@@ -129,10 +126,9 @@ export {
   roleRelations,
   userRole,
   userRoleRelations,
+  personRelations,
 
   // Ubicaciones
-  warehouse,
-  warehouseRelations,
   location,
   locationRelations,
 
@@ -252,4 +248,5 @@ export {
   reportFrequency,
   userType,
   userStatus,
+  personStatus,
 }

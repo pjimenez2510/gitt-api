@@ -28,14 +28,6 @@ export class CreateLocationDto {
   description?: string
 
   @ApiProperty({
-    description: 'ID del almacén asociado (es opcional)',
-    example: 1,
-  })
-  @IsNumber({}, { message: 'El ID del almacén debe ser un número' })
-  @IsOptional()
-  warehouseId?: number
-
-  @ApiProperty({
     description: 'ID de la ubicación padre (es opcional)',
     example: 2,
   })
@@ -55,17 +47,6 @@ export class CreateLocationDto {
   })
   @IsNotEmpty({ message: 'El tipo es requerido' })
   type: LocationType
-
-  @ApiProperty({
-    description: 'Edificio de la ubicación (es opcional)',
-    example: 'Edificio A',
-  })
-  @IsString({ message: 'El edificio debe ser un string' })
-  @MaxLength(100, {
-    message: 'El edificio no puede tener más de 100 caracteres',
-  })
-  @IsOptional()
-  building?: string
 
   @ApiProperty({
     description: 'Piso de la ubicación (es opcional)',

@@ -80,25 +80,30 @@ export const findOrCreateUser = async (
   fullName: string | null,
 ): Promise<UserRecord | null> => {
   try {
-
     if (!documentId || !fullName) {
       return null
     }
 
     // Si no hay cédula, usar un valor dummy único
-    const dni = (documentId && documentId.trim() !== '' ? documentId.trim() : `9999${Date.now()}`);
+    const dni =
+      documentId && documentId.trim() !== ''
+        ? documentId.trim()
+        : `9999${Date.now()}`
 
     // Si no hay nombre, usar 'Custodio Desconocido'
-    const name = (fullName && fullName.trim() !== '' ? fullName.trim() : 'Custodio Desconocido');
-    const [firstName, ...lastParts] = name.split(' ');
-    const lastName = lastParts.length > 0 ? lastParts.join(' ') : 'Desconocido';
+    const name =
+      fullName && fullName.trim() !== ''
+        ? fullName.trim()
+        : 'Custodio Desconocido'
+    const [firstName, ...lastParts] = name.split(' ')
+    const lastName = lastParts.length > 0 ? lastParts.join(' ') : 'Desconocido'
 
     // Buscar persona por cédula
     let personRecord = await db
       .select()
       .from(person)
       .where(eq(person.dni, dni))
-      .limit(1);
+      .limit(1)
 
     if (personRecord.length === 0) {
       // Crear persona si no existe
@@ -110,8 +115,8 @@ export const findOrCreateUser = async (
           lastName,
           email: `${dni}@custodio.local`,
         })
-        .returning();
-      personRecord = newPerson;
+        .returning()
+      personRecord = newPerson
     }
 
     // Buscar usuario por personId
@@ -119,7 +124,7 @@ export const findOrCreateUser = async (
       .select()
       .from(user)
       .where(eq(user.personId, personRecord[0].id))
-      .limit(1);
+      .limit(1)
 
     if (userRecord.length === 0) {
       // Crear usuario si no existe
@@ -133,14 +138,15 @@ export const findOrCreateUser = async (
           career: 'CUSTODIAN',
           status: USER_STATUS.ACTIVE,
         })
-        .returning();
-      userRecord = newUser;
+        .returning()
+      userRecord = newUser
     }
 
-    return userRecord[0];
+    return userRecord[0]
   } catch (error) {
-    Logger.error(`Error al buscar/crear usuario custodio: ${(error as Error).message}`);
-    return null;
+    Logger.error(
+      `Error al buscar/crear usuario custodio: ${(error as Error).message}`,
+    )
+    return null
   }
 }
-

@@ -15,11 +15,8 @@ const db = getDbConnection()
  */
 export const findOrCreateLocation = async (
   locationName: string,
-  warehouseId: number,
   reference?: string,
 ): Promise<LocationRecord | null> => {
-  if (!locationName || !warehouseId) return null
-
   const cleanLocationName = locationName.trim()
   if (cleanLocationName === '') return null
 
@@ -40,7 +37,6 @@ export const findOrCreateLocation = async (
       .insert(location)
       .values({
         name: cleanLocationName,
-        warehouseId,
         type: 'WAREHOUSE',
         reference: reference || '',
         description: `Ubicación ${cleanLocationName}`,
