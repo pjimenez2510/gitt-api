@@ -14,7 +14,7 @@ export class ItemImageResDto {
     description: 'Tipo de imagen (PRIMARY, SECONDARY, DETAIL)',
     required: false,
   })
-  type?: string
+  type: string
 
   @ApiProperty({
     description: 'Indica si es la imagen principal del ítem',
@@ -26,17 +26,11 @@ export class ItemImageResDto {
     description: 'Descripción de la imagen',
     required: false,
   })
-  description?: string
+  description: string
 
   @ApiProperty({
     description: 'Fecha en que se tomó la foto',
     required: false,
   })
-  photoDate?: Date
-
-  @ApiProperty({ description: 'Fecha de registro' })
-  registrationDate: Date
-
-  @ApiProperty({ description: 'Fecha de última actualización' })
-  updateDate: Date
+  photoDate: Date
 }

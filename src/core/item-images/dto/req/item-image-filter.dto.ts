@@ -1,25 +1,12 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import { IsInt, IsOptional, IsString } from 'class-validator'
+import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
 
-export class FilterItemImageDto {
-  @ApiPropertyOptional({ description: 'Número de página', default: 1 })
-  @Type(() => Number)
-  @IsInt()
-  @IsOptional()
-  page = 1
-
-  @ApiPropertyOptional({
-    description: 'Límite de registros por página',
-    default: 10,
-  })
-  @Type(() => Number)
-  @IsInt()
-  @IsOptional()
-  limit = 10
-
+export class FilterItemImageDto extends BaseParamsDto {
   @ApiPropertyOptional({ description: 'ID del ítem' })
   @Type(() => Number)
+  @Transform(({ value }) => (value ? parseInt(value as string) : undefined))
   @IsInt()
   @IsOptional()
   itemId?: number
@@ -37,9 +24,11 @@ export class FilterItemImageDto {
   isPrimary?: boolean
 
   @ApiPropertyOptional({
-    description: 'Obtener todos los registros sin paginación',
+    description: 'Fecha de la foto',
+    required: false,
+    example: '2023-01-01',
   })
-  @Type(() => Boolean)
+  @IsString()
   @IsOptional()
-  allRecords = false
+  photoDate?: string
 }

@@ -19,6 +19,10 @@ export function buildItemImageFilterConditions(
     conditions.push(eq(itemImage.isPrimary, filterDto.isPrimary))
   }
 
+  if (filterDto.photoDate) {
+    conditions.push(eq(itemImage.photoDate, filterDto.photoDate))
+  }
+
   return conditions
 }
 
