@@ -5,7 +5,6 @@ import { parse } from 'csv-parse/sync'
 import { CSVOptions, ProcessCSVResult } from '../types'
 import { getDbConnection } from '../utils/db'
 import { findAdminUser, findOrCreateUser } from '../services/user-service'
-import { findOrCreateWarehouse } from '../services/warehouse-service'
 import { findOrCreateLocation } from '../services/location-service'
 import { findStatusByName } from '../services/status-service'
 import { findConditionByName } from '../services/condition-service'
@@ -83,20 +82,9 @@ export const processCSV = async (
         continue
       }
 
-      // Encontrar o crear almacén
-      const warehouseRecord = await findOrCreateWarehouse(
-        mappedRecord.warehouseName || 'Bodega Principal',
-      )
-      if (!warehouseRecord) {
-        Logger.error(`Error al procesar almacén para fila ${index + 1}`)
-        errorCount++
-        continue
-      }
-
       // Encontrar o crear ubicación
       const locationRecord = await findOrCreateLocation(
         mappedRecord.locationName || 'Ubicación Principal',
-        warehouseRecord.id,
         mappedRecord.locationReference || '',
       )
       if (!locationRecord) {
@@ -144,7 +132,10 @@ export const processCSV = async (
       }
 
       // Obtener custodio actual
-      const custodianUser = await findOrCreateUser(mappedRecord.documentId, mappedRecord.currentCustodian)
+      const custodianUser = await findOrCreateUser(
+        mappedRecord.documentId,
+        mappedRecord.currentCustodian,
+      )
 
       // Crear el bien
       const itemRecord = await db
@@ -172,10 +163,15 @@ export const processCSV = async (
           critical: parseBoolean(mappedRecord.critical),
           observations: [
             mappedRecord.description,
-            mappedRecord.actStatus && `Estado del Acta: ${mappedRecord.actStatus}`,
-            mappedRecord.actAccounted && `Contabilizado Acta: ${mappedRecord.actAccounted}`,
-            mappedRecord.itemAccounted && `Contabilizado Bien: ${mappedRecord.itemAccounted}`,
-          ].filter(Boolean).join(' | '),
+            mappedRecord.actStatus &&
+              `Estado del Acta: ${mappedRecord.actStatus}`,
+            mappedRecord.actAccounted &&
+              `Contabilizado Acta: ${mappedRecord.actAccounted}`,
+            mappedRecord.itemAccounted &&
+              `Contabilizado Bien: ${mappedRecord.itemAccounted}`,
+          ]
+            .filter(Boolean)
+            .join(' | '),
           locationId: locationRecord.id,
           itemLine: parseInt(mappedRecord.itemLine),
           accountingAccount: mappedRecord.accountingAccount || '',

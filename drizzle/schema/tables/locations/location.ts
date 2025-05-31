@@ -7,7 +7,6 @@ import {
   timestamp,
   boolean,
 } from 'drizzle-orm/pg-core'
-import { warehouse } from './warehouse'
 import { capacityUnit, locationType } from 'drizzle/schema/enums/locations'
 import { relations } from 'drizzle-orm'
 import { item } from '../inventory/item/item'
@@ -17,10 +16,8 @@ export const location = pgTable('locations', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   description: text('description'),
-  warehouseId: integer('warehouse_id').references(() => warehouse.id),
   parentLocationId: integer('parent_location_id'),
   type: locationType('type').notNull(),
-  building: varchar('building', { length: 100 }),
   floor: varchar('floor', { length: 50 }),
   reference: varchar('reference', { length: 255 }),
   capacity: integer('capacity'),
@@ -41,10 +38,6 @@ export const location = pgTable('locations', {
 })
 
 export const locationRelations = relations(location, ({ one, many }) => ({
-  warehouse: one(warehouse, {
-    fields: [location.warehouseId],
-    references: [warehouse.id],
-  }),
   parentLocation: one(location, {
     fields: [location.parentLocationId],
     references: [location.id],

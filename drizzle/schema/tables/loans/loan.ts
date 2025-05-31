@@ -11,21 +11,14 @@ import { loanStatus } from 'drizzle/schema/enums/loans'
 import { user } from '../users/user'
 import { relations } from 'drizzle-orm'
 import { loanDetail } from './loanDetail'
+import { person } from '../users'
 
 export const loan = pgTable('loans', {
   id: serial('id').primaryKey(),
-  requestDate: timestamp('request_date', {
-    withTimezone: true,
-    mode: 'date',
-  }).defaultNow(),
-  approvalDate: timestamp('approval_date', {
-    withTimezone: true,
-    mode: 'date',
-  }),
   deliveryDate: timestamp('delivery_date', {
     withTimezone: true,
     mode: 'date',
-  }),
+  }).defaultNow(),
   scheduledReturnDate: timestamp('scheduled_return_date', {
     withTimezone: true,
     mode: 'date',
@@ -34,9 +27,9 @@ export const loan = pgTable('loans', {
     withTimezone: true,
     mode: 'date',
   }),
-  status: loanStatus('status').notNull().default('REQUESTED'),
+  status: loanStatus('status').notNull().default('DELIVERED'),
   requestorId: integer('requestor_id')
-    .references(() => user.id)
+    .references(() => person.id)
     .notNull(),
   approverId: integer('approver_id').references(() => user.id),
   reason: text('reason').notNull(),
@@ -55,9 +48,9 @@ export const loan = pgTable('loans', {
 })
 
 export const loanRelations = relations(loan, ({ one, many }) => ({
-  requestor: one(user, {
+  requestor: one(person, {
     fields: [loan.requestorId],
-    references: [user.id],
+    references: [person.id],
     relationName: 'requestor',
   }),
   approver: one(user, {
