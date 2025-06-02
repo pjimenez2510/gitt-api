@@ -32,6 +32,7 @@ export class ItemImagesService {
     // Crear el directorio del ítem si no existe
     try {
       await mkdirAsync(basePath, { recursive: true })
+      Logger.log(join(__dirname, '..', 'uploads'), 'StaticAssetsPath')
       return basePath
     } catch {
       throw new MethodNotAllowedException(
@@ -69,7 +70,7 @@ export class ItemImagesService {
 
     const { itemId } = createItemImageDto
     let tempFilePath = createItemImageDto.file.path
-
+    Logger.log(tempFilePath)
     try {
       // Verificar que el ítem existe
       const itemExists = await this.dbService.db.query.item.findFirst({
