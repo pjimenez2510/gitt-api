@@ -8,6 +8,7 @@ import { DatabaseModule } from 'src/global/database/database.module'
 import * as fs from 'fs'
 import { randomBytes } from 'crypto'
 
+const MAX_FILE_SIZE = 8000000 // 8MB limit
 const tempDir = join(process.cwd(), 'temp')
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir, { recursive: true })
@@ -30,7 +31,7 @@ if (!fs.existsSync(tempDir)) {
       }),
       // Límites de carga
       limits: {
-        fileSize: 8000000,
+        fileSize: MAX_FILE_SIZE,
         files: 1,
       },
       // Filtrar por tipo MIME y asegurar que el buffer esté disponible
@@ -54,7 +55,7 @@ if (!fs.existsSync(tempDir)) {
           )
         }
       },
-      
+
       // Mantener el buffer del archivo
       preservePath: true,
     }),
