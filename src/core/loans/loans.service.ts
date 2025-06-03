@@ -6,7 +6,7 @@ import {
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { LoanDetailsService } from './loan-details/loan-details.service'
-import { and, count, desc, eq, gt, inArray, lt, not, SQL } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, not, SQL } from 'drizzle-orm'
 import { plainToInstance } from 'class-transformer'
 import { LoanResDto } from './dto/res/loan-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
@@ -285,18 +285,16 @@ export class LoansService {
       .execute()
 
     const result = await this.dbService.transaction(async (tx) => {
-      // 1. Actualizar el préstamo
       await tx
         .update(loan)
         .set({
           status: newStatus,
           actualReturnDate: returnDate,
-          notes: notes || existingLoan.notes,
+          notes: notes ?? existingLoan.notes,
           updateDate: new Date(),
         })
         .where(eq(loan.id, loanId))
 
-      // 2. Verificar y actualizar detalles de ítems devueltos
       for (const item of returnedItems) {
         const belongsToLoan = loanDetails.some(
           (detail) => detail.id === item.loanDetailId,
@@ -318,12 +316,11 @@ export class LoansService {
           .where(eq(loanDetail.id, item.loanDetailId))
       }
 
-      // 3. Marcar usuario como moroso si aplica
       const hasDamagedItems = returnedItems.some(
         (item) => item.returnConditionId === 3,
       )
 
-      if (isLate || hasDamagedItems) {
+      if (isLate ?? hasDamagedItems) {
         await tx
           .update(person)
           .set({

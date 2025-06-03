@@ -9,7 +9,6 @@ import { MappedRecord } from '../types'
 export const mapCsvToItemFields = (
   record: Record<string, string>,
 ): MappedRecord => {
-  // Mapeos posibles para campos comunes en diferentes CSV
   const possibleMappings: Record<keyof MappedRecord, string[]> = {
     code: ['Código del Bien', 'Código', 'Code', 'ID'],
     previousCode: ['Código Anterior', 'Previous Code', 'Old Code'],
@@ -77,7 +76,6 @@ export const mapCsvToItemFields = (
     itemAccounted: ['Contabilizado del Bien'],
   }
 
-  // Buscar valores para cada campo mapeado
   const getValue = (fieldMappings: string[]): string | null => {
     for (const mapping of fieldMappings) {
       if (record[mapping] !== undefined) return record[mapping]

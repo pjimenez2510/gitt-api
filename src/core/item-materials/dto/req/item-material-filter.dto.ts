@@ -6,7 +6,7 @@ import { Transform } from 'class-transformer'
 export class FilterItemMaterialDto extends BaseParamsDto {
   @IsOptional()
   @IsInt()
-  @Transform(({ value }) => (value ? parseInt(value) : undefined))
+  @Transform(({ value }) => (value ? parseInt(String(value)) : undefined))
   @ApiPropertyOptional({
     description: 'ID del ítem',
     example: 1,
@@ -15,7 +15,7 @@ export class FilterItemMaterialDto extends BaseParamsDto {
 
   @IsOptional()
   @IsInt()
-  @Transform(({ value }) => (value ? parseInt(value) : undefined))
+  @Transform(({ value }) => (value ? parseInt(String(value)) : undefined))
   @ApiPropertyOptional({
     description: 'ID del material',
     example: 2,

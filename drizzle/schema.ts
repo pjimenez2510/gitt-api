@@ -127,12 +127,8 @@ export {
   userRole,
   userRoleRelations,
   personRelations,
-
-  // Ubicaciones
   location,
   locationRelations,
-
-  // Inventario - tablas principales
   item,
   itemRelations,
   itemType,
@@ -145,8 +141,6 @@ export {
   conditionRelations,
   certificate,
   certificateRelations,
-
-  // Características, colores y materiales
   color,
   colorRelations,
   material,
@@ -157,47 +151,33 @@ export {
   itemMaterialRelations,
   itemImage,
   itemImageRelations,
-
-  // Valor y depreciación
   assetValue,
   assetValueRelations,
   depreciation,
   depreciationRelations,
-
-  // Mantenimiento y movimientos
   maintenance,
   movement,
   statusChange,
-
-  // Seguros
   insurancePolicy,
   insurancePolicyRelations,
   insuredAssetDetail,
   insuredAssetDetailRelations,
   insuranceClaim,
   insuranceClaimRelations,
-
-  // Salida de activos
   exitProcess,
   exitProcessRelations,
   exitDetail,
   exitDetailRelations,
   assetLoan,
-
-  // Préstamos
   loan,
   loanRelations,
   loanDetail,
   loanDetailRelations,
-
-  // Etiquetas
   label,
   labelRelations,
   labelTemplate,
   scanRecord,
   scanRecordRelations,
-
-  // Reportes
   physicalVerification,
   physicalVerificationRelations,
   verificationDetail,
@@ -207,8 +187,6 @@ export {
   reportTemplate,
   inventoryStatistics,
   log,
-
-  // Notificaciones
   notification,
   notificationRelations,
   notificationPreference,
@@ -216,8 +194,6 @@ export {
   notificationTemplate,
   deliveryRecord,
   deliveryRecordRelations,
-
-  //enums
   normativeType,
   origin,
   certificateType,
