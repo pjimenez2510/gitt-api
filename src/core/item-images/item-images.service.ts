@@ -21,6 +21,7 @@ import { ItemImageResDto } from './dto/res/item-image-res.dto'
 import { eq } from 'drizzle-orm'
 import { itemImage, item } from 'drizzle/schema'
 import { itemImageColumnsAndWith } from './const/item-image-columns-and-with'
+import { randomBytes } from 'crypto'
 
 @Injectable()
 export class ItemImagesService {
@@ -42,9 +43,10 @@ export class ItemImagesService {
   }
 
   private generateUniqueFilename(originalname: string): string {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
+    const randomString = randomBytes(16).toString('hex')
+    const timestamp = Date.now()
     const ext = extname(originalname).toLowerCase()
-    return `${uniqueSuffix}${ext}`
+    return `${timestamp}-${randomString}${ext}`
   }
 
   async findOne(id: number): Promise<ItemImageResDto> {
