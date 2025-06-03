@@ -19,7 +19,6 @@ export const findConditionByName = async (
   const cleanConditionName = conditionName.trim().toUpperCase()
 
   try {
-    // Intentar encontrar la condición por nombre
     const conditionRecord = await db
       .select()
       .from(condition)
@@ -30,7 +29,6 @@ export const findConditionByName = async (
       return conditionRecord[0]
     }
 
-    // Fallback a "BUENO"
     const defaultCondition = await db
       .select()
       .from(condition)
@@ -41,7 +39,6 @@ export const findConditionByName = async (
       return defaultCondition[0]
     }
 
-    // Crear condición "BUENO" por defecto si no existe
     const newCondition = await db
       .insert(condition)
       .values({

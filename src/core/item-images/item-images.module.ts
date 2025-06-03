@@ -8,7 +8,6 @@ import { DatabaseModule } from 'src/global/database/database.module'
 import * as fs from 'fs'
 import { randomBytes } from 'crypto'
 
-// Asegurar que el directorio de uploads exista
 const tempDir = join(process.cwd(), 'temp')
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir, { recursive: true })
@@ -18,13 +17,10 @@ if (!fs.existsSync(tempDir)) {
   imports: [
     DatabaseModule,
     MulterModule.register({
-      // Usar almacenamiento en disco
       storage: diskStorage({
-        // Especificar directorio de destino
         destination: (req, file, cb) => {
           cb(null, tempDir)
         },
-        // Generar nombre de archivo único
         filename: (req, file, cb) => {
           const randomString = randomBytes(16).toString('hex')
           const timestamp = Date.now()
@@ -47,8 +43,7 @@ if (!fs.existsSync(tempDir)) {
         ]
 
         if (allowedMimeTypes.includes(file.mimetype)) {
-          // Asegurarse de que el buffer esté disponible
-          file.buffer = file.buffer || Buffer.alloc(0)
+          file.buffer = file.buffer ?? Buffer.alloc(0)
           cb(null, true)
         } else {
           cb(

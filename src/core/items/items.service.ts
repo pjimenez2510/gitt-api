@@ -16,7 +16,7 @@ import { ItemResDto } from './dto/res/item-res.dto'
 
 @Injectable()
 export class ItemsService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
   private itemsWithoutDates = excludeColumns(
     item,

@@ -18,7 +18,6 @@ export class CreateAssetValueDto {
   @IsNotEmpty({ message: 'itemId is required' })
   itemId: number
 
-  //revisar que no se ingrese '' o "" o " "
   @ApiPropertyOptional({
     description: 'currency (default is USD)',
     example: 'USD',
