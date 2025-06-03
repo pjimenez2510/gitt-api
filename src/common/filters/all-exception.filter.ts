@@ -12,8 +12,7 @@ import { ApiRes } from '../types/api-response.interface'
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  catch(exception: any, host: ArgumentsHost) {
+  catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse<Response>()
     const request = ctx.getRequest<Request>()
@@ -27,8 +26,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       },
       data: null,
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { exception: _, ...rest } = exception
+    const rest =
+      exception && typeof exception === 'object' ? { ...exception } : {}
 
     Logger.error({
       exception: rest,
@@ -42,9 +41,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       errorResponse.message.content = Array.isArray(exception.getResponse())
         ? (exception.getResponse() as string[])
         : [exception.getResponse() as string]
-    }
-    // Handle HttpExceptions
-    else if (exception instanceof HttpException) {
+    } else if (exception instanceof HttpException) {
       status = exception.getStatus()
       const errorMessage = exception.getResponse()
 
@@ -52,32 +49,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
       errorResponse.message.content = Array.isArray(errorMessage['message'])
         ? errorMessage['message']
-        : [errorMessage['message'] || 'HTTP Error']
-    }
-    // Handle Prisma specific errors
-    // else if (exception instanceof Prisma.PrismaClientKnownRequestError) {
-    //   status = HttpStatus.BAD_REQUEST
-    //   errorResponse.message.displayable = false
-
-    //   switch (exception.code) {
-    //     case 'P2002': // Unique constraint violation
-    //       errorResponse.message.content = [
-    //         'Unique constraint violation on field',
-    //       ]
-    //       break
-    //     case 'P2003': // Foreign key constraint violation
-    //       errorResponse.message.content = ['Invalid related record']
-    //       break
-    //     case 'P2025': // Record not found
-    //       status = HttpStatus.NOT_FOUND
-    //       errorResponse.message.content = ['Record not found']
-    //       break
-    //     default:
-    //       errorResponse.message.content = ['Database operation error']
-    //   }
-    // }
-    // Handle other types of errors
-    else if (exception instanceof Error) {
+        : [errorMessage['message'] ?? 'HTTP Error']
+    } else if (exception instanceof Error) {
       errorResponse.message.displayable = false
 
       errorResponse.message.content = [exception.message]

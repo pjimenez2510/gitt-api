@@ -36,14 +36,12 @@ import { ItemImagesModule } from './core/item-images/item-images.module'
     AssetsValueModule,
     LocationsModule,
     ItemsModule,
-
     CertificatesModule,
     ItemColorsModule,
     ItemMaterialsModule,
     LoansModule,
     LogModule,
     ItemImagesModule,
-
   ],
   providers: [ResponseInterceptor, LogInterceptor],
 })
