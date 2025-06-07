@@ -4,7 +4,5 @@ export const statusColumnsAndWith = {
     updateDate: false,
     active: false,
   },
-  with: {
-    // Si hay relaciones para incluir, se añadirían aquí
-  },
+  with: {},
 }

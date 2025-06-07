@@ -15,11 +15,11 @@ async function main() {
 
   const filePath = args[0]
   const delimiter =
-    args[1] ||
+    args[1] ??
     (filePath.endsWith('.csv') ? ',' : filePath.endsWith('.tsv') ? '\t' : ',')
 
   Logger.log(`Iniciando importación del archivo: ${filePath}`)
-  Logger.log(`Usando delimitador: "${delimiter || 'auto'}"`)
+  Logger.log(`Usando delimitador: "${delimiter ?? 'auto'}"`)
 
   try {
     const result = await importCSV(filePath, {
@@ -40,7 +40,7 @@ async function main() {
       Logger.error(
         '❌ Importación fallida. No se importaron registros correctamente.',
       )
-      Logger.error(`   - Error: ${result.errorMessage || 'Error desconocido'}`)
+      Logger.error(`   - Error: ${result.errorMessage ?? 'Error desconocido'}`)
       Logger.error('='.repeat(50))
       process.exit(1)
     }

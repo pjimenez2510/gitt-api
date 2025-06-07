@@ -31,12 +31,6 @@ export class JwtAuthGuard implements CanActivate {
 
     if (!userReq) throw new BadRequestException('User not found')
 
-    // for (const role of userReq.userType) {
-    //   if (validRoles.includes(role as string)) {
-    //     return true
-    //   }
-    // }
-
     if (validRoles.includes(userReq.userType as string)) return true
 
     throw new ForbiddenException(
@@ -45,7 +39,7 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   handleRequest(err, user) {
-    if (err || !user) {
+    if (err ?? !user) {
       throw err ?? new UnauthorizedException('Unauthorized access')
     }
     return user

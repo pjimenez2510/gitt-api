@@ -16,7 +16,7 @@ import { ItemResDto } from './dto/res/item-res.dto'
 
 @Injectable()
 export class ItemsService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
   private itemsWithoutDates = excludeColumns(
     item,
@@ -33,7 +33,9 @@ export class ItemsService {
 
     const itemsResult = await this.dbService.db.query.item.findMany({
       where: whereClause,
-      with: itemColumnsAndWith.with,
+      with: {
+        ...itemColumnsAndWith.with,
+      },
       columns: itemColumnsAndWith.columns,
       orderBy: [desc(item.name)],
       limit: filterDto.allRecords ? undefined : filterDto.limit,

@@ -7,7 +7,11 @@ import { Logger } from '@nestjs/common'
  */
 export const parseDecimal = (valueStr: string | null): string => {
   if (!valueStr) return '0'
-  return String(valueStr).replace(',', '.')
+  const cleaned = String(valueStr)
+    .replace(/[$#]/g, '')
+    .replace(/ /g, '')
+    .replace(',', '.')
+  return cleaned
 }
 
 /**

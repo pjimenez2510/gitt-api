@@ -7,22 +7,18 @@ export function buildItemMaterialFilterConditions(
 ): SQL[] {
   const conditions: SQL[] = []
 
-  // Filtrado por itemId
   if (filterDto.itemId) {
     conditions.push(eq(itemMaterial.itemId, filterDto.itemId))
   }
 
-  // Filtrado por materialId
   if (filterDto.materialId) {
     conditions.push(eq(itemMaterial.materialId, filterDto.materialId))
   }
 
-  // Filtrado por isMainMaterial
   if (filterDto.isMainMaterial !== undefined) {
     conditions.push(eq(itemMaterial.isMainMaterial, filterDto.isMainMaterial))
   }
 
-  // Siempre incluir solo registros activos
   conditions.push(eq(itemMaterial.active, true))
 
   return conditions

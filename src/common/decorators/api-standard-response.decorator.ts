@@ -67,14 +67,12 @@ export function ApiPaginatedResponse<T>(
   )
 }
 
-// Función auxiliar para descripciones de estado
 function getStatusDescription(status: HttpStatus): string {
   const descriptions = {
     [HttpStatus.OK]: 'Successful operation',
     [HttpStatus.CREATED]: 'Resource created successfully',
     [HttpStatus.ACCEPTED]: 'Request accepted for processing',
     [HttpStatus.NO_CONTENT]: 'Request successful but no content to return',
-    // Agrega más según necesites
   }
-  return descriptions[status] || `Status code ${status}`
+  return descriptions[status] ?? `Status code ${status}`
 }

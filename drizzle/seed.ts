@@ -18,7 +18,7 @@ import {
 } from './schema/tables/inventory'
 import { person, user } from './schema/tables/users'
 
-const db = drizzle(process.env.DATABASE_URL!)
+const db = drizzle(process.env.DATABASE_URL ?? '')
 
 async function main() {
   await db.insert(person).values(peopleSeed)

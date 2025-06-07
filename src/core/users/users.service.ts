@@ -20,7 +20,7 @@ import { plainToInstance } from 'class-transformer'
 
 @Injectable()
 export class UsersService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
   async findAll(
     filterDto: UserFiltersDto,
@@ -147,7 +147,7 @@ export class UsersService {
       throw new NotFoundException(`Usuario con id ${id} no encontrado`)
     }
 
-    if (dto.person?.email || dto.person?.dni || dto.userName) {
+    if (dto.person?.email ?? dto.person?.dni ?? dto.userName) {
       const [conflict] = await this.dbService.db
         .select()
         .from(person)

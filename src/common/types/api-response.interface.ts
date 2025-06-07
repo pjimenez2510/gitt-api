@@ -37,7 +37,6 @@ export class ApiRes<T> {
   @ApiProperty({
     description: 'Generic data returned from the API, can be null',
     nullable: true,
-    // Type se definirá dinámicamente en los decoradores
   })
   data: T | null
 }
@@ -73,7 +72,6 @@ export class ApiPaginatedRes<T> {
 
   @ApiProperty({
     description: 'Array of records',
-    // Type se definirá dinámicamente
     type: 'array',
   })
   records: T[]

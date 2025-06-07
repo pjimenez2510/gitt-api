@@ -15,7 +15,7 @@ import { locationColumnsAndWith } from './const/location-columns-and-with'
 
 @Injectable()
 export class LocationsService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
   async findAll(filterDto: FilterLocationDto) {
     const conditions = buildLocationFilterConditions(filterDto)

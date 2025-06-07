@@ -17,10 +17,11 @@ export const itemImage = pgTable('item_images', {
     .references(() => item.id, { onDelete: 'cascade' })
     .notNull(),
   filePath: varchar('file_path', { length: 255 }).notNull(),
-  type: varchar('type', { length: 50 }), // 'PRIMARY', 'SECONDARY', 'DETAIL'
+  type: varchar('type', { length: 50 }),
   isPrimary: boolean('is_primary').default(false),
   description: text('description'),
   photoDate: date('photo_date'),
+  active: boolean('active').default(true),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
     mode: 'date',

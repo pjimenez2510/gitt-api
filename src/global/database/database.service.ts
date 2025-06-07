@@ -23,7 +23,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleInit() {
-    // Puedes ejecutar lógica de inicialización si es necesario
     this.logger.log('Database connection initialized')
   }
 
@@ -32,7 +31,6 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     this.logger.log('Database connection closed')
   }
 
-  // Método helper para transacciones
   async transaction<T>(
     callback: (tx: ReturnType<typeof drizzle>) => Promise<T>,
   ): Promise<T> {

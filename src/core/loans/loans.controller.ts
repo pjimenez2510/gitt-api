@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Query,
-  Patch,
   Req,
 } from '@nestjs/common'
 import { Request } from 'express'
@@ -22,10 +21,9 @@ import { CreateLoanDto } from './dto/req/create-loan.dto'
 import { FilterLoansDto } from './dto/req/filter-loans.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { USER_TYPE } from '../users/types/user-type.enum'
-import { ApproveLoanDto } from './dto/req/approve-loan.dto'
-import { DeliverLoanDto } from './dto/req/deliver-loan.dto'
 import { SimpleUserResDto } from '../auth/dto/res/simple-user-res.dto'
 import { GetUser } from '../auth/decorators/get-user.decorator'
+import { CreateReturnLoanDto } from './dto/req/create-return.dto'
 
 @ApiTags('Loans')
 @ApiBearerAuth()
@@ -51,28 +49,6 @@ export class LoansController {
     } catch (error) {
       req.action = 'loans:find-all:failed'
       req.logMessage = `Error al obtener préstamos: ${error.message}`
-      throw error
-    }
-  }
-
-  @Get('active')
-  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
-  @ApiOperation({
-    summary: 'Obtener todos los préstamos activos',
-  })
-  @ApiPaginatedResponse(LoanResDto, HttpStatus.OK)
-  async findActive(@Req() req: Request, @Query() paginationDto: BaseParamsDto) {
-    req.action = 'loans:find-active:attempt'
-    req.logMessage = 'Obteniendo préstamos activos'
-
-    try {
-      const result = await this.service.findActive(paginationDto)
-      req.action = 'loans:find-active:success'
-      req.logMessage = `Se obtuvieron ${result.records.length} préstamos activos`
-      return result
-    } catch (error) {
-      req.action = 'loans:find-active:failed'
-      req.logMessage = `Error al obtener préstamos activos: ${error.message}`
       throw error
     }
   }
@@ -141,7 +117,7 @@ export class LoansController {
     req.logMessage = `Usuario ${user.id} está creando un nuevo préstamo`
 
     try {
-      const result = await this.service.create(createLoanDto)
+      const result = await this.service.create(createLoanDto, user.id)
       req.action = 'loans:create:success'
       req.logMessage = `Préstamo creado con ID: ${result.id} por el usuario ${user.id}`
       return result
@@ -152,62 +128,31 @@ export class LoansController {
     }
   }
 
-  @Patch(':id/approve')
-  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
-  @ApiOperation({
-    summary: 'Aprobar un préstamo solicitado',
-  })
-  @ApiBody({ type: ApproveLoanDto })
-  @ApiStandardResponse(LoanResDto, HttpStatus.OK)
-  async approveLoan(
+  @Post('return')
+  @ApiOperation({ summary: 'Registrar la devolución de un préstamo' })
+  @ApiBearerAuth()
+  @Auth(USER_TYPE.ADMINISTRATOR)
+  async processReturn(
     @Req() req: Request,
-    @Param('id') id: string,
-    @Body() approveLoanDto: ApproveLoanDto,
+    @Body() createReturnLoanDto: CreateReturnLoanDto,
     @GetUser() user: SimpleUserResDto,
   ) {
-    req.action = 'loans:approve:attempt'
-    req.logMessage = `Usuario ${user.id} está aprobando el préstamo ID: ${id}`
+    req.action = 'returns:process:attempt'
+    req.logMessage = `Procesando devolución para el préstamo: ${createReturnLoanDto.loanId}`
 
     try {
-      const result = await this.service.approveLoan(
-        +id,
-        approveLoanDto,
-        user.id,
-      )
-      req.action = 'loans:approve:success'
-      req.logMessage = `Préstamo aprobado ID: ${id} por el usuario ${user.id}`
+      if (!user) {
+        throw new Error(
+          'No se encontró información del usuario en la solicitud',
+        )
+      }
+      const result = await this.service.processReturn(createReturnLoanDto)
+      req.action = 'returns:process:success'
+      req.logMessage = `Devolución registrada exitosamente para el préstamo: ${createReturnLoanDto.loanId} por el usuario: ${user.id}`
       return result
     } catch (error) {
-      req.action = 'loans:approve:failed'
-      req.logMessage = `Error al aprobar préstamo ID ${id}: ${error.message}`
-      throw error
-    }
-  }
-
-  @Patch(':id/deliver')
-  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
-  @ApiOperation({
-    summary: 'Registrar la entrega de un préstamo aprobado',
-  })
-  @ApiBody({ type: DeliverLoanDto })
-  @ApiStandardResponse(LoanResDto, HttpStatus.OK)
-  async deliverLoan(
-    @Req() req: Request,
-    @Param('id') id: string,
-    @Body() deliverLoanDto: DeliverLoanDto,
-    @GetUser() user: SimpleUserResDto,
-  ) {
-    req.action = 'loans:deliver:attempt'
-    req.logMessage = `Usuario ${user.id} está registrando la entrega del préstamo ID: ${id}`
-
-    try {
-      const result = await this.service.deliverLoan(+id, deliverLoanDto)
-      req.action = 'loans:deliver:success'
-      req.logMessage = `Entrega de préstamo registrada ID: ${id} por el usuario ${user.id}`
-      return result
-    } catch (error) {
-      req.action = 'loans:deliver:failed'
-      req.logMessage = `Error al registrar entrega de préstamo ID ${id}: ${error.message}`
+      req.action = 'returns:process:failed'
+      req.logMessage = `Error al procesar la devolución para el préstamo ${createReturnLoanDto.loanId}: ${error.message}`
       throw error
     }
   }

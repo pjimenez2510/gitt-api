@@ -18,5 +18,5 @@ export const getApiMessage = (
     displayable: false,
   },
 ) =>
-  reflector.get<IApiMessage>(API_MESSAGE_METADATA, context.getHandler()) ||
+  reflector.get<IApiMessage>(API_MESSAGE_METADATA, context.getHandler()) ??
   defaultMessage

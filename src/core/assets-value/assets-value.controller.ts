@@ -120,13 +120,4 @@ export class AssetsValueController {
       throw error
     }
   }
-
-  // @Delete(':id')
-  // @ApiOperation({
-  //   summary: 'Delete a category by itemId',
-  // })
-  // @ApiStandardResponse(AssetValueResDto, HttpStatus.OK)
-  // remove(@Param('id', ParseIntPipe) id: number) {
-  //   return this.service.remove(id)
-  // }
 }

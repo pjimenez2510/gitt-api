@@ -1,6 +1,8 @@
 import { relations } from 'drizzle-orm'
 import { date, pgTable, serial, timestamp, varchar } from 'drizzle-orm/pg-core'
 import { user } from './user'
+import { PERSON_STATUS } from 'src/core/people/types/person-status.enum'
+import { personStatus } from 'drizzle/schema/enums'
 
 export const person = pgTable('people', {
   id: serial('id').primaryKey(),
@@ -12,6 +14,7 @@ export const person = pgTable('people', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   birthDate: date('birth_date'),
   phone: varchar('phone', { length: 15 }),
+  status: personStatus('status').default(PERSON_STATUS.ACTIVE).notNull(),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
     mode: 'date',

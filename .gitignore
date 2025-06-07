@@ -12,6 +12,9 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Windsurf
+.windsurf/*
+
 # OS
 .DS_Store
 
@@ -45,6 +48,8 @@ lerna-debug.log*
 # temp directory
 .temp
 .tmp
+/uploads
+/temp
 
 # Runtime data
 pids

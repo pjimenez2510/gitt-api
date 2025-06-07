@@ -20,7 +20,6 @@ export const findOrCreateMaterial = async (
   if (cleanMaterialName === '') return null
 
   try {
-    // Intentar encontrar el material existente
     const existingMaterial = await db
       .select()
       .from(material)
@@ -31,7 +30,6 @@ export const findOrCreateMaterial = async (
       return existingMaterial[0]
     }
 
-    // Crear nuevo material si no existe
     const newMaterial = await db
       .insert(material)
       .values({

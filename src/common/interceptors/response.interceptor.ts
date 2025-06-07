@@ -11,7 +11,7 @@ import { getApiMessage } from '../decorators/api-message.decorator'
 
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, ApiRes<T>> {
-  constructor(private reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) {}
 
   intercept(
     context: ExecutionContext,
@@ -24,7 +24,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, ApiRes<T>> {
         return {
           success: true,
           message,
-          data: data || null,
+          data: data ?? null,
         }
       }),
     )

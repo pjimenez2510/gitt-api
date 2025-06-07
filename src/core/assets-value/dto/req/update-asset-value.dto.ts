@@ -67,5 +67,5 @@ export class UpdateAssetValueDto extends PartialType(CreateAssetValueDto) {
   @IsOptional()
   onLoan?: boolean
 
-  updateDate?: Date = new Date() // default to current date
+  updateDate?: Date = new Date()
 }

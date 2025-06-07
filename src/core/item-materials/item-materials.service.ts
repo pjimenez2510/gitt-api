@@ -126,9 +126,7 @@ export class ItemMaterialsService {
       throw new NotFoundException(`Ítem/Material con id ${id} no encontrado`)
     }
 
-    // Si se está actualizando el materialId, verificar que no exista ya esa combinación
     if (dto.materialId) {
-      // Primero obtenemos el itemId actual
       const currentRecord = await this.findOne(id)
 
       const alreadyExistItemMaterial =

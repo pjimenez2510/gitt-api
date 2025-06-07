@@ -6,12 +6,12 @@ import { Transform } from 'class-transformer'
 export class FilterItemColorDto extends BaseParamsDto {
   @IsOptional()
   @IsInt()
-  @Transform(({ value }) => (value ? parseInt(value) : undefined))
+  @Transform(({ value }) => (value ? parseInt(String(value)) : undefined))
   itemId?: number
 
   @IsOptional()
   @IsInt()
-  @Transform(({ value }) => (value ? parseInt(value) : undefined))
+  @Transform(({ value }) => (value ? parseInt(String(value)) : undefined))
   @ApiPropertyOptional({
     description: 'ID del color',
     example: 2,

@@ -14,7 +14,7 @@ import { CertificateStatus } from '../../enums/certificate-status.enum'
 export class FilterCertificateDto extends BaseParamsDto {
   @IsOptional()
   @IsInt()
-  @Transform(({ value }) => (value ? parseInt(value) : undefined))
+  @Transform(({ value }) => (value ? parseInt(String(value)) : undefined))
   @ApiPropertyOptional({
     description: 'Número del certificado',
   })
@@ -54,7 +54,7 @@ export class FilterCertificateDto extends BaseParamsDto {
 
   @IsOptional()
   @IsInt()
-  @Transform(({ value }) => (value ? parseInt(value) : undefined))
+  @Transform(({ value }) => (value ? parseInt(String(value)) : undefined))
   @ApiPropertyOptional({
     description: 'ID del responsable de entrega',
   })
@@ -62,7 +62,7 @@ export class FilterCertificateDto extends BaseParamsDto {
 
   @IsOptional()
   @IsInt()
-  @Transform(({ value }) => (value ? parseInt(value) : undefined))
+  @Transform(({ value }) => (value ? parseInt(String(value)) : undefined))
   @ApiPropertyOptional({
     description: 'ID del responsable de recepción',
   })

@@ -81,7 +81,6 @@ export class CreateLoanDto {
   @IsNotEmpty()
   loanDetails: CreateLoanDetailDto[]
 
-  //campo opcional, boleano por deafult negativo, isBlackListed
   @ApiProperty({
     description:
       'Indica si el préstamo está bloqueado (opcional), falso si se quiere permitir préstamos a usuarios con estado DEFAULTER, INACTIVE o SUSPENDED',
