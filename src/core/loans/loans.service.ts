@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
@@ -22,6 +23,7 @@ import { USER_STATUS } from '../users/types/user-status.enum'
 import { CreateReturnLoanDto } from './dto/req/create-return.dto'
 import { person } from 'drizzle/schema'
 import { PERSON_STATUS } from '../people/types/person-status.enum'
+import { EmailService } from '../email/email.service'
 
 @Injectable()
 export class LoansService {
@@ -30,6 +32,7 @@ export class LoansService {
     private readonly loanDetailService: LoanDetailsService,
     private readonly userService: UsersService,
     private readonly itemsService: ItemsService,
+    private readonly emailService: EmailService,
   ) {}
 
   private readonly loanWithoutDates = excludeColumns(
@@ -236,6 +239,21 @@ export class LoansService {
           .returning()
 
         loanDetails.push(plainToInstance(LoanDetailResDto, record))
+      }
+
+      if (person.email && loanDetails.length > 0) {
+        const equipmentNames = loanDetails
+          .map((detail) => detail.itemId)
+          .join(', ')
+        this.emailService
+          .sendEmail(
+            person.email,
+            equipmentNames,
+            newLoan.scheduledReturnDate.toISOString().split('T')[0],
+          )
+          .catch((err) => {
+            Logger.log('Error enviando el correo ' + err)
+          })
       }
 
       return plainToInstance(LoanResDto, {
