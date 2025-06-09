@@ -9,7 +9,6 @@ import * as fs from 'fs'
 import { join, extname } from 'path'
 import { promisify } from 'util'
 
-// Promisify fs methods
 const renameAsync = promisify(fs.rename)
 const mkdirAsync = promisify(fs.mkdir)
 const unlinkAsync = promisify(fs.unlink)
@@ -21,6 +20,7 @@ import { ItemImageResDto } from './dto/res/item-image-res.dto'
 import { eq } from 'drizzle-orm'
 import { itemImage, item } from 'drizzle/schema'
 import { itemImageColumnsAndWith } from './const/item-image-columns-and-with'
+import { randomBytes } from 'crypto'
 
 @Injectable()
 export class ItemImagesService {
@@ -29,7 +29,6 @@ export class ItemImagesService {
   private async ensureUploadsDirectory(itemId: number): Promise<string> {
     const basePath = join(process.cwd(), 'uploads', 'items', itemId.toString())
 
-    // Crear el directorio del ítem si no existe
     try {
       await mkdirAsync(basePath, { recursive: true })
       Logger.log(join(__dirname, '..', 'uploads'), 'StaticAssetsPath')
@@ -42,9 +41,10 @@ export class ItemImagesService {
   }
 
   private generateUniqueFilename(originalname: string): string {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
+    const randomString = randomBytes(16).toString('hex')
+    const timestamp = Date.now()
     const ext = extname(originalname).toLowerCase()
-    return `${uniqueSuffix}${ext}`
+    return `${timestamp}-${randomString}${ext}`
   }
 
   async findOne(id: number): Promise<ItemImageResDto> {
@@ -66,13 +66,10 @@ export class ItemImagesService {
   async create(
     createItemImageDto: CreateItemImageDto,
   ): Promise<ItemImageResDto> {
-    //Logger.log(createItemImageDto)
-
     const { itemId } = createItemImageDto
     let tempFilePath = createItemImageDto.file.path
     Logger.log(tempFilePath)
     try {
-      // Verificar que el ítem existe
       const itemExists = await this.dbService.db.query.item.findFirst({
         where: eq(item.id, itemId),
       })
@@ -81,7 +78,6 @@ export class ItemImagesService {
         throw new NotFoundException(`No se encontró el ítem con ID ${itemId}`)
       }
 
-      // Si se marca como principal, desmarcar cualquier otra imagen principal del ítem
       if (createItemImageDto.isPrimary) {
         await this.dbService.db
           .update(itemImage)
@@ -89,7 +85,6 @@ export class ItemImagesService {
           .where(eq(itemImage.itemId, itemId))
       }
 
-      // Crear directorio de destino si no existe
       await this.ensureUploadsDirectory(itemId)
       const uniqueFilename = this.generateUniqueFilename(
         createItemImageDto.file.originalname,
@@ -97,27 +92,24 @@ export class ItemImagesService {
       const relativePath = `uploads/items/${itemId}/${uniqueFilename}`
       const fullPath = join(process.cwd(), relativePath)
 
-      // Verificar que el archivo temporal existe
       if (!tempFilePath || !fs.existsSync(tempFilePath)) {
         throw new InternalServerErrorException('El archivo temporal no existe')
       }
 
-      // Mover el archivo a la ubicación final
       try {
         await renameAsync(tempFilePath, fullPath)
-        tempFilePath = fullPath // Actualizar la ruta temporal a la ruta final
+        tempFilePath = fullPath
       } catch {
         throw new InternalServerErrorException('Error al guardar el archivo')
       }
 
-      // Crear el registro en la base de datos
       const [newImage] = await this.dbService.db
         .insert(itemImage)
         .values({
           itemId,
           filePath: relativePath,
           type: createItemImageDto.type,
-          isPrimary: createItemImageDto.isPrimary || false,
+          isPrimary: createItemImageDto.isPrimary ?? false,
           description: createItemImageDto.description,
           photoDate: createItemImageDto.photoDate,
         })
@@ -131,7 +123,6 @@ export class ItemImagesService {
         error.stack,
       )
 
-      // Si hay un error, intentar eliminar el archivo subido
       if (tempFilePath) {
         try {
           if (fs.existsSync(tempFilePath)) {

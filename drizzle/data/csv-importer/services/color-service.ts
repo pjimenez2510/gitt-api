@@ -20,7 +20,6 @@ export const findOrCreateColor = async (
   if (cleanColorName === '') return null
 
   try {
-    // Intentar encontrar el color existente
     const existingColor = await db
       .select()
       .from(color)
@@ -31,10 +30,8 @@ export const findOrCreateColor = async (
       return existingColor[0]
     }
 
-    // Color por defecto si no tiene hexCode
     const defaultHexCode = '#CCCCCC'
 
-    // Crear nuevo color si no existe
     const newColor = await db
       .insert(color)
       .values({

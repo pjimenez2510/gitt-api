@@ -20,6 +20,7 @@ import { LoansModule } from './core/loans/loans.module'
 import { LogModule } from './global/log/log.module'
 import { LogInterceptor } from './common/interceptors/log.interceptor'
 import { ItemImagesModule } from './core/item-images/item-images.module'
+import { EmailModule } from './core/email/email.module'
 
 @Module({
   imports: [
@@ -36,14 +37,13 @@ import { ItemImagesModule } from './core/item-images/item-images.module'
     AssetsValueModule,
     LocationsModule,
     ItemsModule,
-
     CertificatesModule,
     ItemColorsModule,
     ItemMaterialsModule,
     LoansModule,
     LogModule,
     ItemImagesModule,
-
+    EmailModule,
   ],
   providers: [ResponseInterceptor, LogInterceptor],
 })

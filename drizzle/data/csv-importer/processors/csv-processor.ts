@@ -22,7 +22,6 @@ import {
   itemMaterial,
 } from 'drizzle/schema/tables/inventory'
 
-// Conexión a la base de datos
 const db = getDbConnection()
 
 /**
@@ -37,44 +36,35 @@ export const processCSV = async (
 ): Promise<ProcessCSVResult> => {
   Logger.log(`Procesando archivo: ${filePath}`)
 
-  // Validar que el archivo existe
   if (!fs.existsSync(filePath)) {
     throw new Error(`El archivo ${filePath} no existe`)
   }
 
-  // Leer el archivo CSV
   const fileContent = fs.readFileSync(filePath, 'utf-8')
 
-  // Determinar el tipo de delimitador si no se especificó
-  const delimiter = options.delimiter || (fileContent.includes(';') ? ';' : ',')
+  const delimiter = options.delimiter ?? (fileContent.includes(';') ? ';' : ',')
 
-  // Parsear el CSV a un array de objetos
   const records = parse(fileContent, {
     columns: true,
     skip_empty_lines: true,
     delimiter,
-    from_line: options.headerRowCount || 1,
+    from_line: options.headerRowCount ?? 1,
   }) as Record<string, string>[]
 
   Logger.log(`Encontradas ${records.length} filas en el CSV`)
 
-  // Obtener usuario para registrar items
   const adminUser = await findAdminUser()
   if (!adminUser) {
     throw new Error('No se encontró un usuario para registrar los ítems')
   }
 
-  // Contadores para estadísticas
   let successCount = 0
   let errorCount = 0
 
-  // Importar cada registro
   for (const [index, record] of records.entries()) {
     try {
-      // Mapear campos del CSV a campos de la base de datos
       const mappedRecord = mapCsvToItemFields(record)
 
-      // Obtener tipo de bien
       const itemTypeRecord = await findItemTypeByCode(mappedRecord.typeCode)
       if (!itemTypeRecord) {
         Logger.error(`Tipo de bien no encontrado para fila ${index + 1}`)
@@ -82,10 +72,9 @@ export const processCSV = async (
         continue
       }
 
-      // Encontrar o crear ubicación
       const locationRecord = await findOrCreateLocation(
-        mappedRecord.locationName || 'Ubicación Principal',
-        mappedRecord.locationReference || '',
+        mappedRecord.locationName ?? 'Ubicación Principal',
+        mappedRecord.locationReference ?? '',
       )
       if (!locationRecord) {
         Logger.error(`Error al procesar ubicación para fila ${index + 1}`)
@@ -93,7 +82,6 @@ export const processCSV = async (
         continue
       }
 
-      // Obtener estado
       const statusRecord = await findStatusByName(mappedRecord.statusName)
       if (!statusRecord) {
         Logger.error(`Error al procesar estado para fila ${index + 1}`)
@@ -101,7 +89,6 @@ export const processCSV = async (
         continue
       }
 
-      // Obtener condición
       const conditionRecord = await findConditionByName(
         mappedRecord.conditionName,
       )
@@ -111,7 +98,6 @@ export const processCSV = async (
         continue
       }
 
-      // Encontrar categoría
       const categoryRecord = await findCategoryByNameOrDefault(
         mappedRecord.name ? mappedRecord.name.split('/')[0] : 'OTROS',
       )
@@ -121,7 +107,6 @@ export const processCSV = async (
         continue
       }
 
-      // Parsear código - usar un valor autogenerado si no existe
       let itemCode: string = (index + 10000).toString()
       if (mappedRecord.code) {
         try {
@@ -131,35 +116,33 @@ export const processCSV = async (
         }
       }
 
-      // Obtener custodio actual
       const custodianUser = await findOrCreateUser(
         mappedRecord.documentId,
         mappedRecord.currentCustodian,
       )
 
-      // Crear el bien
       const itemRecord = await db
         .insert(item)
         .values({
           code: itemCode,
-          previousCode: mappedRecord.previousCode || '',
-          identifier: mappedRecord.identifier || '',
+          previousCode: mappedRecord.previousCode ?? '',
+          identifier: mappedRecord.identifier ?? '',
           itemTypeId: itemTypeRecord.id,
-          name: mappedRecord.name || 'Sin nombre',
-          description: mappedRecord.description || '',
+          name: mappedRecord.name ?? 'Sin nombre',
+          description: mappedRecord.description ?? '',
           categoryId: categoryRecord.id,
           statusId: statusRecord.id,
           conditionId: conditionRecord.id,
           normativeType: 'INVENTORY' as const,
           origin: 'PURCHASE' as const,
-          entryOrigin: mappedRecord.entryOrigin || '',
-          entryType: mappedRecord.entryType || '',
+          entryOrigin: mappedRecord.entryOrigin ?? '',
+          entryType: mappedRecord.entryType ?? '',
           acquisitionDate: parseDate(mappedRecord.acquisitionDate),
-          commitmentNumber: mappedRecord.commitmentNumber || '',
-          modelCharacteristics: mappedRecord.modelCharacteristics || '',
-          brandBreedOther: mappedRecord.brandBreedOther || '',
-          identificationSeries: mappedRecord.identificationSeries || '',
-          dimensions: mappedRecord.dimensions || '',
+          commitmentNumber: mappedRecord.commitmentNumber ?? '',
+          modelCharacteristics: mappedRecord.modelCharacteristics ?? '',
+          brandBreedOther: mappedRecord.brandBreedOther ?? '',
+          identificationSeries: mappedRecord.identificationSeries ?? '',
+          dimensions: mappedRecord.dimensions ?? '',
           critical: parseBoolean(mappedRecord.critical),
           observations: [
             mappedRecord.description,
@@ -174,24 +157,23 @@ export const processCSV = async (
             .join(' | '),
           locationId: locationRecord.id,
           itemLine: parseInt(mappedRecord.itemLine),
-          accountingAccount: mappedRecord.accountingAccount || '',
+          accountingAccount: mappedRecord.accountingAccount ?? '',
           registrationUserId: adminUser.id,
-          stock: parseInt(mappedRecord.quantity, 0) || 0,
+          stock: parseInt(mappedRecord.quantity, 0) ?? 0,
           custodianId: custodianUser?.id ?? null,
           activeCustodian: parseBoolean(mappedRecord.activeCustodian),
         })
         .returning()
 
-      // Crear el valor del activo
       if (itemRecord.length > 0) {
         await db.insert(assetValue).values({
           itemId: itemRecord[0].id,
-          currency: mappedRecord.currency || 'USD',
+          currency: mappedRecord.currency ?? 'USD',
           purchaseValue: parseDecimal(mappedRecord.purchaseValue),
           repurchase: parseBoolean(mappedRecord.repurchase),
           depreciable: parseBoolean(mappedRecord.depreciable),
           entryDate:
-            parseDate(mappedRecord.acquisitionDate) ||
+            parseDate(mappedRecord.acquisitionDate) ??
             new Date().toISOString().split('T')[0],
           lastDepreciationDate: parseDate(mappedRecord.lastDepreciationDate),
           usefulLife: parseInt(mappedRecord.usefulLife),
@@ -205,7 +187,6 @@ export const processCSV = async (
           onLoan: parseBoolean(mappedRecord.onLoan),
         })
 
-        // Asociar color si existe
         if (mappedRecord.colorName) {
           const colorRecord = await findOrCreateColor(mappedRecord.colorName)
           if (colorRecord) {
@@ -217,7 +198,6 @@ export const processCSV = async (
           }
         }
 
-        // Asociar material si existe
         if (mappedRecord.materialName) {
           const materialRecord = await findOrCreateMaterial(
             mappedRecord.materialName,

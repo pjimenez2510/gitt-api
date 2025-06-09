@@ -6,8 +6,9 @@ import { ItemImagesService } from './item-images.service'
 import { ItemImagesController } from './item-images.controller'
 import { DatabaseModule } from 'src/global/database/database.module'
 import * as fs from 'fs'
+import { randomBytes } from 'crypto'
 
-// Asegurar que el directorio de uploads exista
+const MAX_FILE_SIZE = 8000000 // 8MB limit
 const tempDir = join(process.cwd(), 'temp')
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir, { recursive: true })
@@ -17,19 +18,22 @@ if (!fs.existsSync(tempDir)) {
   imports: [
     DatabaseModule,
     MulterModule.register({
-      // Usar almacenamiento en disco
       storage: diskStorage({
-        // Especificar directorio de destino
         destination: (req, file, cb) => {
           cb(null, tempDir)
         },
-        // Generar nombre de archivo único
         filename: (req, file, cb) => {
-          const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
+          const randomString = randomBytes(16).toString('hex')
+          const timestamp = Date.now()
           const ext = extname(file.originalname).toLowerCase()
-          cb(null, `${uniqueSuffix}${ext}`)
+          cb(null, `${timestamp}-${randomString}${ext}`)
         },
       }),
+      // Límites de carga
+      limits: {
+        fileSize: MAX_FILE_SIZE,
+        files: 1,
+      },
       // Filtrar por tipo MIME y asegurar que el buffer esté disponible
       fileFilter: (req, file, cb) => {
         const allowedMimeTypes = [
@@ -40,8 +44,7 @@ if (!fs.existsSync(tempDir)) {
         ]
 
         if (allowedMimeTypes.includes(file.mimetype)) {
-          // Asegurarse de que el buffer esté disponible
-          file.buffer = file.buffer || Buffer.alloc(0)
+          file.buffer = file.buffer ?? Buffer.alloc(0)
           cb(null, true)
         } else {
           cb(
@@ -52,11 +55,7 @@ if (!fs.existsSync(tempDir)) {
           )
         }
       },
-      // Límites de carga
-      limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB
-        files: 1,
-      },
+
       // Mantener el buffer del archivo
       preservePath: true,
     }),

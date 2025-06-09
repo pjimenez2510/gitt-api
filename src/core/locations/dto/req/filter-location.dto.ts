@@ -21,7 +21,7 @@ export class FilterLocationDto extends BaseParamsDto {
 
   @IsOptional()
   @IsNumber()
-  @Transform(({ value }) => (value ? parseInt(value) : undefined))
+  @Transform(({ value }) => (value ? parseInt(String(value)) : undefined))
   @ApiPropertyOptional({
     description: 'ID de la ubicación padre',
   })

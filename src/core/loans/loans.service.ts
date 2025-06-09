@@ -2,11 +2,12 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common'
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { LoanDetailsService } from './loan-details/loan-details.service'
-import { and, count, desc, eq, gt, inArray, lt, not, SQL } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, not, SQL } from 'drizzle-orm'
 import { plainToInstance } from 'class-transformer'
 import { LoanResDto } from './dto/res/loan-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
@@ -22,6 +23,7 @@ import { USER_STATUS } from '../users/types/user-status.enum'
 import { CreateReturnLoanDto } from './dto/req/create-return.dto'
 import { person } from 'drizzle/schema'
 import { PERSON_STATUS } from '../people/types/person-status.enum'
+import { EmailService } from '../email/email.service'
 
 @Injectable()
 export class LoansService {
@@ -30,6 +32,7 @@ export class LoansService {
     private readonly loanDetailService: LoanDetailsService,
     private readonly userService: UsersService,
     private readonly itemsService: ItemsService,
+    private readonly emailService: EmailService,
   ) {}
 
   private readonly loanWithoutDates = excludeColumns(
@@ -238,6 +241,21 @@ export class LoansService {
         loanDetails.push(plainToInstance(LoanDetailResDto, record))
       }
 
+      if (person.email && loanDetails.length > 0) {
+        const equipmentNames = loanDetails
+          .map((detail) => detail.itemId)
+          .join(', ')
+        this.emailService
+          .sendEmail(
+            person.email,
+            equipmentNames,
+            newLoan.scheduledReturnDate.toISOString().split('T')[0],
+          )
+          .catch((err) => {
+            Logger.log('Error enviando el correo ' + err)
+          })
+      }
+
       return plainToInstance(LoanResDto, {
         ...newLoan,
         loanDetails,
@@ -285,18 +303,16 @@ export class LoansService {
       .execute()
 
     const result = await this.dbService.transaction(async (tx) => {
-      // 1. Actualizar el préstamo
       await tx
         .update(loan)
         .set({
           status: newStatus,
           actualReturnDate: returnDate,
-          notes: notes || existingLoan.notes,
+          notes: notes ?? existingLoan.notes,
           updateDate: new Date(),
         })
         .where(eq(loan.id, loanId))
 
-      // 2. Verificar y actualizar detalles de ítems devueltos
       for (const item of returnedItems) {
         const belongsToLoan = loanDetails.some(
           (detail) => detail.id === item.loanDetailId,
@@ -318,12 +334,11 @@ export class LoansService {
           .where(eq(loanDetail.id, item.loanDetailId))
       }
 
-      // 3. Marcar usuario como moroso si aplica
       const hasDamagedItems = returnedItems.some(
         (item) => item.returnConditionId === 3,
       )
 
-      if (isLate || hasDamagedItems) {
+      if (isLate ?? hasDamagedItems) {
         await tx
           .update(person)
           .set({

@@ -16,19 +16,16 @@ const db = getDbConnection()
  */
 export const findAdminUser = async (): Promise<UserRecord | null> => {
   try {
-    // Buscar un usuario existente
     const users = await db.select().from(user).limit(1)
 
     if (users.length > 0) {
       return users[0]
     }
 
-    // Si no hay usuarios, crear uno por defecto
     Logger.warn(
       'No se encontró ningún usuario para asignar como registrador. Creando usuario por defecto.',
     )
 
-    // Primero crear una persona
     const newPerson = await db
       .insert(person)
       .values({
@@ -43,7 +40,6 @@ export const findAdminUser = async (): Promise<UserRecord | null> => {
       throw new Error('No se pudo crear la persona para el usuario por defecto')
     }
 
-    // Luego crear el usuario
     const newUser = await db
       .insert(user)
       .values({
@@ -84,13 +80,11 @@ export const findOrCreateUser = async (
       return null
     }
 
-    // Si no hay cédula, usar un valor dummy único
     const dni =
       documentId && documentId.trim() !== ''
         ? documentId.trim()
         : `9999${Date.now()}`
 
-    // Si no hay nombre, usar 'Custodio Desconocido'
     const name =
       fullName && fullName.trim() !== ''
         ? fullName.trim()
@@ -98,7 +92,6 @@ export const findOrCreateUser = async (
     const [firstName, ...lastParts] = name.split(' ')
     const lastName = lastParts.length > 0 ? lastParts.join(' ') : 'Desconocido'
 
-    // Buscar persona por cédula
     let personRecord = await db
       .select()
       .from(person)
@@ -106,7 +99,6 @@ export const findOrCreateUser = async (
       .limit(1)
 
     if (personRecord.length === 0) {
-      // Crear persona si no existe
       const newPerson = await db
         .insert(person)
         .values({
@@ -119,7 +111,6 @@ export const findOrCreateUser = async (
       personRecord = newPerson
     }
 
-    // Buscar usuario por personId
     let userRecord = await db
       .select()
       .from(user)
@@ -127,7 +118,6 @@ export const findOrCreateUser = async (
       .limit(1)
 
     if (userRecord.length === 0) {
-      // Crear usuario si no existe
       const newUser = await db
         .insert(user)
         .values({

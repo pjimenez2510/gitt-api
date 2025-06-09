@@ -19,7 +19,6 @@ export const findCategoryByNameOrDefault = async (
   const cleanCategoryName = categoryName.trim().toUpperCase()
 
   try {
-    // Intentar buscar por nombre
     const categoryRecord = await db
       .select()
       .from(category)
@@ -30,14 +29,12 @@ export const findCategoryByNameOrDefault = async (
       return categoryRecord[0]
     }
 
-    // Si no se encuentra, retornar la primera categoría disponible
     const categories = await db.select().from(category).limit(1)
 
     if (categories.length > 0) {
       return categories[0]
     }
 
-    // Si no hay categorías, crear una por defecto
     const newCategory = await db
       .insert(category)
       .values({

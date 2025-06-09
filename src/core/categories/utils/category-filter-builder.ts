@@ -23,7 +23,6 @@ export function buildCategoryFilterConditions(
     conditions.push(eq(category.parentCategoryId, filterDto.parentCategoryId))
   }
 
-  // Siempre solo mostrar registros activos
   conditions.push(eq(category.active, true))
 
   return conditions

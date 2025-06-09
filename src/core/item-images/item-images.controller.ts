@@ -46,7 +46,7 @@ export class ItemImagesController {
   @UseInterceptors(
     FileInterceptor('file', {
       limits: {
-        fileSize: 10 * 1024 * 1024, // 10MB
+        fileSize: 10 * 1024 * 1024,
       },
       preservePath: true,
     }),
@@ -61,7 +61,6 @@ export class ItemImagesController {
   ): Promise<ItemImageResDto> {
     req.action = 'item-images:upload-file:attempt'
     req.logMessage = 'Subiendo archivo'
-    // Verificar que se haya subido un archivo
     if (!file) {
       throw new BadRequestException('No se ha proporcionado ningún archivo')
     }
@@ -69,7 +68,6 @@ export class ItemImagesController {
       body.photoDate = new Date().toISOString()
     }
 
-    // Verificar que el archivo tenga datos
     if (!file.buffer || file.size === 0) {
       Logger.error('Archivo vacío o sin buffer:', {
         originalname: file.originalname,
@@ -81,14 +79,12 @@ export class ItemImagesController {
       )
     }
 
-    // Verificar que el archivo se haya guardado correctamente
     if (!file.path) {
       Logger.error('El archivo no tiene ruta de guardado:', file)
       throw new InternalServerErrorException('Error al procesar el archivo')
     }
 
     try {
-      // Crear el DTO con los datos del archivo
       const itemImageData = {
         ...body,
         itemId: Number(body.itemId),
@@ -96,7 +92,6 @@ export class ItemImagesController {
         file,
       }
 
-      // Llamar al servicio para crear la imagen
       const result = await this.itemImagesService.create(itemImageData)
       req.action = 'item-images:upload-file:success'
       req.logMessage = `Imagen agregada correctamente con la ruta ${result.filePath}`
