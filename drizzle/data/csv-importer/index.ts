@@ -15,7 +15,6 @@ export async function importCSV(
   Logger.log('Iniciando importación de CSV')
 
   try {
-    // Procesar el archivo CSV
     const result = await processCSV(filePath, options)
 
     Logger.log(
@@ -34,7 +33,6 @@ export async function importCSV(
   }
 }
 
-// Permitir ejecución directa desde línea de comandos
 if (require.main === module) {
   const args = process.argv.slice(2)
 
@@ -47,7 +45,7 @@ if (require.main === module) {
   }
 
   const filePath = args[0]
-  const delimiter = args[1] || ','
+  const delimiter = args[1] ?? ','
 
   importCSV(filePath, { delimiter, headerRowCount: 1 })
     .then((result) => {
@@ -56,7 +54,7 @@ if (require.main === module) {
         process.exit(0)
       } else {
         Logger.error(
-          `No se importaron registros correctamente: ${result.errorMessage || 'Error desconocido'}`,
+          `No se importaron registros correctamente: ${result.errorMessage ?? 'Error desconocido'}`,
         )
         process.exit(1)
       }
@@ -67,6 +65,5 @@ if (require.main === module) {
     })
 }
 
-// Exportaciones principales
 export * from './types'
 export * from './processors/csv-processor'

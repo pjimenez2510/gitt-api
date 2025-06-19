@@ -5,7 +5,7 @@ export const itemMaterialColumnsAndWith = {
     registrationDate: false,
     updateDate: false,
     active: false,
-    materialId: false, // Excluimos materialId porque incluiremos el objeto material completo
+    materialId: false,
   },
   with: {
     material: materialColumnsAndWith,

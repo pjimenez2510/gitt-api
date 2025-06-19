@@ -29,6 +29,7 @@ import {
   reportFrequency,
   userType,
   userStatus,
+  personStatus,
 } from './schema/enums'
 import {
   item,
@@ -85,12 +86,7 @@ import {
   loanDetail,
   loanDetailRelations,
 } from './schema/tables/loans'
-import {
-  warehouse,
-  warehouseRelations,
-  locationRelations,
-  location,
-} from './schema/tables/locations'
+import { locationRelations, location } from './schema/tables/locations'
 import {
   notification,
   notificationRelations,
@@ -119,6 +115,7 @@ import {
   userRole,
   userRoleRelations,
   userRelations,
+  personRelations,
 } from './schema/tables/users'
 
 export {
@@ -129,14 +126,9 @@ export {
   roleRelations,
   userRole,
   userRoleRelations,
-
-  // Ubicaciones
-  warehouse,
-  warehouseRelations,
+  personRelations,
   location,
   locationRelations,
-
-  // Inventario - tablas principales
   item,
   itemRelations,
   itemType,
@@ -149,8 +141,6 @@ export {
   conditionRelations,
   certificate,
   certificateRelations,
-
-  // Características, colores y materiales
   color,
   colorRelations,
   material,
@@ -161,47 +151,33 @@ export {
   itemMaterialRelations,
   itemImage,
   itemImageRelations,
-
-  // Valor y depreciación
   assetValue,
   assetValueRelations,
   depreciation,
   depreciationRelations,
-
-  // Mantenimiento y movimientos
   maintenance,
   movement,
   statusChange,
-
-  // Seguros
   insurancePolicy,
   insurancePolicyRelations,
   insuredAssetDetail,
   insuredAssetDetailRelations,
   insuranceClaim,
   insuranceClaimRelations,
-
-  // Salida de activos
   exitProcess,
   exitProcessRelations,
   exitDetail,
   exitDetailRelations,
   assetLoan,
-
-  // Préstamos
   loan,
   loanRelations,
   loanDetail,
   loanDetailRelations,
-
-  // Etiquetas
   label,
   labelRelations,
   labelTemplate,
   scanRecord,
   scanRecordRelations,
-
-  // Reportes
   physicalVerification,
   physicalVerificationRelations,
   verificationDetail,
@@ -211,8 +187,6 @@ export {
   reportTemplate,
   inventoryStatistics,
   log,
-
-  // Notificaciones
   notification,
   notificationRelations,
   notificationPreference,
@@ -220,8 +194,6 @@ export {
   notificationTemplate,
   deliveryRecord,
   deliveryRecordRelations,
-
-  //enums
   normativeType,
   origin,
   certificateType,
@@ -252,4 +224,5 @@ export {
   reportFrequency,
   userType,
   userStatus,
+  personStatus,
 }

@@ -29,7 +29,7 @@ export const movement = pgTable('movements', {
   userId: integer('user_id')
     .references(() => user.id)
     .notNull(),
-  loanId: integer('loan_id'), // Will reference loan table
+  loanId: integer('loan_id'),
   observations: text('observations'),
   reason: varchar('reason', { length: 255 }),
   transferCertificate: varchar('transfer_certificate', { length: 50 }),

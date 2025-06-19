@@ -19,7 +19,6 @@ export const findItemTypeByCode = async (
   const cleanTypeCode = typeCode.trim().toUpperCase()
 
   try {
-    // Intentar buscar por código exacto
     const itemTypeRecord = await db
       .select()
       .from(itemType)
@@ -30,7 +29,6 @@ export const findItemTypeByCode = async (
       return itemTypeRecord[0]
     }
 
-    // Si no se encuentra por código exacto, buscar códigos predeterminados
     const defaultCode =
       cleanTypeCode === 'BLD' || cleanTypeCode === 'BCA' ? cleanTypeCode : 'BLD'
 
@@ -44,7 +42,6 @@ export const findItemTypeByCode = async (
       return typeContains[0]
     }
 
-    // Fallback a BLD (crear tipo por defecto)
     const newType = await db
       .insert(itemType)
       .values({

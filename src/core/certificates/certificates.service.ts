@@ -109,7 +109,6 @@ export class CertificatesService {
       )
     }
 
-    // Ensure type is a valid enum value
     const certificateTypeValue =
       dto.type as (typeof certificateType.enumValues)[number]
     const certificateStatusValue =

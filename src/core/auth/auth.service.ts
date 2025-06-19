@@ -53,8 +53,14 @@ export class AuthService {
 
     this.verifyPassword(password, userFound.passwordHash)
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { passwordHash: pass, ...userWithoutPassword } = userFound
+    const userWithoutPassword = {
+      id: userFound.id,
+      userName: userFound.userName,
+      userType: userFound.userType,
+      status: userFound.status,
+      career: userFound.career,
+      personId: userFound.personId,
+    }
 
     return {
       token: this.createToken({
@@ -84,8 +90,7 @@ export class AuthService {
   verifyToken = (token: string) => {
     try {
       return this.jwtService.verify(token)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       throw new DisplayableException('Token inválido', HttpStatus.UNAUTHORIZED)
     }
   }
