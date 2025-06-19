@@ -117,9 +117,6 @@ export class UsersService {
         .insert(person)
         .values({
           ...dto.person,
-          birthDate: dto.person.birthDate
-            ? new Date(dto.person.birthDate).toISOString()
-            : null,
         })
         .returning()
         .execute()
@@ -205,9 +202,6 @@ export class UsersService {
           .update(person)
           .set({
             ...dto.person,
-            birthDate: dto.person.birthDate
-              ? new Date(dto.person.birthDate).toISOString()
-              : undefined,
             email: dto.person.email
               ? dto.person.email.toLowerCase()
               : undefined,

@@ -30,6 +30,7 @@ import {
   userType,
   userStatus,
   personStatus,
+  personType,
 } from './schema/enums'
 import {
   item,
@@ -225,4 +226,5 @@ export {
   userType,
   userStatus,
   personStatus,
+  personType,
 }

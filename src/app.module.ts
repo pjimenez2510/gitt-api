@@ -21,12 +21,16 @@ import { LogModule } from './global/log/log.module'
 import { LogInterceptor } from './common/interceptors/log.interceptor'
 import { ItemImagesModule } from './core/item-images/item-images.module'
 import { EmailModule } from './core/email/email.module'
+import { PeopleModule } from './core/people/people.module'
+import { ExternalDbModule } from './global/external-db/external-db.module'
 
 @Module({
   imports: [
     UsersModule,
+    PeopleModule,
     CustomConfigModule,
     DatabaseModule,
+    ExternalDbModule,
     CategoriesModule,
     StatesModule,
     AuthModule,

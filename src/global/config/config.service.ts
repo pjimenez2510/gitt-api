@@ -12,6 +12,11 @@ export class CustomConfigService {
         PORT: 3000,
         DATABASE_URL: '',
         JWT_SECRET: '',
+        SQLSERVER_SERVER: '',
+        SQLSERVER_DATABASE: '',
+        SQLSERVER_USER: '',
+        SQLSERVER_PASSWORD: '',
+        SQLSERVER_PORT: 1433,
       }
     )
   }
