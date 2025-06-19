@@ -131,7 +131,7 @@ export class LoansController {
   @Post('return')
   @ApiOperation({ summary: 'Registrar la devolución de un préstamo' })
   @ApiBearerAuth()
-  @Auth(USER_TYPE.ADMINISTRATOR)
+  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
   async processReturn(
     @Req() req: Request,
     @Body() createReturnLoanDto: CreateReturnLoanDto,

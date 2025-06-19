@@ -7,6 +7,7 @@ import { hashPassword } from '../utils/security'
 import { USER_STATUS } from 'src/core/users/types/user-status.enum'
 import { USER_TYPE } from 'src/core/users/types/user-type.enum'
 import { eq } from 'drizzle-orm'
+import { PERSON_TYPE } from 'src/core/people/types/person-type.enum'
 
 const db = getDbConnection()
 
@@ -33,6 +34,7 @@ export const findAdminUser = async (): Promise<UserRecord | null> => {
         firstName: 'Admin',
         lastName: 'Sistema',
         email: 'admin@sistema.local',
+        type: PERSON_TYPE.TEACHER,
       })
       .returning()
 
@@ -106,6 +108,7 @@ export const findOrCreateUser = async (
           firstName,
           lastName,
           email: `${dni}@custodio.local`,
+          type: PERSON_TYPE.TEACHER,
         })
         .returning()
       personRecord = newPerson
