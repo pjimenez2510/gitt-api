@@ -10,7 +10,6 @@ import { ItemTypesModule } from './core/item-types/item-types.module'
 import { ConditionsModule } from './core/conditions/conditions.module'
 import { MaterialsModule } from './core/materials/materials.module'
 import { ColorsModule } from './core/colors/colors.module'
-import { WarehousesModule } from './core/warehouses/warehouses.module'
 import { AssetsValueModule } from './core/assets-value/assets-value.module'
 import { LocationsModule } from './core/locations/locations.module'
 import { ItemsModule } from './core/items/items.module'
@@ -20,14 +19,18 @@ import { CertificatesModule } from './core/certificates/certificates.module'
 import { LoansModule } from './core/loans/loans.module'
 import { LogModule } from './global/log/log.module'
 import { LogInterceptor } from './common/interceptors/log.interceptor'
-import { ReturnsModule } from './core/returns/returns.module'
-
+import { ItemImagesModule } from './core/item-images/item-images.module'
+import { EmailModule } from './core/email/email.module'
+import { PeopleModule } from './core/people/people.module'
+import { ExternalDbModule } from './global/external-db/external-db.module'
 
 @Module({
   imports: [
     UsersModule,
+    PeopleModule,
     CustomConfigModule,
     DatabaseModule,
+    ExternalDbModule,
     CategoriesModule,
     StatesModule,
     AuthModule,
@@ -35,7 +38,6 @@ import { ReturnsModule } from './core/returns/returns.module'
     ConditionsModule,
     MaterialsModule,
     ColorsModule,
-    WarehousesModule,
     AssetsValueModule,
     LocationsModule,
     ItemsModule,
@@ -44,7 +46,8 @@ import { ReturnsModule } from './core/returns/returns.module'
     ItemMaterialsModule,
     LoansModule,
     LogModule,
-    ReturnsModule,
+    ItemImagesModule,
+    EmailModule,
   ],
   providers: [ResponseInterceptor, LogInterceptor],
 })

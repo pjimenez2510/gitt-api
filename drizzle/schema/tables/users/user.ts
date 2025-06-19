@@ -7,9 +7,7 @@ import { USER_STATUS } from 'src/core/users/types/user-status.enum'
 
 export const user = pgTable('users', {
   id: serial('id').primaryKey(),
-  personId: integer('person_id')
-    .notNull()
-    .references(() => person.id),
+  personId: integer('person_id').notNull(),
   userName: varchar('user_name', { length: 50 }).notNull().unique(),
   passwordHash: varchar('password_hash', { length: 255 }).notNull(),
   career: varchar('career', { length: 100 }),

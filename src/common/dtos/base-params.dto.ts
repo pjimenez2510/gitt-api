@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import { IsInt, IsOptional, Min } from 'class-validator'
+import { Transform, Type } from 'class-transformer'
+import { IsInt, IsOptional, Min, IsBoolean } from 'class-validator'
 
 export class BaseParamsDto {
   @IsOptional()
@@ -26,4 +26,15 @@ export class BaseParamsDto {
     default: 10,
   })
   limit: number = 10
+
+  @IsOptional()
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  @ApiPropertyOptional({
+    description: 'Si es true, devuelve todos los registros sin paginación',
+    example: false,
+    required: false,
+    default: false,
+  })
+  allRecords: boolean = false
 }

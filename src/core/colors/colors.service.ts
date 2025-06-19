@@ -1,44 +1,45 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { and, count, desc, eq, not, sql } from 'drizzle-orm'
 import { color } from 'drizzle/schema/tables/inventory/color'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
-import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateColorDto } from './dto/req/create-color.dto'
 import { DisplayableException } from 'src/common/exceptions/displayable.exception'
 import { UpdateColorDto } from './dto/req/update-color.dto'
 import { plainToInstance } from 'class-transformer'
 import { ColorResDto } from './dto/res/color-res.dto'
+import { FilterColorDto } from './dto/req/color-filter.dto'
+import { colorColumnsAndWith } from './const/color-columns-and-with'
+import {
+  buildColorFilterConditions,
+  buildColorWhereClause,
+} from './utils/color-filter-builder'
 
 @Injectable()
 export class ColorsService {
   constructor(private readonly dbService: DatabaseService) {}
 
-  private readonly colorsWithoutDates = excludeColumns(
-    color,
-    'registrationDate',
-    'updateDate',
-    'active',
-  )
+  async findAll(filterDto: FilterColorDto) {
+    const conditions = buildColorFilterConditions(filterDto)
+    const whereClause = buildColorWhereClause(conditions)
 
-  async findAll({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
+    const offset = (filterDto.page - 1) * filterDto.limit
 
-    const query = this.dbService.db
-      .select(this.colorsWithoutDates)
-      .from(color)
-      .where(eq(color.active, true))
-      .orderBy(desc(color.name))
-      .limit(limit)
-      .offset(offset)
+    const query = this.dbService.db.query.color.findMany({
+      where: whereClause,
+      with: colorColumnsAndWith.with,
+      columns: colorColumnsAndWith.columns,
+      orderBy: [desc(color.name)],
+      limit: filterDto.allRecords ? undefined : filterDto.limit,
+      offset: filterDto.allRecords ? undefined : offset,
+    })
 
     const totalQuery = this.dbService.db
       .select({ count: count() })
       .from(color)
-      .where(eq(color.active, true))
+      .where(whereClause)
 
     const [records, totalResult] = await Promise.all([
-      query.execute(),
+      query,
       totalQuery.execute(),
     ])
 
@@ -47,19 +48,29 @@ export class ColorsService {
     return {
       records: plainToInstance(ColorResDto, records),
       total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
+      limit: filterDto.allRecords ? total : filterDto.limit,
+      page: filterDto.allRecords ? 1 : filterDto.page,
+      pages: filterDto.allRecords ? 1 : Math.ceil(total / filterDto.limit),
     }
   }
 
-  async findOne(id: number) {
+  async existById(id: number) {
     const [record] = await this.dbService.db
-      .select(this.colorsWithoutDates)
+      .select({ id: color.id })
       .from(color)
       .where(and(eq(color.id, id), eq(color.active, true)))
       .limit(1)
       .execute()
+
+    return !!record
+  }
+
+  async findOne(id: number) {
+    const record = await this.dbService.db.query.color.findFirst({
+      where: and(eq(color.id, id), eq(color.active, true)),
+      columns: colorColumnsAndWith.columns,
+      with: colorColumnsAndWith.with,
+    })
 
     if (!record) {
       throw new NotFoundException(`Color con id ${id} no encontrado`)
@@ -69,9 +80,10 @@ export class ColorsService {
   }
 
   async existByName(name?: string, excludeId?: number) {
-    if (!name) return true
+    if (!name) return false
+
     const [record] = await this.dbService.db
-      .select(this.colorsWithoutDates)
+      .select({ id: color.id })
       .from(color)
       .where(
         and(
@@ -103,14 +115,18 @@ export class ColorsService {
         hexCode: dto.hexCode,
         description: dto.description,
       })
-      .returning(this.colorsWithoutDates)
+      .returning()
       .execute()
 
     return plainToInstance(ColorResDto, newColor)
   }
 
   async update(id: number, dto: UpdateColorDto) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
+
+    if (!exists) {
+      throw new NotFoundException(`Color con id ${id} no encontrado`)
+    }
 
     const alreadyExistColor = await this.existByName(dto.name, id)
 
@@ -125,29 +141,25 @@ export class ColorsService {
       .update(color)
       .set(dto)
       .where(eq(color.id, id))
-      .returning(this.colorsWithoutDates)
+      .returning()
       .execute()
 
     return plainToInstance(ColorResDto, updatedColor)
   }
 
   async remove(id: number) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
 
-    const [deletedColor] = await this.dbService.db
+    if (!exists) {
+      throw new NotFoundException(`Color con id ${id} no encontrado`)
+    }
+
+    await this.dbService.db
       .update(color)
       .set({ active: false, updateDate: new Date() })
       .where(eq(color.id, id))
-      .returning(this.colorsWithoutDates)
       .execute()
 
-    if (!deletedColor) {
-      throw new DisplayableException(
-        `Error al eliminar el color con id ${id}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      )
-    }
-
-    return plainToInstance(ColorResDto, deletedColor)
+    return true
   }
 }

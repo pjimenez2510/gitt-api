@@ -15,16 +15,12 @@ const db = getDbConnection()
  */
 export const findOrCreateLocation = async (
   locationName: string,
-  warehouseId: number,
   reference?: string,
 ): Promise<LocationRecord | null> => {
-  if (!locationName || !warehouseId) return null
-
   const cleanLocationName = locationName.trim()
   if (cleanLocationName === '') return null
 
   try {
-    // Intentar encontrar la ubicación existente
     const existingLocation = await db
       .select()
       .from(location)
@@ -35,14 +31,12 @@ export const findOrCreateLocation = async (
       return existingLocation[0]
     }
 
-    // Crear nueva ubicación si no existe
     const newLocation = await db
       .insert(location)
       .values({
         name: cleanLocationName,
-        warehouseId,
         type: 'WAREHOUSE',
-        reference: reference || '',
+        reference: reference ?? '',
         description: `Ubicación ${cleanLocationName}`,
         active: true,
       })

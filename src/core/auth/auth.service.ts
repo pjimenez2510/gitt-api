@@ -8,6 +8,7 @@ import { DatabaseService } from 'src/global/database/database.service'
 import { person } from 'drizzle/schema/tables/users/person'
 import { user } from 'drizzle/schema/tables/users/user'
 import { eq } from 'drizzle-orm'
+import { USER_STATUS } from '../users/types/user-status.enum'
 
 @Injectable()
 export class AuthService {
@@ -35,10 +36,31 @@ export class AuthService {
       .where(eq(user.personId, personFound.id))
       .limit(1)
 
+    if (!userFound)
+      throw new DisplayableException(
+        'Usuario no encontrado',
+        HttpStatus.NOT_FOUND,
+      )
+
+    if (
+      userFound.status !== USER_STATUS.ACTIVE &&
+      userFound.status !== USER_STATUS.DEFAULTER
+    )
+      throw new DisplayableException(
+        `Usuario no activo, estado: ${userFound.status}`,
+        HttpStatus.BAD_REQUEST,
+      )
+
     this.verifyPassword(password, userFound.passwordHash)
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { passwordHash: pass, ...userWithoutPassword } = userFound
+    const userWithoutPassword = {
+      id: userFound.id,
+      userName: userFound.userName,
+      userType: userFound.userType,
+      status: userFound.status,
+      career: userFound.career,
+      personId: userFound.personId,
+    }
 
     return {
       token: this.createToken({
@@ -68,8 +90,7 @@ export class AuthService {
   verifyToken = (token: string) => {
     try {
       return this.jwtService.verify(token)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       throw new DisplayableException('Token inválido', HttpStatus.UNAUTHORIZED)
     }
   }

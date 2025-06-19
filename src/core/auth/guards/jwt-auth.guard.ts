@@ -29,13 +29,7 @@ export class JwtAuthGuard implements CanActivate {
     const req = context.switchToHttp().getRequest()
     const userReq: typeof user.$inferSelect | null = req.user
 
-    if (!userReq) throw new BadRequestException('User not found ')
-
-    // for (const role of userReq.userType) {
-    //   if (validRoles.includes(role as string)) {
-    //     return true
-    //   }
-    // }
+    if (!userReq) throw new BadRequestException('User not found')
 
     if (validRoles.includes(userReq.userType as string)) return true
 
@@ -45,8 +39,8 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   handleRequest(err, user) {
-    if (err || !user) {
-      throw err ?? new UnauthorizedException('Unauthorized access ')
+    if (err ?? !user) {
+      throw err ?? new UnauthorizedException('Unauthorized access')
     }
     return user
   }

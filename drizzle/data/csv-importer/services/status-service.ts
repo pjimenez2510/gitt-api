@@ -19,11 +19,9 @@ export const findStatusByName = async (
   const cleanStatusName = statusName.trim()
 
   try {
-    // Mapeo de nombres comunes
     let mappedName = cleanStatusName
     if (cleanStatusName.toUpperCase() === 'APROBADO') mappedName = 'Activo'
 
-    // Intentar encontrar el estado por nombre mapeado
     const statusRecord = await db
       .select()
       .from(status)
@@ -34,7 +32,6 @@ export const findStatusByName = async (
       return statusRecord[0]
     }
 
-    // Fallback a "Activo"
     const defaultStatus = await db
       .select()
       .from(status)
@@ -45,7 +42,6 @@ export const findStatusByName = async (
       return defaultStatus[0]
     }
 
-    // Crear estado "Activo" por defecto si no existe
     const newStatus = await db
       .insert(status)
       .values({

@@ -1,4 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { PERSON_STATUS } from '../../types/person-status.enum'
+import { PERSON_TYPE } from '../../types/person-type.enum'
 
 export class PersonResDto {
   @ApiProperty({
@@ -56,8 +58,16 @@ export class PersonResDto {
   phone: string | null
 
   @ApiProperty({
-    description: 'Fecha de creación de la persona',
-    example: '2023-01-01T00:00:00.000Z',
+    description: 'Tipo de persona',
+    example: PERSON_TYPE.STUDENT,
+    enum: PERSON_TYPE,
   })
-  createdAt: Date
+  type: PERSON_TYPE
+
+  @ApiProperty({
+    description: 'Estado de la persona',
+    example: PERSON_STATUS.ACTIVE,
+    enum: PERSON_STATUS,
+  })
+  status: PERSON_STATUS
 }

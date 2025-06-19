@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator'
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class CreateItemTypeDto {
   @ApiProperty({
@@ -25,13 +25,4 @@ export class CreateItemTypeDto {
   @IsString({ message: 'La descripción debe ser un string' })
   @IsOptional()
   description?: string
-
-  @ApiProperty({
-    description: 'activo (es opcional)',
-    example: true,
-    default: true,
-  })
-  @IsBoolean({ message: 'activo debe ser un booleano' })
-  @IsOptional()
-  active?: boolean = true
 }

@@ -8,7 +8,7 @@ import {
   IsString,
 } from 'class-validator'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
-import { Type } from 'class-transformer'
+import { Transform, Type } from 'class-transformer'
 import { NormativeType } from '../../enums/normative-type.enum'
 import { Origin } from '../../enums/origin.enum'
 
@@ -143,6 +143,7 @@ export class FilterItemDto extends BaseParamsDto {
 
   @IsOptional()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true')
   @ApiPropertyOptional({
     description: 'Es crítico',
   })
@@ -150,6 +151,7 @@ export class FilterItemDto extends BaseParamsDto {
 
   @IsOptional()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true')
   @ApiPropertyOptional({
     description: 'Es peligroso',
   })
@@ -157,6 +159,7 @@ export class FilterItemDto extends BaseParamsDto {
 
   @IsOptional()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true')
   @ApiPropertyOptional({
     description: 'Requiere tratamiento especial',
   })
@@ -164,6 +167,7 @@ export class FilterItemDto extends BaseParamsDto {
 
   @IsOptional()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true')
   @ApiPropertyOptional({
     description: 'Es perecedero',
   })
@@ -195,6 +199,7 @@ export class FilterItemDto extends BaseParamsDto {
 
   @IsOptional()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true')
   @ApiPropertyOptional({
     description: 'Está disponible para préstamo',
   })
@@ -202,6 +207,7 @@ export class FilterItemDto extends BaseParamsDto {
 
   @IsOptional()
   @IsBoolean()
+  @Transform(({ value }) => value === 'true')
   @ApiPropertyOptional({
     description: 'Tiene custodio activo',
   })

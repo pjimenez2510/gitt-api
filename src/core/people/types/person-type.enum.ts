@@ -1,0 +1,4 @@
+export enum PERSON_TYPE {
+  STUDENT = 'ESTUDIANTES',
+  TEACHER = 'DOCENTES',
+}

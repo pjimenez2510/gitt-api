@@ -1,7 +1,5 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { count, desc, eq, sql } from 'drizzle-orm'
-import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
-import { excludeColumns } from 'src/common/utils/drizzle-helpers'
+import { and, count, desc, eq, not } from 'drizzle-orm'
 import { DatabaseService } from 'src/global/database/database.service'
 import { CreateCertificateDto } from './dto/req/create-certificate.dto'
 import { UpdateCertificateDto } from './dto/req/update-certificate.dto'
@@ -11,82 +9,106 @@ import {
   certificateType,
 } from 'drizzle/schema/enums/inventory'
 import { certificate } from 'drizzle/schema/tables/inventory/certificate'
+import { FilterCertificateDto } from './dto/req/certificate-filter.dto'
+import { certificateColumnsAndWith } from './const/certificate-columns-and-with'
+import {
+  buildCertificateFilterConditions,
+  buildCertificateWhereClause,
+} from './utils/certificate-filter-builder'
+import { plainToInstance } from 'class-transformer'
+import { CertificateResDto } from './dto/res/certificate-res.dto'
 
 @Injectable()
 export class CertificatesService {
-  constructor(private dbService: DatabaseService) {}
+  constructor(private readonly dbService: DatabaseService) {}
 
-  private readonly certificatesWithoutDates = excludeColumns(
-    certificate,
-    'registrationDate',
-    'updateDate',
-  )
+  async findAll(filterDto: FilterCertificateDto) {
+    const conditions = buildCertificateFilterConditions(filterDto)
+    const whereClause = buildCertificateWhereClause(conditions)
 
-  async findAll({ limit, page }: BaseParamsDto) {
-    const offset = (page - 1) * limit
+    const offset = (filterDto.page - 1) * filterDto.limit
 
-    const query = this.dbService.db
-      .select(this.certificatesWithoutDates)
-      .from(certificate)
-      .orderBy(desc(certificate.date))
-      .limit(limit)
-      .offset(offset)
+    const certificatesResult =
+      await this.dbService.db.query.certificate.findMany({
+        where: whereClause,
+        with: certificateColumnsAndWith.with,
+        columns: certificateColumnsAndWith.columns,
+        orderBy: [desc(certificate.date)],
+        limit: filterDto.allRecords ? undefined : filterDto.limit,
+        offset: filterDto.allRecords ? undefined : offset,
+      })
 
-    const totalQuery = this.dbService.db
+    const totalResult = await this.dbService.db
       .select({ count: count() })
       .from(certificate)
-
-    const [records, totalResult] = await Promise.all([
-      query.execute(),
-      totalQuery.execute(),
-    ])
+      .where(whereClause)
+      .execute()
 
     const total = totalResult[0].count
 
     return {
-      records,
+      records: certificatesResult,
       total,
-      limit,
-      page,
-      pages: Math.ceil(total / limit),
+      limit: filterDto.allRecords ? total : filterDto.limit,
+      page: filterDto.allRecords ? 1 : filterDto.page,
+      pages: filterDto.allRecords ? 1 : Math.ceil(total / filterDto.limit),
     }
+  }
+
+  async existById(id: number) {
+    const certificateResult =
+      await this.dbService.db.query.certificate.findFirst({
+        where: eq(certificate.id, id),
+        columns: {
+          id: true,
+        },
+      })
+
+    return certificateResult?.id !== undefined
   }
 
   async findOne(id: number) {
-    const [record] = await this.dbService.db
-      .select(this.certificatesWithoutDates)
-      .from(certificate)
-      .where(eq(certificate.id, id))
-      .limit(1)
-      .execute()
+    const certificateResult =
+      await this.dbService.db.query.certificate.findFirst({
+        where: eq(certificate.id, id),
+        columns: certificateColumnsAndWith.columns,
+        with: certificateColumnsAndWith.with,
+      })
 
-    if (!record) {
-      throw new NotFoundException(`Certificate with id ${id} not found`)
+    if (!certificateResult) {
+      throw new NotFoundException(`Certificado con id ${id} no encontrado`)
     }
-    return record
+
+    return plainToInstance(CertificateResDto, certificateResult)
+  }
+
+  async existByNumber(number: number, excludeId?: number) {
+    if (!number) return false
+
+    const certificateResult =
+      await this.dbService.db.query.certificate.findFirst({
+        where: and(
+          eq(certificate.number, number),
+          excludeId ? not(eq(certificate.id, excludeId)) : undefined,
+        ),
+        columns: {
+          id: true,
+        },
+      })
+
+    return certificateResult?.id !== undefined
   }
 
   async create(dto: CreateCertificateDto) {
-    const [alreadyExistCertificate] = await this.dbService.db
-      .select(this.certificatesWithoutDates)
-      .from(certificate)
-      .where(
-        eq(
-          sql<string>`lower(${certificate.number}::text)`,
-          dto.number.toString().toLowerCase(),
-        ),
-      )
-      .limit(1)
-      .execute()
+    const alreadyExistCertificateNumber = await this.existByNumber(dto.number)
 
-    if (alreadyExistCertificate) {
+    if (alreadyExistCertificateNumber) {
       throw new DisplayableException(
-        'A certificate with this number already exists',
+        'Ya existe un certificado con este número',
         HttpStatus.CONFLICT,
       )
     }
 
-    // Ensure type is a valid enum value
     const certificateTypeValue =
       dto.type as (typeof certificateType.enumValues)[number]
     const certificateStatusValue =
@@ -104,59 +126,59 @@ export class CertificatesService {
         observations: dto.observations,
         accounted: dto.accounted,
       })
-      .returning(this.certificatesWithoutDates)
+      .returning({ id: certificate.id })
       .execute()
 
-    return newCertificate
+    return this.findOne(newCertificate.id)
   }
 
   async update(id: number, dto: UpdateCertificateDto) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
 
-    // Create a properly typed update object
-    const updateData: Record<string, unknown> = {}
+    if (!exists) {
+      throw new NotFoundException(`Certificado con id ${id} no encontrado`)
+    }
 
-    if (dto.number !== undefined) updateData.number = dto.number
-    if (dto.date !== undefined) updateData.date = dto.date
-    if (dto.type !== undefined)
-      updateData.type = dto.type as (typeof certificateType.enumValues)[number]
-    if (dto.status !== undefined)
-      updateData.status =
-        dto.status as (typeof certificateStatus.enumValues)[number]
-    if (dto.deliveryResponsibleId !== undefined)
-      updateData.deliveryResponsibleId = dto.deliveryResponsibleId
-    if (dto.receptionResponsibleId !== undefined)
-      updateData.receptionResponsibleId = dto.receptionResponsibleId
-    if (dto.observations !== undefined)
-      updateData.observations = dto.observations
-    if (dto.accounted !== undefined) updateData.accounted = dto.accounted
+    if (dto.number) {
+      const alreadyExistCertificateNumber = await this.existByNumber(
+        dto.number,
+        id,
+      )
 
-    const [updatedCertificate] = await this.dbService.db
+      if (alreadyExistCertificateNumber) {
+        throw new DisplayableException(
+          'Ya existe un certificado con este número',
+          HttpStatus.CONFLICT,
+        )
+      }
+    }
+
+    await this.dbService.db
       .update(certificate)
-      .set(updateData)
+      .set(dto)
       .where(eq(certificate.id, id))
-      .returning(this.certificatesWithoutDates)
       .execute()
 
-    return updatedCertificate
+    return this.findOne(id)
   }
 
   async remove(id: number) {
-    await this.findOne(id)
+    const exists = await this.existById(id)
 
-    const [deletedCertificate] = await this.dbService.db
+    if (!exists) {
+      throw new NotFoundException(`Certificado con id ${id} no encontrado`)
+    }
+
+    const [certificateToRemove] = await this.dbService.db
       .update(certificate)
-      .set({ accounted: false, updateDate: new Date() })
+      .set({
+        accounted: false,
+        updateDate: new Date(),
+      })
       .where(eq(certificate.id, id))
-      .returning(this.certificatesWithoutDates)
+      .returning({ accounted: certificate.accounted })
       .execute()
 
-    if (!deletedCertificate) {
-      throw new DisplayableException(
-        `Error deleting certificate with id ${id}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      )
-    }
-    return deletedCertificate
+    return !certificateToRemove.accounted
   }
 }

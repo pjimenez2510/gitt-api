@@ -14,10 +14,11 @@ export class LogInterceptor<T> implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<T> {
     const req = context.switchToHttp().getRequest()
     const res = context.switchToHttp().getResponse()
-    const userId = req.user?.id || null // <-- Aquí obtienes el userId
+    const userId = req.user?.id ?? null
     const endpoint = req.url
     const method = req.method
     const ip = req.ip
+
     const userAgent = req.headers['user-agent']
 
     return next.handle().pipe(
@@ -26,8 +27,9 @@ export class LogInterceptor<T> implements NestInterceptor {
           userId,
           endpoint,
           method,
-          action: req.action || null,
-          statusCode: res.statusCode, // <-- Aquí obtienes el status code real
+          action: req.action ?? null,
+          message: req.logMessage ?? null,
+          statusCode: res.statusCode,
           ip,
           userAgent,
         })
