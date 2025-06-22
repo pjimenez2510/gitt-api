@@ -36,14 +36,4 @@ export class NotificationsController {
     return { message: 'Notificaciones de vencimiento enviadas exitosamente' }
   }
 
-  @Get('test-template/:loanId')
-  @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
-  @ApiOperation({
-    summary: 'Probar procesamiento de template para un préstamo específico',
-    description: 'Muestra cómo se procesaría el template para un préstamo dado',
-  })
-  async testTemplate(@Param('loanId', ParseIntPipe) loanId: number) {
-    this.logger.log(`Probando template para préstamo ${loanId}...`)
-    return await this.notificationsService.testTemplateProcessing(loanId)
-  }
 } 
