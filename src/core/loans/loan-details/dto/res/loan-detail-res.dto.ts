@@ -24,6 +24,20 @@ export class LoanDetailResDto {
   itemId: number
 
   @ApiProperty({
+    description: 'cantidad de unidades prestadas',
+    example: 5,
+  })
+  @Expose()
+  quantity: number
+
+  @ApiProperty({
+    description: 'cantidad de unidades devueltas',
+    example: 3,
+  })
+  @Expose()
+  returnedQuantity: number
+
+  @ApiProperty({
     description: 'id de la condición de salida',
     example: 1,
   })
