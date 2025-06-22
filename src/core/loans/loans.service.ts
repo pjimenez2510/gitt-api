@@ -7,7 +7,7 @@ import {
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { LoanDetailsService } from './loan-details/loan-details.service'
-import { and, count, desc, eq, inArray, not, SQL } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, not, SQL, sql } from 'drizzle-orm'
 import { plainToInstance } from 'class-transformer'
 import { LoanResDto } from './dto/res/loan-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
@@ -24,6 +24,7 @@ import { CreateReturnLoanDto } from './dto/req/create-return.dto'
 import { person } from 'drizzle/schema'
 import { PERSON_STATUS } from '../people/types/person-status.enum'
 import { EmailService } from '../email/email.service'
+import { item } from 'drizzle/schema/tables/inventory/item/item'
 
 @Injectable()
 export class LoansService {
@@ -202,6 +203,24 @@ export class LoansService {
             `El usuario con DNI: ${person.dni} no puede realizar préstamos, ${statusMessages[person.status]}`,
           )
       }
+
+      // Validar stock disponible antes de crear el préstamo
+      for (const detailDto of createLoanDto.loanDetails) {
+        const item = await this.itemsService.findOne(detailDto.itemId)
+
+        if (!item.availableForLoan) {
+          throw new BadRequestException(
+            `El item con ID: ${detailDto.itemId} no está disponible para préstamo`,
+          )
+        }
+
+        if (item.stock < detailDto.quantity) {
+          throw new BadRequestException(
+            `Stock insuficiente para el item con ID: ${detailDto.itemId}. Disponible: ${item.stock}, Solicitado: ${detailDto.quantity}`,
+          )
+        }
+      }
+
       const [newLoan] = await tx
         .insert(loan)
         .values({
@@ -220,19 +239,34 @@ export class LoansService {
       const loanDetails: LoanDetailResDto[] = []
 
       for (const detailDto of createLoanDto.loanDetails) {
-        const item = await this.itemsService.findOne(detailDto.itemId)
+        // Obtener el item actual para verificar el stock
+        const [currentItem] = await tx
+          .select()
+          .from(item)
+          .where(eq(item.id, detailDto.itemId))
+          .limit(1)
 
-        if (!item.availableForLoan) {
+        if (!currentItem) {
           throw new BadRequestException(
-            `El item con ID: ${detailDto.itemId} no está disponible para préstamo`,
+            `El item con ID: ${detailDto.itemId} no existe`,
           )
         }
+
+        // Actualizar el stock del item
+        await tx
+          .update(item)
+          .set({
+            stock: currentItem.stock - detailDto.quantity,
+            updateDate: new Date(),
+          })
+          .where(eq(item.id, detailDto.itemId))
 
         const [record] = await tx
           .insert(loanDetail)
           .values({
             loanId: newLoan.id,
             itemId: detailDto.itemId,
+            quantity: detailDto.quantity,
             exitConditionId: detailDto.exitConditionId,
             exitObservations: detailDto.exitObservations,
           })
@@ -280,9 +314,13 @@ export class LoansService {
       throw new NotFoundException(`El préstamo con ID ${loanId} no existe`)
     }
 
-    if (existingLoan.status !== StatusLoan.DELIVERED) {
+    // Permitir devoluciones solo si el préstamo está en estado DELIVERED o PARTIALLY_RETURNED
+    if (
+      existingLoan.status !== StatusLoan.DELIVERED &&
+      existingLoan.status !== StatusLoan.PARTIALLY_RETURNED
+    ) {
       throw new BadRequestException(
-        `El préstamo debe estar en estado DELIVERED para procesarlo como devuelto. Estado actual: ${existingLoan.status}`,
+        `El préstamo debe estar en estado DELIVERED o PARTIALLY_RETURNED para procesarlo como devuelto. Estado actual: ${existingLoan.status}`,
       )
     }
 
@@ -294,7 +332,6 @@ export class LoansService {
     }
 
     const isLate = existingLoan.scheduledReturnDate < returnDate
-    const newStatus = isLate ? StatusLoan.RETURNED_LATE : StatusLoan.RETURNED
 
     const loanDetails = await this.dbService.db
       .select()
@@ -303,6 +340,94 @@ export class LoansService {
       .execute()
 
     const result = await this.dbService.transaction(async (tx) => {
+      // Validar y procesar cada item devuelto
+      for (const returnItem of returnedItems) {
+        const loanDetailRecord = loanDetails.find(
+          (detail) => detail.id === returnItem.loanDetailId,
+        )
+
+        if (!loanDetailRecord) {
+          throw new BadRequestException(
+            `El detalle con ID ${returnItem.loanDetailId} no pertenece a este préstamo`,
+          )
+        }
+
+        // Calcular la cantidad total devuelta hasta ahora (incluyendo esta devolución)
+        const totalReturnedSoFar = loanDetailRecord.returnedQuantity + returnItem.quantity
+
+        // Validar que no se devuelvan más items de los que se prestaron
+        if (totalReturnedSoFar > loanDetailRecord.quantity) {
+          throw new BadRequestException(
+            `No se pueden devolver más items de los que se prestaron. Prestado: ${loanDetailRecord.quantity}, Ya devuelto: ${loanDetailRecord.returnedQuantity}, Intentando devolver: ${returnItem.quantity}, Total: ${totalReturnedSoFar}`,
+          )
+        }
+
+        // Obtener el item actual para actualizar el stock
+        const [currentItem] = await tx
+          .select()
+          .from(item)
+          .where(eq(item.id, loanDetailRecord.itemId))
+          .limit(1)
+
+        if (!currentItem) {
+          throw new BadRequestException(
+            `El item con ID: ${loanDetailRecord.itemId} no existe`,
+          )
+        }
+
+        // Actualizar el stock del item
+        await tx
+          .update(item)
+          .set({
+            stock: currentItem.stock + returnItem.quantity,
+            updateDate: new Date(),
+          })
+          .where(eq(item.id, loanDetailRecord.itemId))
+
+        // Actualizar el detalle del préstamo con la cantidad devuelta
+        await tx
+          .update(loanDetail)
+          .set({
+            returnedQuantity: totalReturnedSoFar,
+            returnConditionId: returnItem.returnConditionId,
+            returnObservations: returnItem.returnObservations,
+            updateDate: new Date(),
+          })
+          .where(eq(loanDetail.id, returnItem.loanDetailId))
+      }
+
+      // Determinar el nuevo estado del préstamo
+      let newStatus = existingLoan.status
+      const updatedLoanDetails = await tx
+        .select()
+        .from(loanDetail)
+        .where(eq(loanDetail.loanId, loanId))
+        .execute()
+
+      // Verificar si todos los items han sido devueltos completamente
+      const allItemsFullyReturned = updatedLoanDetails.every(
+        (detail) => detail.returnedQuantity >= detail.quantity
+      )
+
+      // Verificar si al menos un item ha sido devuelto parcialmente
+      const hasPartialReturns = updatedLoanDetails.some(
+        (detail) => detail.returnedQuantity > 0 && detail.returnedQuantity < detail.quantity
+      )
+
+      // Verificar si todos los items han sido devueltos completamente
+      const allItemsReturned = updatedLoanDetails.every(
+        (detail) => detail.returnedQuantity >= detail.quantity
+      )
+
+      if (allItemsReturned) {
+        // Todos los items han sido devueltos completamente
+        newStatus = isLate ? StatusLoan.RETURNED_LATE : StatusLoan.RETURNED
+      } else if (hasPartialReturns) {
+        // Al menos un item ha sido devuelto parcialmente
+        newStatus = StatusLoan.PARTIALLY_RETURNED
+      }
+
+      // Actualizar el estado del préstamo
       await tx
         .update(loan)
         .set({
@@ -313,32 +438,12 @@ export class LoansService {
         })
         .where(eq(loan.id, loanId))
 
-      for (const item of returnedItems) {
-        const belongsToLoan = loanDetails.some(
-          (detail) => detail.id === item.loanDetailId,
-        )
-
-        if (!belongsToLoan) {
-          throw new BadRequestException(
-            `El detalle con ID ${item.loanDetailId} no pertenece a este préstamo`,
-          )
-        }
-
-        await tx
-          .update(loanDetail)
-          .set({
-            returnConditionId: item.returnConditionId,
-            returnObservations: item.returnObservations,
-            updateDate: new Date(),
-          })
-          .where(eq(loanDetail.id, item.loanDetailId))
-      }
-
+      // Verificar si hay items dañados para marcar al usuario como moroso
       const hasDamagedItems = returnedItems.some(
         (item) => item.returnConditionId === 3,
       )
 
-      if (isLate ?? hasDamagedItems) {
+      if (isLate || hasDamagedItems) {
         await tx
           .update(person)
           .set({
@@ -349,13 +454,31 @@ export class LoansService {
 
       return {
         loanId,
-        status: newStatus,
-        message: `Préstamo devuelto ${isLate ? 'con retraso' : 'a tiempo'}`,
+        status: newStatus as StatusLoan,
+        message: this.getReturnMessage(newStatus as StatusLoan, isLate),
         isLate,
         returnDate,
+        returnedItems: returnedItems.length,
+        totalItems: updatedLoanDetails.length,
+        fullyReturnedItems: updatedLoanDetails.filter(
+          (detail) => detail.returnedQuantity >= detail.quantity
+        ).length,
       }
     })
 
     return result
+  }
+
+  private getReturnMessage(status: StatusLoan, isLate: boolean): string {
+    switch (status) {
+      case StatusLoan.RETURNED:
+        return `Préstamo devuelto completamente ${isLate ? 'con retraso' : 'a tiempo'}`
+      case StatusLoan.RETURNED_LATE:
+        return 'Préstamo devuelto completamente con retraso'
+      case StatusLoan.PARTIALLY_RETURNED:
+        return `Devolución parcial procesada ${isLate ? 'con retraso' : 'a tiempo'}`
+      default:
+        return 'Devolución procesada'
+    }
   }
 }

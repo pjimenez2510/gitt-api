@@ -21,6 +21,8 @@ export const loanDetail = pgTable(
     itemId: integer('item_id')
       .references(() => item.id)
       .notNull(),
+    quantity: integer('quantity').notNull().default(1),
+    returnedQuantity: integer('returned_quantity').notNull().default(0),
     exitConditionId: integer('exit_condition_id').references(
       () => condition.id,
     ),
