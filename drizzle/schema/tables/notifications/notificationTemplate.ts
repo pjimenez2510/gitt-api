@@ -9,7 +9,10 @@ export const notificationTemplate = pgTable('notification_templates', {
   type: notificationType('type').notNull().unique(),
   templateTitle: text('template_title').notNull(),
   templateContent: text('template_content').notNull(),
-  channels: notificationChannel('channels').array().notNull(),
+  channels: notificationChannel('channels')
+    .array()
+    .notNull()
+    .default(['EMAIL']),
   active: boolean('active').default(true),
   registrationDate: timestamp('registration_date', {
     withTimezone: true,

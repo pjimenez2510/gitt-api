@@ -17,6 +17,8 @@ import {
   status,
 } from './schema/tables/inventory'
 import { person, user } from './schema/tables/users'
+import { notificationsTemplateSeed } from './data/notifications-template'
+import { notificationTemplate } from './schema'
 
 const db = drizzle(process.env.DATABASE_URL ?? '')
 
@@ -29,6 +31,7 @@ async function main() {
   await db.insert(category).values(categoriesSeed)
   await db.insert(color).values(colorsSeed)
   await db.insert(condition).values(conditionsSeed)
+  await db.insert(notificationTemplate).values(notificationsTemplateSeed)
 }
 
 main()
