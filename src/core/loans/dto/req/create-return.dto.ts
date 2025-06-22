@@ -7,6 +7,7 @@ import {
   IsOptional,
   ValidateNested,
   ArrayMinSize,
+  Min,
 } from 'class-validator'
 import { Type } from 'class-transformer'
 
@@ -18,6 +19,16 @@ class ReturnItemDto {
   @IsNumber({}, { message: 'El ID del detalle debe ser un número' })
   @IsNotEmpty({ message: 'El ID del detalle es requerido' })
   loanDetailId: number
+
+  @ApiProperty({
+    description: 'Cantidad de unidades del item a devolver',
+    example: 3,
+    minimum: 1,
+  })
+  @IsNumber({}, { message: 'La cantidad debe ser un número' })
+  @Min(1, { message: 'La cantidad debe ser al menos 1' })
+  @IsNotEmpty({ message: 'La cantidad es requerida' })
+  quantity: number
 
   @ApiProperty({
     description: 'ID de la condición de retorno',

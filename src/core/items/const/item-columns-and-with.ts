@@ -12,12 +12,6 @@ export const itemColumnsAndWith = {
   columns: {
     registrationDate: false,
     updateDate: false,
-    itemTypeId: false,
-    statusId: false,
-    conditionId: false,
-    locationId: false,
-    certificateId: false,
-    categoryId: false,
   },
   with: {
     certificate: certificateColumnsAndWith,

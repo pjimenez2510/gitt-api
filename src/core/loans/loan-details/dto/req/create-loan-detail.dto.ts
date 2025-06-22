@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator'
+import { IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator'
 
 export class CreateLoanDetailDto {
   @ApiProperty({
@@ -9,6 +9,16 @@ export class CreateLoanDetailDto {
   @IsInt()
   @IsNotEmpty()
   itemId: number
+
+  @ApiProperty({
+    description: 'Cantidad de unidades del item a prestar',
+    example: 5,
+    minimum: 1,
+  })
+  @IsInt()
+  @Min(1, { message: 'La cantidad debe ser al menos 1' })
+  @IsNotEmpty()
+  quantity: number
 
   @ApiProperty({
     description: 'ID de la condición de salida del item',

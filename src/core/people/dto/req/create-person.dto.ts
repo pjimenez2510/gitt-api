@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Type } from 'class-transformer'
-import { IsDate, IsEmail, IsOptional, IsString } from 'class-validator'
+import { IsEmail, IsEnum, IsOptional, IsString } from 'class-validator'
+import { PERSON_TYPE } from '../../types/person-type.enum'
 
 export class CreatePersonDto {
   @ApiProperty({
@@ -17,28 +17,12 @@ export class CreatePersonDto {
   @IsString()
   firstName: string
 
-  @ApiPropertyOptional({
-    description: 'Person middle name',
-    example: 'Pablo',
-  })
-  @IsString()
-  @IsOptional()
-  middleName?: string
-
   @ApiProperty({
     description: 'Person last name',
     example: 'Pérez',
   })
   @IsString()
   lastName: string
-
-  @ApiPropertyOptional({
-    description: 'Person second last name',
-    example: 'González',
-  })
-  @IsString()
-  @IsOptional()
-  secondLastName?: string
 
   @ApiProperty({
     description: 'Email of the person (must be unique)',
@@ -48,19 +32,18 @@ export class CreatePersonDto {
   email: string
 
   @ApiPropertyOptional({
-    description: 'Birth date of the person',
-    example: '1990-01-01',
-  })
-  @IsDate()
-  @Type(() => Date)
-  @IsOptional()
-  birthDate?: Date
-
-  @ApiPropertyOptional({
     description: 'Phone number of the person',
     example: '0987654321',
   })
   @IsOptional()
   @IsString()
   phone?: string
+
+  @ApiProperty({
+    description: 'Type of the person (ESTUDIANTES o DOCENTES)',
+    example: PERSON_TYPE.STUDENT,
+    enum: PERSON_TYPE,
+  })
+  @IsEnum(PERSON_TYPE)
+  type: PERSON_TYPE
 }
