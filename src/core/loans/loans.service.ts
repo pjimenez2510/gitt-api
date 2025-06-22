@@ -23,7 +23,7 @@ import { USER_STATUS } from '../users/types/user-status.enum'
 import { CreateReturnLoanDto } from './dto/req/create-return.dto'
 import { person } from 'drizzle/schema'
 import { PERSON_STATUS } from '../people/types/person-status.enum'
-import { EmailService } from '../email/email.service'
+import { NotificationsService } from '../notifications/notifications.service'
 import { item } from 'drizzle/schema/tables/inventory/item/item'
 
 @Injectable()
@@ -33,8 +33,8 @@ export class LoansService {
     private readonly loanDetailService: LoanDetailsService,
     private readonly userService: UsersService,
     private readonly itemsService: ItemsService,
-    private readonly emailService: EmailService,
-  ) {}
+    private readonly notificationsService: NotificationsService,
+  ) { }
 
   private readonly loanWithoutDates = excludeColumns(
     loan,
@@ -276,17 +276,11 @@ export class LoansService {
       }
 
       if (person.email && loanDetails.length > 0) {
-        const equipmentNames = loanDetails
-          .map((detail) => detail.itemId)
-          .join(', ')
-        this.emailService
-          .sendEmail(
-            person.email,
-            equipmentNames,
-            newLoan.scheduledReturnDate.toISOString().split('T')[0],
-          )
+        // Enviar notificación usando el nuevo servicio
+        this.notificationsService
+          .sendLoanCreatedNotification(newLoan.id)
           .catch((err) => {
-            Logger.log('Error enviando el correo ' + err)
+            Logger.log('Error enviando la notificación ' + err)
           })
       }
 

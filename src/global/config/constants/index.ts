@@ -13,6 +13,10 @@ export const config = (): { APP: IConfig } => ({
     SQLSERVER_PORT: process.env.SQLSERVER_PORT
       ? parseInt(process.env.SQLSERVER_PORT, 10)
       : 1433,
+    MAIL_HOST: process.env.MAIL_HOST ?? '',
+    MAIL_PORT: process.env.MAIL_PORT ? parseInt(process.env.MAIL_PORT, 10) : 587,
+    MAIL_USER: process.env.MAIL_USER ?? '',
+    MAIL_PASS: process.env.MAIL_PASS ?? '',
   },
 })
 
@@ -25,4 +29,8 @@ export const configValidationSchema = Joi.object<IConfig>({
   SQLSERVER_USER: Joi.string().optional().allow(''),
   SQLSERVER_PASSWORD: Joi.string().optional().allow(''),
   SQLSERVER_PORT: Joi.number().default(1433),
+  MAIL_HOST: Joi.string().optional().allow(''),
+  MAIL_PORT: Joi.number().default(587),
+  MAIL_USER: Joi.string().optional().allow(''),
+  MAIL_PASS: Joi.string().optional().allow(''),
 })

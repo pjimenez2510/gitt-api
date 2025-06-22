@@ -4,11 +4,11 @@ import { LoansController } from './loans.controller'
 import { LoanDetailsModule } from './loan-details/loan-details.module'
 import { UsersModule } from '../users/users.module'
 import { ItemsModule } from '../items/items.module'
-import { EmailService } from '../email/email.service'
+import { NotificationsModule } from '../notifications/notifications.module'
 
 @Module({
-  providers: [LoansService, EmailService],
+  providers: [LoansService],
   controllers: [LoansController],
-  imports: [LoanDetailsModule, UsersModule, ItemsModule],
+  imports: [LoanDetailsModule, UsersModule, ItemsModule, NotificationsModule],
 })
-export class LoansModule {}
+export class LoansModule { }
