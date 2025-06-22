@@ -55,7 +55,6 @@ async function bootstrap() {
       'Complete API documentation for the GITT application. This API is designed to provide a comprehensive set of endpoints for managing and interacting with the GITT application.',
     )
     .setVersion('1.0')
-    .addServer(`http://localhost:${port}`, 'Servidor local')
     .addBearerAuth({
       type: 'http',
       scheme: 'bearer',
