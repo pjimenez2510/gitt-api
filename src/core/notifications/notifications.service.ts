@@ -18,7 +18,7 @@ export class NotificationsService {
   constructor(
     private readonly dbService: DatabaseService,
     private readonly emailService: EmailService,
-  ) { }
+  ) {}
 
   /**
    * Envía notificación de préstamo creado
@@ -27,7 +27,7 @@ export class NotificationsService {
     try {
       // Obtener información del préstamo con detalles
       //hold 3 secs
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await new Promise((resolve) => setTimeout(resolve, 3000))
       this.logger.log('Obteniendo información del préstamo')
 
       const loanWithDetails = await this.dbService.db
@@ -45,7 +45,9 @@ export class NotificationsService {
         .limit(1)
 
       if (loanWithDetails.length === 0) {
-        this.logger.warn(`No se encontró el préstamo ${loanId} para enviar notificación`)
+        this.logger.warn(
+          `No se encontró el préstamo ${loanId} para enviar notificación`,
+        )
         return
       }
 
@@ -63,7 +65,9 @@ export class NotificationsService {
         .where(eq(loanDetail.loanId, loanId))
 
       if (loanDetails.length === 0) {
-        this.logger.warn(`No se encontraron detalles para el préstamo ${loanId}`)
+        this.logger.warn(
+          `No se encontraron detalles para el préstamo ${loanId}`,
+        )
         return
       }
 
@@ -75,12 +79,16 @@ export class NotificationsService {
         .limit(1)
 
       if (!template) {
-        this.logger.warn('No se encontró template para notificación de préstamo')
+        this.logger.warn(
+          'No se encontró template para notificación de préstamo',
+        )
         return
       }
 
       // Preparar datos para el template
-      const equipmentNames = loanDetails.map(detail => detail.itemName).join(', ')
+      const equipmentNames = loanDetails
+        .map((detail) => detail.itemName)
+        .join(', ')
       const dueDate = loanData.scheduledReturnDate.toISOString().split('T')[0]
       const userName = `${loanData.personFirstName} ${loanData.personLastName}`
 
@@ -116,7 +124,10 @@ export class NotificationsService {
 
       this.logger.log(`Notificación de préstamo enviada para loan ${loanId}`)
     } catch (error) {
-      this.logger.error(`Error enviando notificación de préstamo ${loanId}:`, error)
+      this.logger.error(
+        `Error enviando notificación de préstamo ${loanId}:`,
+        error,
+      )
     }
   }
 
@@ -162,7 +173,9 @@ export class NotificationsService {
         .limit(1)
 
       if (!template) {
-        this.logger.warn('No se encontró template para notificación de recordatorio')
+        this.logger.warn(
+          'No se encontró template para notificación de recordatorio',
+        )
         return
       }
 
@@ -183,12 +196,17 @@ export class NotificationsService {
 
           // Calcular días restantes
           const daysRemaining = Math.ceil(
-            (loanData.scheduledReturnDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+            (loanData.scheduledReturnDate.getTime() - new Date().getTime()) /
+              (1000 * 60 * 60 * 24),
           )
 
           // Preparar datos para el template
-          const equipmentNames = loanDetails.map(detail => detail.itemName).join(', ')
-          const dueDate = loanData.scheduledReturnDate.toISOString().split('T')[0]
+          const equipmentNames = loanDetails
+            .map((detail) => detail.itemName)
+            .join(', ')
+          const dueDate = loanData.scheduledReturnDate
+            .toISOString()
+            .split('T')[0]
           const userName = `${loanData.personFirstName} ${loanData.personLastName}`
 
           // Procesar template
@@ -231,7 +249,10 @@ export class NotificationsService {
 
           this.logger.log(`Recordatorio enviado para préstamo ${loanData.id}`)
         } catch (error) {
-          this.logger.error(`Error enviando recordatorio para préstamo ${loanData.id}:`, error)
+          this.logger.error(
+            `Error enviando recordatorio para préstamo ${loanData.id}:`,
+            error,
+          )
         }
       }
     } catch (error) {
@@ -276,7 +297,9 @@ export class NotificationsService {
         .limit(1)
 
       if (!template) {
-        this.logger.warn('No se encontró template para notificación de vencimiento')
+        this.logger.warn(
+          'No se encontró template para notificación de vencimiento',
+        )
         return
       }
 
@@ -297,12 +320,17 @@ export class NotificationsService {
 
           // Calcular días de retraso
           const overdueDays = Math.ceil(
-            (new Date().getTime() - loanData.scheduledReturnDate.getTime()) / (1000 * 60 * 60 * 24)
+            (new Date().getTime() - loanData.scheduledReturnDate.getTime()) /
+              (1000 * 60 * 60 * 24),
           )
 
           // Preparar datos para el template
-          const equipmentNames = loanDetails.map(detail => detail.itemName).join(', ')
-          const dueDate = loanData.scheduledReturnDate.toISOString().split('T')[0]
+          const equipmentNames = loanDetails
+            .map((detail) => detail.itemName)
+            .join(', ')
+          const dueDate = loanData.scheduledReturnDate
+            .toISOString()
+            .split('T')[0]
           const userName = `${loanData.personFirstName} ${loanData.personLastName}`
 
           // Procesar template
@@ -337,27 +365,38 @@ export class NotificationsService {
             'LOAN',
           )
 
-          this.logger.log(`Notificación de vencimiento enviada para préstamo ${loanData.id}`)
+          this.logger.log(
+            `Notificación de vencimiento enviada para préstamo ${loanData.id}`,
+          )
         } catch (error) {
-          this.logger.error(`Error enviando notificación de vencimiento para préstamo ${loanData.id}:`, error)
+          this.logger.error(
+            `Error enviando notificación de vencimiento para préstamo ${loanData.id}:`,
+            error,
+          )
         }
       }
     } catch (error) {
-      this.logger.error('Error en proceso de notificaciones de vencimiento:', error)
+      this.logger.error(
+        'Error en proceso de notificaciones de vencimiento:',
+        error,
+      )
     }
   }
 
   /**
    * Procesa un template reemplazando las variables
    */
-  private processTemplate(template: string, variables: Record<string, string>): string {
-    let processed = template;
+  private processTemplate(
+    template: string,
+    variables: Record<string, string>,
+  ): string {
+    let processed = template
     for (const [key, value] of Object.entries(variables)) {
       // Permite espacios dentro de las llaves
-      const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g');
-      processed = processed.replace(regex, value);
+      const regex = new RegExp(`\\{\\{\\s*${key}\\s*\\}\\}`, 'g')
+      processed = processed.replace(regex, value)
     }
-    return processed;
+    return processed
   }
 
   /**
@@ -398,7 +437,9 @@ export class NotificationsService {
         .where(eq(loanDetail.loanId, loanId))
 
       if (loanDetails.length === 0) {
-        return { error: `No se encontraron detalles para el préstamo ${loanId}` }
+        return {
+          error: `No se encontraron detalles para el préstamo ${loanId}`,
+        }
       }
 
       // Obtener todos los templates
@@ -407,18 +448,22 @@ export class NotificationsService {
         .from(notificationTemplate)
 
       // Preparar datos para el template
-      const equipmentNames = loanDetails.map(detail => detail.itemName).join(', ')
+      const equipmentNames = loanDetails
+        .map((detail) => detail.itemName)
+        .join(', ')
       const dueDate = loanData.scheduledReturnDate.toISOString().split('T')[0]
       const userName = `${loanData.personFirstName} ${loanData.personLastName}`
 
       // Calcular días de retraso
       const overdueDays = Math.ceil(
-        (new Date().getTime() - loanData.scheduledReturnDate.getTime()) / (1000 * 60 * 60 * 24)
+        (new Date().getTime() - loanData.scheduledReturnDate.getTime()) /
+          (1000 * 60 * 60 * 24),
       )
 
       // Calcular días restantes
       const daysRemaining = Math.ceil(
-        (loanData.scheduledReturnDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+        (loanData.scheduledReturnDate.getTime() - new Date().getTime()) /
+          (1000 * 60 * 60 * 24),
       )
 
       // Variables disponibles
@@ -431,9 +476,15 @@ export class NotificationsService {
       }
 
       // Procesar cada template
-      const processedTemplates = templates.map(template => {
-        const processedTitle = this.processTemplate(template.templateTitle, variables)
-        const processedContent = this.processTemplate(template.templateContent, variables)
+      const processedTemplates = templates.map((template) => {
+        const processedTitle = this.processTemplate(
+          template.templateTitle,
+          variables,
+        )
+        const processedContent = this.processTemplate(
+          template.templateContent,
+          variables,
+        )
 
         return {
           type: template.type,
@@ -458,7 +509,10 @@ export class NotificationsService {
         templates: processedTemplates,
       }
     } catch (error) {
-      this.logger.error(`Error probando template para préstamo ${loanId}:`, error)
+      this.logger.error(
+        `Error probando template para préstamo ${loanId}:`,
+        error,
+      )
       return { error: error.message }
     }
   }
@@ -501,16 +555,13 @@ export class NotificationsService {
         .returning()
 
       // Crear registro de entrega
-      await this.dbService.db
-        .insert(deliveryRecord)
-        .values({
-          notificationId: notificationRecord.id,
-          channel: 'EMAIL',
-          deliveryStatus: 'SENT',
-        })
-
+      await this.dbService.db.insert(deliveryRecord).values({
+        notificationId: notificationRecord.id,
+        channel: 'EMAIL',
+        deliveryStatus: 'SENT',
+      })
     } catch (error) {
       this.logger.error('Error registrando notificación:', error)
     }
   }
-} 
+}

@@ -9,4 +9,4 @@ import { EmailModule } from '../email/email.module'
   exports: [NotificationsService],
   imports: [EmailModule],
 })
-export class NotificationsModule { } 
+export class NotificationsModule {}

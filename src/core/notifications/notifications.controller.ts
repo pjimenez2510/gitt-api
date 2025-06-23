@@ -1,4 +1,11 @@
-import { Controller, Post, Logger, Get, Param, ParseIntPipe } from '@nestjs/common'
+import {
+  Controller,
+  Post,
+  Logger,
+  Get,
+  Param,
+  ParseIntPipe,
+} from '@nestjs/common'
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger'
 import { NotificationsService } from './notifications.service'
 import { Auth } from '../auth/decorators/auth.decorator'
@@ -10,7 +17,7 @@ import { USER_TYPE } from '../users/types/user-type.enum'
 export class NotificationsController {
   private readonly logger = new Logger(NotificationsController.name)
 
-  constructor(private readonly notificationsService: NotificationsService) { }
+  constructor(private readonly notificationsService: NotificationsService) {}
 
   @Post('send-reminders')
   @Auth(USER_TYPE.ADMINISTRATOR, USER_TYPE.MANAGER)
@@ -35,5 +42,4 @@ export class NotificationsController {
     await this.notificationsService.sendExpiredLoanNotifications()
     return { message: 'Notificaciones de vencimiento enviadas exitosamente' }
   }
-
-} 
+}
