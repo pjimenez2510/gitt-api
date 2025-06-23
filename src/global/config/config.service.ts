@@ -4,7 +4,7 @@ import { IConfig } from './types'
 
 @Injectable()
 export class CustomConfigService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   get env(): IConfig {
     return (
@@ -12,6 +12,10 @@ export class CustomConfigService {
         PORT: 3000,
         DATABASE_URL: '',
         JWT_SECRET: '',
+        MAIL_HOST: '',
+        MAIL_PORT: 587,
+        MAIL_USER: '',
+        MAIL_PASS: '',
         SQLSERVER_SERVER: '',
         SQLSERVER_DATABASE: '',
         SQLSERVER_USER: '',

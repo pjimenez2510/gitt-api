@@ -23,6 +23,7 @@
     "db:import-csv": "tsx drizzle/data/csv-importer-runner.ts",
     "db:load-franklin-csv": "npm run db:import-csv -- drizzle/data/BIENES_FRANKLIN_SALAZAR_FINAL.csv",
     "db:load-bienes-2025": "npm run db:import-csv -- drizzle/data/BIENES_2025.csv",
+    "test:email": "node test-notifications.js",
     "prepare": "husky"
   },
   "dependencies": {
@@ -34,6 +35,7 @@
     "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/schedule": "^6.0.0",
     "@nestjs/swagger": "^11.1.5",
     "@types/mssql": "^9.1.7",
     "bcrypt": "^5.1.1",

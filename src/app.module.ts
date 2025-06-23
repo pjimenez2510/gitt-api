@@ -24,6 +24,8 @@ import { EmailModule } from './core/email/email.module'
 import { PeopleModule } from './core/people/people.module'
 import { ExternalDbModule } from './global/external-db/external-db.module'
 import { NotificationTemplatesModule } from './core/notification-templates/notification-templates.module'
+import { NotificationsModule } from './core/notifications/notifications.module'
+import { CronModule } from './core/cron/cron.module'
 
 @Module({
   imports: [
@@ -50,6 +52,8 @@ import { NotificationTemplatesModule } from './core/notification-templates/notif
     ItemImagesModule,
     EmailModule,
     NotificationTemplatesModule,
+    NotificationsModule,
+    CronModule,
   ],
   providers: [ResponseInterceptor, LogInterceptor],
 })
