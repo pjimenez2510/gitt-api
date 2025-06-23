@@ -7,4 +7,8 @@ export interface IConfig {
   SQLSERVER_USER: string
   SQLSERVER_PASSWORD: string
   SQLSERVER_PORT: number
+  MAIL_HOST: string
+  MAIL_PORT: number
+  MAIL_USER: string
+  MAIL_PASS: string
 }
