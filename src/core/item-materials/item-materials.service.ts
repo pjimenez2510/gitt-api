@@ -160,13 +160,12 @@ export class ItemMaterialsService {
       throw new NotFoundException(`Ítem/Material con id ${id} no encontrado`)
     }
 
-    const [updatedItemMaterial] = await this.dbService.db
-      .update(itemMaterial)
-      .set({ active: false, updateDate: new Date() })
+    const [deletedItemMaterial] = await this.dbService.db
+      .delete(itemMaterial)
       .where(eq(itemMaterial.id, id))
-      .returning({ active: itemMaterial.active })
+      .returning()
       .execute()
 
-    return updatedItemMaterial.active === false
+    return deletedItemMaterial
   }
 }

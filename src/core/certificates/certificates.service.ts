@@ -17,6 +17,7 @@ import {
 } from './utils/certificate-filter-builder'
 import { plainToInstance } from 'class-transformer'
 import { CertificateResDto } from './dto/res/certificate-res.dto'
+import { CertificateStatus } from './enums/certificate-status.enum'
 
 @Injectable()
 export class CertificatesService {
@@ -174,6 +175,7 @@ export class CertificatesService {
       .set({
         accounted: false,
         updateDate: new Date(),
+        status: CertificateStatus.CANCELLED,
       })
       .where(eq(certificate.id, id))
       .returning({ accounted: certificate.accounted })
