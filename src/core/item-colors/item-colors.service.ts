@@ -163,13 +163,12 @@ export class ItemColorsService {
       throw new NotFoundException(`Ítem/Color con id ${id} no encontrado`)
     }
 
-    const [updatedItemColor] = await this.dbService.db
-      .update(itemColor)
-      .set({ active: false, updateDate: new Date() })
+    const [deletedItemColor] = await this.dbService.db
+      .delete(itemColor)
       .where(eq(itemColor.id, id))
-      .returning({ active: itemColor.active })
+      .returning()
       .execute()
 
-    return updatedItemColor.active === false
+    return deletedItemColor
   }
 }

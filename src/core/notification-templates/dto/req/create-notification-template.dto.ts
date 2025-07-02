@@ -6,9 +6,9 @@ export class CreateNotificationTemplateDto {
   @ApiProperty({
     description: 'Tipo de plantilla',
     example: 'LOAN',
-    enum: notificationType,
+    // enum: notificationType,
   })
-  @IsEnum(notificationType)
+  // @IsEnum(notificationType)
   @IsNotEmpty()
   type: 'LOAN' | 'RETURN' | 'MAINTENANCE' | 'SYSTEM' | 'EXPIRATION'
 
