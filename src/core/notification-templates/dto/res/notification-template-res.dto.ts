@@ -11,7 +11,7 @@ export class NotificationTemplateResDto {
   @ApiProperty({
     description: 'tipo de plantilla',
     example: 'LOAN',
-    enum: notificationType,
+    // enum: notificationType,
   })
   type: 'LOAN' | 'RETURN' | 'MAINTENANCE' | 'SYSTEM' | 'EXPIRATION'
 

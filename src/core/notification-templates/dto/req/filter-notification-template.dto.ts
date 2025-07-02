@@ -7,11 +7,11 @@ export class FilterNotificationTemplateDto extends BaseParamsDto {
   @ApiPropertyOptional({
     description: 'Término de búsqueda para tipo de plantilla',
     example: 'EMAIL',
-    enum: notificationType,
+    // enum: notificationType,
   })
   @IsOptional()
   @IsString()
-  @IsEnum(notificationType)
+  // @IsEnum(notificationType)
   type?: string
 
   @ApiPropertyOptional({
