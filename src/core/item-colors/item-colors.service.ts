@@ -157,7 +157,12 @@ export class ItemColorsService {
   }
 
   async remove(id: number) {
-    const exists = await this.existById(id)
+    const [exists] = await this.dbService.db
+      .select({ id: itemColor.id })
+      .from(itemColor)
+      .where(and(eq(itemColor.id, id)))
+      .limit(1)
+      .execute()
 
     if (!exists) {
       throw new NotFoundException(`Ítem/Color con id ${id} no encontrado`)
