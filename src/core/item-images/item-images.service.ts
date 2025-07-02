@@ -47,6 +47,57 @@ export class ItemImagesService {
     return `${timestamp}-${randomString}${ext}`
   }
 
+  async remove(id: number) {
+    try {
+      // First get the image to get the file path
+      const image = await this.dbService.db.query.itemImage.findFirst({
+        where: eq(itemImage.id, id),
+      })
+
+      if (!image) {
+        throw new NotFoundException(`No se encontró la imagen con ID ${id}`)
+      }
+
+      // Delete from database
+      await this.dbService.db.delete(itemImage).where(eq(itemImage.id, id))
+
+      // Delete file from filesystem if it exists
+      const filePath = join(process.cwd(), image.filePath)
+      if (fs.existsSync(filePath)) {
+        await unlinkAsync(filePath).catch((error) => {
+          Logger.error(`Error al eliminar el archivo ${filePath}:`, error)
+          // Don't throw error if file deletion fails, as the DB record is already deleted
+        })
+      }
+      //Logger.log(image)
+      // Check if directory is empty and remove it if it is
+      const directory = join(
+        process.cwd(),
+        'uploads',
+        'items',
+        image.itemId.toString(),
+      )
+      try {
+        const files = fs.readdirSync(directory)
+        if (files.length === 0) {
+          fs.rmSync(directory, { recursive: true })
+        }
+      } catch (error) {
+        Logger.error(
+          `Error al verificar/eliminar el directorio ${directory}:`,
+          error,
+        )
+      }
+
+      return plainToInstance(ItemImageResDto, image)
+    } catch (error) {
+      Logger.error(`Error al eliminar la imagen con ID ${id}:`, error)
+      throw new InternalServerErrorException(
+        `Error al eliminar la imagen: ${error.message}`,
+      )
+    }
+  }
+
   async findOne(id: number): Promise<ItemImageResDto> {
     const itemImageResult = await this.dbService.db.query.itemImage.findFirst({
       where: eq(itemImage.id, id),
