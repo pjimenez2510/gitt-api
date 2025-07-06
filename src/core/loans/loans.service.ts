@@ -7,7 +7,7 @@ import {
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { LoanDetailsService } from './loan-details/loan-details.service'
-import { and, count, desc, eq, inArray, not, SQL, sql } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, not, SQL } from 'drizzle-orm'
 import { plainToInstance } from 'class-transformer'
 import { LoanResDto } from './dto/res/loan-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
@@ -34,7 +34,7 @@ export class LoansService {
     private readonly userService: UsersService,
     private readonly itemsService: ItemsService,
     private readonly notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   private readonly loanWithoutDates = excludeColumns(
     loan,
@@ -347,7 +347,8 @@ export class LoansService {
         }
 
         // Calcular la cantidad total devuelta hasta ahora (incluyendo esta devolución)
-        const totalReturnedSoFar = loanDetailRecord.returnedQuantity + returnItem.quantity
+        const totalReturnedSoFar =
+          loanDetailRecord.returnedQuantity + returnItem.quantity
 
         // Validar que no se devuelvan más items de los que se prestaron
         if (totalReturnedSoFar > loanDetailRecord.quantity) {
@@ -400,17 +401,19 @@ export class LoansService {
 
       // Verificar si todos los items han sido devueltos completamente
       const allItemsFullyReturned = updatedLoanDetails.every(
-        (detail) => detail.returnedQuantity >= detail.quantity
+        (detail) => detail.returnedQuantity >= detail.quantity,
       )
 
       // Verificar si al menos un item ha sido devuelto parcialmente
       const hasPartialReturns = updatedLoanDetails.some(
-        (detail) => detail.returnedQuantity > 0 && detail.returnedQuantity < detail.quantity
+        (detail) =>
+          detail.returnedQuantity > 0 &&
+          detail.returnedQuantity < detail.quantity,
       )
 
       // Verificar si todos los items han sido devueltos completamente
       const allItemsReturned = updatedLoanDetails.every(
-        (detail) => detail.returnedQuantity >= detail.quantity
+        (detail) => detail.returnedQuantity >= detail.quantity,
       )
 
       if (allItemsReturned) {
@@ -455,7 +458,7 @@ export class LoansService {
         returnedItems: returnedItems.length,
         totalItems: updatedLoanDetails.length,
         fullyReturnedItems: updatedLoanDetails.filter(
-          (detail) => detail.returnedQuantity >= detail.quantity
+          (detail) => detail.returnedQuantity >= detail.quantity,
         ).length,
       }
     })

@@ -243,8 +243,17 @@ export class UsersService {
   }
 
   async findByDni(dni: string) {
-    const record = await this.dbService.db.query.user.findFirst({
+    const personRecord = await this.dbService.db.query.person.findFirst({
       where: eq(person.dni, dni),
+      columns: { id: true },
+    })
+
+    if (!personRecord) {
+      throw new NotFoundException(`Persona con DNI: ${dni} no encontrada`)
+    }
+
+    const record = await this.dbService.db.query.user.findFirst({
+      where: eq(user.personId, personRecord.id),
       columns: userColumnsAndWith.columns,
       with: userColumnsAndWith.with,
     })
