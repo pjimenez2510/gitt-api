@@ -1,7 +1,6 @@
 export const userColumnsAndWith = {
   columns: {
     passwordHash: false,
-    personId: true,
   },
   with: {
     person: {
