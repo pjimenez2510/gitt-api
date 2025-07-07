@@ -1,0 +1,28 @@
+# Etapa 1: Build
+FROM node:22.1-alpine AS builder
+
+WORKDIR /app
+
+# Copiar dependencias e instalar (dev y prod)
+COPY package*.json ./
+RUN npm install
+
+# Copiar todo y construir el proyecto
+COPY . .
+RUN npm run build
+
+# Etapa 2: Producción
+FROM node:22.1-alpine AS production
+
+WORKDIR /app
+
+# Copiar solo lo necesario para producción
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
+# Puerto expuesto
+EXPOSE 3000
+
+# Comando final
+CMD ["node", "dist/main"]

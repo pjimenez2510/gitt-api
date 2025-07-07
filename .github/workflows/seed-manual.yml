@@ -1,0 +1,21 @@
+name: Run DB Seed Manually
+
+on:
+  workflow_dispatch:
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ejecutar semilla de la base de datos
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            docker exec gitt-backend node -r tsconfig-paths/register -r ts-node/register drizzle/reset-db.ts
+            docker exec gitt-backend bun x drizzle-kit push
+            docker exec gitt-backend node -r tsconfig-paths/register -r ts-node/register drizzle/seed.ts
+
+
