@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
 import { CreatePersonDto } from './dto/req/create-person.dto'
 import { DatabaseService } from 'src/global/database/database.service'
 import { and, count, desc, eq, ne, or, sql } from 'drizzle-orm'
@@ -23,7 +23,7 @@ export class PeopleService {
   constructor(
     private readonly dbService: DatabaseService,
     private readonly externalDbService: ExternalDbService,
-  ) {}
+  ) { }
 
   async findAll(
     filterDto: PersonFiltersDto,
@@ -141,9 +141,9 @@ export class PeopleService {
                 : undefined,
               dto.email
                 ? eq(
-                    sql<string>`lower(${person.email})`,
-                    dto.email.toLowerCase(),
-                  )
+                  sql<string>`lower(${person.email})`,
+                  dto.email.toLowerCase(),
+                )
                 : undefined,
             ),
           ),
@@ -235,5 +235,87 @@ export class PeopleService {
     } else {
       return plainToInstance(PersonResDto, record)
     }
+  }
+
+  async markAsDefaulter(identifier: string | number): Promise<PersonResDto> {
+    let personRecord: any
+
+    if (typeof identifier === 'number') {
+      // Buscar por ID
+      personRecord = await this.dbService.db.query.person.findFirst({
+        where: eq(person.id, identifier),
+        columns: personColumnsAndWith.columns,
+        with: personColumnsAndWith.with,
+      })
+    } else {
+      // Buscar por DNI
+      personRecord = await this.dbService.db.query.person.findFirst({
+        where: eq(person.dni, identifier.toLowerCase()),
+        columns: personColumnsAndWith.columns,
+        with: personColumnsAndWith.with,
+      })
+    }
+
+    if (!personRecord) {
+      const identifierType = typeof identifier === 'number' ? 'ID' : 'DNI'
+      throw new NotFoundException(`Persona con ${identifierType}: ${identifier} no encontrada`)
+    }
+
+    // Verificar si ya está en estado moroso
+    if (personRecord.status === PERSON_STATUS.DEFAULTER) {
+      throw new BadRequestException(`La persona ya está en estado moroso`)
+    }
+
+    await this.dbService.db
+      .update(person)
+      .set({ status: PERSON_STATUS.DEFAULTER })
+      .where(eq(person.id, personRecord.id))
+      .execute()
+
+    return plainToInstance(PersonResDto, {
+      ...personRecord,
+      status: PERSON_STATUS.DEFAULTER,
+    })
+  }
+
+  async removeDefaulterStatus(identifier: string | number): Promise<PersonResDto> {
+    let personRecord: any
+
+    if (typeof identifier === 'number') {
+      // Buscar por ID
+      personRecord = await this.dbService.db.query.person.findFirst({
+        where: eq(person.id, identifier),
+        columns: personColumnsAndWith.columns,
+        with: personColumnsAndWith.with,
+      })
+    } else {
+      // Buscar por DNI
+      personRecord = await this.dbService.db.query.person.findFirst({
+        where: eq(person.dni, identifier.toLowerCase()),
+        columns: personColumnsAndWith.columns,
+        with: personColumnsAndWith.with,
+      })
+    }
+
+    if (!personRecord) {
+      const identifierType = typeof identifier === 'number' ? 'ID' : 'DNI'
+      throw new NotFoundException(`Persona con ${identifierType}: ${identifier} no encontrada`)
+    }
+
+    // Verificar si no está en estado moroso
+    if (personRecord.status !== PERSON_STATUS.DEFAULTER) {
+      throw new BadRequestException(`La persona no está en estado moroso`)
+    }
+
+    await this.dbService.db
+      .update(person)
+      .set({ status: PERSON_STATUS.ACTIVE })
+      .where(eq(person.id, personRecord.id))
+      .execute()
+
+    return plainToInstance(PersonResDto, {
+      ...personRecord,
+      status: PERSON_STATUS.ACTIVE,
+    })
   }
 }

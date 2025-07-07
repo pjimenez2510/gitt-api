@@ -154,19 +154,23 @@ export class ItemMaterialsService {
   }
 
   async remove(id: number) {
-    const exists = await this.existById(id)
+    const [exists] = await this.dbService.db
+      .select({ id: itemMaterial.id })
+      .from(itemMaterial)
+      .where(and(eq(itemMaterial.id, id)))
+      .limit(1)
+      .execute()
 
     if (!exists) {
       throw new NotFoundException(`Ítem/Material con id ${id} no encontrado`)
     }
 
-    const [updatedItemMaterial] = await this.dbService.db
-      .update(itemMaterial)
-      .set({ active: false, updateDate: new Date() })
+    const [deletedItemMaterial] = await this.dbService.db
+      .delete(itemMaterial)
       .where(eq(itemMaterial.id, id))
-      .returning({ active: itemMaterial.active })
+      .returning()
       .execute()
 
-    return updatedItemMaterial.active === false
+    return deletedItemMaterial
   }
 }

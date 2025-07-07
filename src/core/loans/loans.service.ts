@@ -7,7 +7,7 @@ import {
 import { excludeColumns } from 'src/common/utils/drizzle-helpers'
 import { DatabaseService } from 'src/global/database/database.service'
 import { LoanDetailsService } from './loan-details/loan-details.service'
-import { and, count, desc, eq, inArray, not, SQL, sql } from 'drizzle-orm'
+import { and, count, desc, eq, inArray, not, SQL } from 'drizzle-orm'
 import { plainToInstance } from 'class-transformer'
 import { LoanResDto } from './dto/res/loan-res.dto'
 import { BaseParamsDto } from 'src/common/dtos/base-params.dto'
@@ -23,7 +23,7 @@ import { USER_STATUS } from '../users/types/user-status.enum'
 import { CreateReturnLoanDto } from './dto/req/create-return.dto'
 import { person } from 'drizzle/schema'
 import { PERSON_STATUS } from '../people/types/person-status.enum'
-import { EmailService } from '../email/email.service'
+import { NotificationsService } from '../notifications/notifications.service'
 import { item } from 'drizzle/schema/tables/inventory/item/item'
 
 @Injectable()
@@ -33,7 +33,7 @@ export class LoansService {
     private readonly loanDetailService: LoanDetailsService,
     private readonly userService: UsersService,
     private readonly itemsService: ItemsService,
-    private readonly emailService: EmailService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   private readonly loanWithoutDates = excludeColumns(
@@ -276,17 +276,11 @@ export class LoansService {
       }
 
       if (person.email && loanDetails.length > 0) {
-        const equipmentNames = loanDetails
-          .map((detail) => detail.itemId)
-          .join(', ')
-        this.emailService
-          .sendEmail(
-            person.email,
-            equipmentNames,
-            newLoan.scheduledReturnDate.toISOString().split('T')[0],
-          )
+        // Enviar notificación usando el nuevo servicio
+        this.notificationsService
+          .sendLoanCreatedNotification(newLoan.id)
           .catch((err) => {
-            Logger.log('Error enviando el correo ' + err)
+            Logger.log('Error enviando la notificación ' + err)
           })
       }
 
@@ -353,7 +347,8 @@ export class LoansService {
         }
 
         // Calcular la cantidad total devuelta hasta ahora (incluyendo esta devolución)
-        const totalReturnedSoFar = loanDetailRecord.returnedQuantity + returnItem.quantity
+        const totalReturnedSoFar =
+          loanDetailRecord.returnedQuantity + returnItem.quantity
 
         // Validar que no se devuelvan más items de los que se prestaron
         if (totalReturnedSoFar > loanDetailRecord.quantity) {
@@ -406,17 +401,19 @@ export class LoansService {
 
       // Verificar si todos los items han sido devueltos completamente
       const allItemsFullyReturned = updatedLoanDetails.every(
-        (detail) => detail.returnedQuantity >= detail.quantity
+        (detail) => detail.returnedQuantity >= detail.quantity,
       )
 
       // Verificar si al menos un item ha sido devuelto parcialmente
       const hasPartialReturns = updatedLoanDetails.some(
-        (detail) => detail.returnedQuantity > 0 && detail.returnedQuantity < detail.quantity
+        (detail) =>
+          detail.returnedQuantity > 0 &&
+          detail.returnedQuantity < detail.quantity,
       )
 
       // Verificar si todos los items han sido devueltos completamente
       const allItemsReturned = updatedLoanDetails.every(
-        (detail) => detail.returnedQuantity >= detail.quantity
+        (detail) => detail.returnedQuantity >= detail.quantity,
       )
 
       if (allItemsReturned) {
@@ -461,7 +458,7 @@ export class LoansService {
         returnedItems: returnedItems.length,
         totalItems: updatedLoanDetails.length,
         fullyReturnedItems: updatedLoanDetails.filter(
-          (detail) => detail.returnedQuantity >= detail.quantity
+          (detail) => detail.returnedQuantity >= detail.quantity,
         ).length,
       }
     })

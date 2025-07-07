@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   Req,
+  BadRequestException,
 } from '@nestjs/common'
 import { Request } from 'express'
 import { PeopleService } from './people.service'
@@ -23,12 +24,14 @@ import { PersonResDto } from './dto/res/person-res.dto'
 import { UpdatePersonDto } from './dto/req/update-person.dto'
 import { ChangePersonStatusDto } from './dto/req/change-person-status.dto'
 import { PersonFiltersDto } from './dto/req/person-filters.dto'
+import { MarkAsDefaulterDto } from './dto/req/mark-as-defaulter.dto'
+import { RemoveDefaulterStatusDto } from './dto/req/remove-defaulter-status.dto'
 
 @ApiTags('People')
 @Controller('people')
 @ApiBearerAuth()
 export class PeopleController {
-  constructor(private readonly service: PeopleService) {}
+  constructor(private readonly service: PeopleService) { }
 
   @Post()
   @ApiOperation({
@@ -160,6 +163,68 @@ export class PeopleController {
     } catch (error) {
       req.action = 'people:change-status:failed'
       req.logMessage = `Error al cambiar el estado de la persona con ID ${id}: ${error.message}`
+      throw error
+    }
+  }
+
+  @Post('mark-as-defaulter')
+  @ApiOperation({
+    summary: 'Marcar a una persona como morosa por ID o DNI',
+  })
+  @ApiStandardResponse(PersonResDto, HttpStatus.OK)
+  async markAsDefaulter(
+    @Req() req: Request,
+    @Body() dto: MarkAsDefaulterDto,
+  ) {
+    const { personId, dni } = dto
+    const identifier = personId || dni
+
+    if (!identifier) {
+      throw new BadRequestException('Debe proporcionar un ID de persona o DNI')
+    }
+
+    req.action = 'people:mark-as-defaulter:attempt'
+    req.logMessage = `Marcando como morosa a la persona con identificador: ${identifier}`
+
+    try {
+      const result = await this.service.markAsDefaulter(identifier)
+      req.action = 'people:mark-as-defaulter:success'
+      req.logMessage = `Persona con identificador: ${identifier} marcada como morosa correctamente`
+      return result
+    } catch (error) {
+      req.action = 'people:mark-as-defaulter:failed'
+      req.logMessage = `Error al marcar como morosa a la persona con identificador ${identifier}: ${error.message}`
+      throw error
+    }
+  }
+
+  @Post('remove-defaulter-status')
+  @ApiOperation({
+    summary: 'Quitar el estado moroso de una persona por ID o DNI',
+  })
+  @ApiStandardResponse(PersonResDto, HttpStatus.OK)
+  async removeDefaulterStatus(
+    @Req() req: Request,
+    @Body() dto: RemoveDefaulterStatusDto,
+  ) {
+    const { personId, dni } = dto
+    const identifier = personId || dni
+
+    if (!identifier) {
+      throw new BadRequestException('Debe proporcionar un ID de persona o DNI')
+    }
+
+    req.action = 'people:remove-defaulter-status:attempt'
+    req.logMessage = `Quitando estado moroso de la persona con identificador: ${identifier}`
+
+    try {
+      const result = await this.service.removeDefaulterStatus(identifier)
+      req.action = 'people:remove-defaulter-status:success'
+      req.logMessage = `Estado moroso quitado correctamente de la persona con identificador: ${identifier}`
+      return result
+    } catch (error) {
+      req.action = 'people:remove-defaulter-status:failed'
+      req.logMessage = `Error al quitar el estado moroso de la persona con identificador ${identifier}: ${error.message}`
       throw error
     }
   }

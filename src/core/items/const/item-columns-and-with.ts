@@ -7,6 +7,7 @@ import { itemMaterialColumnsAndWith } from 'src/core/item-materials/const/item-m
 import { itemTypeColumnsAndWith } from 'src/core/item-types/const/item-type-columns-and-with'
 import { locationColumnsAndWith } from 'src/core/locations/const/location-columns-and-with'
 import { statusColumnsAndWith } from 'src/core/states/const/state-columns-and-with'
+import { userColumnsAndWith } from 'src/core/users/const/user-columns-and-with'
 
 export const itemColumnsAndWith = {
   columns: {
@@ -23,5 +24,6 @@ export const itemColumnsAndWith = {
     location: locationColumnsAndWith,
     category: categoryColumnsAndWith,
     images: itemImageColumnsAndWith,
+    custodian: userColumnsAndWith,
   },
 }

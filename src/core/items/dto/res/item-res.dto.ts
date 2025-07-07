@@ -9,6 +9,7 @@ import { StateResDto } from 'src/core/states/dto/res/state-res.dto'
 import { ConditionResDto } from 'src/core/conditions/dto/res/condition-res.dto'
 import { LocationResDto } from 'src/core/locations/dto/res/location-res.dto'
 import { CategoryResDto } from 'src/core/categories/dto/res/category-res.dto'
+import { UserResDto } from 'src/core/users/dto/res/user-res.dto'
 
 export class ItemResDto {
   @ApiProperty({
@@ -252,4 +253,9 @@ export class ItemResDto {
     description: 'categoría',
   })
   category: CategoryResDto
+
+  @ApiProperty({
+    description: 'custodio',
+  })
+  custodian: UserResDto
 }

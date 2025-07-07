@@ -11,6 +11,9 @@ import {
   Logger,
   HttpStatus,
   Req,
+  Delete,
+  ParseIntPipe,
+  Param,
 } from '@nestjs/common'
 import {
   ApiTags,
@@ -32,7 +35,7 @@ import { Request } from 'express'
 @Controller('item-images')
 @ApiBearerAuth()
 export class ItemImagesController {
-  constructor(private readonly itemImagesService: ItemImagesService) {}
+  constructor(private readonly service: ItemImagesService) {}
 
   @Post('upload')
   @Auth(
@@ -92,13 +95,38 @@ export class ItemImagesController {
         file,
       }
 
-      const result = await this.itemImagesService.create(itemImageData)
+      const result = await this.service.create(itemImageData)
       req.action = 'item-images:upload-file:success'
       req.logMessage = `Imagen agregada correctamente con la ruta ${result.filePath}`
       return result
     } catch (error) {
       req.action = 'item-types:create:failed'
       req.logMessage = `Error al crear tipo de ítem: ${error.message}`
+      throw error
+    }
+  }
+
+  @Delete(':id')
+  @Auth(
+    USER_TYPE.ADMINISTRATOR,
+    USER_TYPE.MANAGER,
+    USER_TYPE.TEACHER,
+    USER_TYPE.STUDENT,
+  )
+  @ApiOperation({ summary: 'Eliminar una imagen para un ítem' })
+  @ApiStandardResponse(ItemImageResDto, HttpStatus.OK)
+  async remove(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    req.action = 'item-images:remove:attempt'
+    req.logMessage = `Eliminando imagen con ID: ${id}`
+
+    try {
+      const result = await this.service.remove(id)
+      req.action = 'item-images:remove:success'
+      req.logMessage = `Imagen eliminada ID: ${id}`
+      return result
+    } catch (error) {
+      req.action = 'item-images:remove:failed'
+      req.logMessage = `Error al eliminar imagen ID ${id}: ${error.message}`
       throw error
     }
   }

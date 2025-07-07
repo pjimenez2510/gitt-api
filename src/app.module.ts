@@ -23,6 +23,9 @@ import { ItemImagesModule } from './core/item-images/item-images.module'
 import { EmailModule } from './core/email/email.module'
 import { PeopleModule } from './core/people/people.module'
 import { ExternalDbModule } from './global/external-db/external-db.module'
+import { NotificationTemplatesModule } from './core/notification-templates/notification-templates.module'
+import { NotificationsModule } from './core/notifications/notifications.module'
+import { CronModule } from './core/cron/cron.module'
 
 @Module({
   imports: [
@@ -48,6 +51,9 @@ import { ExternalDbModule } from './global/external-db/external-db.module'
     LogModule,
     ItemImagesModule,
     EmailModule,
+    NotificationTemplatesModule,
+    NotificationsModule,
+    CronModule,
   ],
   providers: [ResponseInterceptor, LogInterceptor],
 })
