@@ -14,7 +14,7 @@ export const mapCsvToItemFields = (
     previousCode: ['Código Anterior', 'Previous Code', 'Old Code'],
     identifier: ['Identificador', 'Identifier'],
     name: ['Bien', 'Nombre', 'Name', 'Item Name'],
-    description: ['Descripción', 'Description'],
+    description: ['Descripción', 'Description', 'Descripccion'],
     certificateNumber: [
       'Nro de Acta/ Nro de Matriz',
       'Certificate Number',

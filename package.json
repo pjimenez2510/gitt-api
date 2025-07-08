@@ -23,6 +23,7 @@
     "db:import-csv": "tsx drizzle/data/csv-importer-runner.ts",
     "db:load-franklin-csv": "npm run db:import-csv -- drizzle/data/BIENES_FRANKLIN_SALAZAR_FINAL.csv",
     "db:load-bienes-2025": "npm run db:import-csv -- drizzle/data/BIENES_2025.csv",
+    "db:migrate-images": "tsx drizzle/migrate-images.ts",
     "test:email": "node test-notifications.js",
     "prepare": "husky"
   },

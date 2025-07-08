@@ -1,4 +1,9 @@
-import { HttpStatus, Injectable, NotFoundException, BadRequestException } from '@nestjs/common'
+import {
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common'
 import { CreatePersonDto } from './dto/req/create-person.dto'
 import { DatabaseService } from 'src/global/database/database.service'
 import { and, count, desc, eq, ne, or, sql } from 'drizzle-orm'
@@ -23,7 +28,7 @@ export class PeopleService {
   constructor(
     private readonly dbService: DatabaseService,
     private readonly externalDbService: ExternalDbService,
-  ) { }
+  ) {}
 
   async findAll(
     filterDto: PersonFiltersDto,
@@ -127,7 +132,6 @@ export class PeopleService {
     if (!exists) {
       throw new NotFoundException(`Persona con id ${id} no encontrada`)
     }
-
     if (dto.email || dto.dni) {
       const [conflict] = await this.dbService.db
         .select()
@@ -141,9 +145,9 @@ export class PeopleService {
                 : undefined,
               dto.email
                 ? eq(
-                  sql<string>`lower(${person.email})`,
-                  dto.email.toLowerCase(),
-                )
+                    sql<string>`lower(${person.email})`,
+                    dto.email.toLowerCase(),
+                  )
                 : undefined,
             ),
           ),
@@ -258,12 +262,14 @@ export class PeopleService {
 
     if (!personRecord) {
       const identifierType = typeof identifier === 'number' ? 'ID' : 'DNI'
-      throw new NotFoundException(`Persona con ${identifierType}: ${identifier} no encontrada`)
+      throw new NotFoundException(
+        `Persona con ${identifierType}: ${identifier} no encontrada`,
+      )
     }
 
     // Verificar si ya está en estado moroso
     if (personRecord.status === PERSON_STATUS.DEFAULTER) {
-      throw new BadRequestException(`La persona ya está en estado moroso`)
+      throw new BadRequestException('La persona ya está en estado moroso')
     }
 
     await this.dbService.db
@@ -278,7 +284,9 @@ export class PeopleService {
     })
   }
 
-  async removeDefaulterStatus(identifier: string | number): Promise<PersonResDto> {
+  async removeDefaulterStatus(
+    identifier: string | number,
+  ): Promise<PersonResDto> {
     let personRecord: any
 
     if (typeof identifier === 'number') {
@@ -299,12 +307,14 @@ export class PeopleService {
 
     if (!personRecord) {
       const identifierType = typeof identifier === 'number' ? 'ID' : 'DNI'
-      throw new NotFoundException(`Persona con ${identifierType}: ${identifier} no encontrada`)
+      throw new NotFoundException(
+        `Persona con ${identifierType}: ${identifier} no encontrada`,
+      )
     }
 
     // Verificar si no está en estado moroso
     if (personRecord.status !== PERSON_STATUS.DEFAULTER) {
-      throw new BadRequestException(`La persona no está en estado moroso`)
+      throw new BadRequestException('La persona no está en estado moroso')
     }
 
     await this.dbService.db

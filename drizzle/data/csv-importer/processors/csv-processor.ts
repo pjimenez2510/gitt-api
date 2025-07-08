@@ -124,7 +124,7 @@ export const processCSV = async (
       const itemRecord = await db
         .insert(item)
         .values({
-          code: itemCode,
+          code: itemCode.padStart(8, '0'),
           previousCode: mappedRecord.previousCode ?? '',
           identifier: mappedRecord.identifier ?? '',
           itemTypeId: itemTypeRecord.id,
